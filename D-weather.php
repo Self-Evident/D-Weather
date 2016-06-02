@@ -1,11 +1,74 @@
-﻿<?php
+<?php  ob_start(); mb_internal_encoding('utf-8');
 error_reporting(E_ALL & ~E_STRICT);     //(E_ALL &~ E_STRICT) for everything, 0 for none.
 ini_set('display_errors', 'on');
 ini_set('log_errors'    , 'off');
 ini_set('error_log'     , $_SERVER['SCRIPT_FILENAME'].'.ERROR.log');
 
+
+
 /*******************************************************************************
-#Common URL  (w/Tempe lat & lon)
+D-Weather
+
+Copyright © 2015     https://github.com/Self-Evident
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of
+this software and associated documentation files (the "Software"), to deal in
+the Software without restriction, including without limitation the rights to
+use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+of the Software, and to permit persons to whom the Software is furnished to do
+so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+/******************************************************************************/
+
+
+
+
+/*******************************************************************************
+D-Weather
+
+Copyright © 2015     https://github.com/Self-Evident
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+   1. Redistributions of source code must retain the above copyright notice,
+      this list of conditions and the following disclaimer.
+
+   2. Redistributions in binary form must reproduce the above copyright notice,
+      this list of conditions and the following disclaimer in the documentation
+      and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+/******************************************************************************/
+
+
+
+
+
+
+
+
+/*******************************************************************************
+Common URL  (w/Tempe lat & lon)
 http://forecast.weather.gov/MapClick.php?lat=33.4148&lon=-111.9093&unit=0&lg=english&FcstType=digital
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
@@ -79,151 +142,144 @@ Rows:
 
 
 
-
 function Set_Theme($theme=0) { //**********************************************/
-	global $COLOR;
 
-	//The number of theme sets, order & names must coorespond to $THEME_COUNT & $THEME_LIST near end of Init();
-
-	//--- DEFAULTS -----------------------------------
-	$COLOR['body-bg']			= "#FFF";
-	$COLOR['body']				= "#000";
-	$COLOR['hover-bg']			= "#Fdd";
-	$COLOR['hover-border']		= "";
-	$COLOR['hover-font']		= "";
-	$COLOR['focus-bg']			= "#Fcc";
-	$COLOR['focus-border']		= "";
-	$COLOR['focus-font']		= "inherit";
-	$COLOR['active-bg']			= "#Fbb";
-	$COLOR['active-border']		= "#444";
-	$COLOR['active-font']		= "";
-	$COLOR['imgbar']			= "#444";
-	$COLOR['imgbar-font']		= "#777";
-	$COLOR['imgbar-slot']		= "#ddd";
-	$COLOR['fine-print']		= "#555";
-	$COLOR['input-bg']			= "white";
-	$COLOR['input-font']		= "black";
-	$COLOR['input-border']		= "rgb(127,157,187)";
-	$COLOR['data-font-size']	= ".90em";			//16px = 12pt = 1em
-	$COLOR['data-grid']			= "rgb(100,160,250)";
-	$COLOR['options-border']	= "rgb(63,131,245)";
-	$COLOR['borders']			= "rgb(10,80,200)";
-	$COLOR['data-border'] 		= $COLOR['borders'];
-	$COLOR['msgs-border']		= $COLOR['borders'];
-	$COLOR['msgs-h-border']		= $COLOR['borders'];
-	$COLOR['not-found-border']	= $COLOR['borders'];
-	$COLOR['rain']				= "blue";
-	$COLOR['button-bg']			= "";
-	$COLOR['button-border']		= "";
-	$COLOR['button-font']		= "inherit";
-	$COLOR['svg-btn']			= "#555";
-	//End DEFAULTS -----------------------------------
-
+	//##### The number of theme sets, order & names must coorespond to $THEME_COUNT & $THEME_LIST near end of Init();
 
 	if ($theme == 1) {
-		//--- Dark ---------------------------------------
-		$COLOR['body-bg']			= "black";
-		$COLOR['body']				= "#0F0";
-		$COLOR['hover-bg']			= "red";
-		$COLOR['hover-border']		= "yellow";
-		$COLOR['hover-font']		= "";
-		$COLOR['focus-bg']			= "red";
-		$COLOR['focus-border']		= "cyan";
-		$COLOR['focus-font']		= "yellow";
-		$COLOR['active-bg']			= "red";
-		$COLOR['active-border']		= "#444";
-		$COLOR['active-font']		= "";
-		$COLOR['imgbar']			= "#444";
-		$COLOR['imgbar-font']		= "#777";
-		$COLOR['imgbar-slot']		= "#444";
-		$COLOR['fine-print']		= "#555";
-		$COLOR['input-bg']			= "black";
-		$COLOR['input-font']		= "#0F0";
-		$COLOR['input-border']		= "#0F0";
-		$COLOR['data-grid']			= "rgb(100,160,250)";
-		$COLOR['data-font-size']	= ".90em";
-		$COLOR['options-border']	= "rgb(63,131,245)";
-		$COLOR['borders']			= "rgb(10,80,200)";
-		$COLOR['data-border'] 		= $COLOR['borders'];
-		$COLOR['msgs-border']		= $COLOR['borders'];
-		$COLOR['msgs-h-border']		= $COLOR['borders'];
-		$COLOR['not-found-border']	= $COLOR['borders'];
-		$COLOR['rain']				= "cyan";
-		$COLOR['button-bg']			= "blue";
-		$COLOR['button-border']		= "yellow";
-		$COLOR['button-font']		= "inherit";
-		$COLOR['svg-btn']			= "#000";
-		//End Dark ---------------------------------------
+		?>
+		/***** Dark 1 Theme  ******************************/
+		html 				{ font-size 	  : 100% }
+		body 				{ color			  : #0F0 }
+		body 				{ background-color: black }
+		label:hover 		{ color			  : black }
+		label:hover 		{ background-color: #0F0 }
+		.active				{ color			  : black }
+		.active				{ background-color: #0F0 }
+		input[type="text"]  { color 		  : #0F0 }
+		input[type="text"]  { border-color    : #0F0 }
+		input[type="text"]  { background-color: black }
+		select 				{ color			  : #0F0 }
+		select 				{ background-color: black }
+		select 				{ border-color 	  : #0F0 }
+		button				{ color 		  : #0F0 }
+		button 				{ background-color: black }
+		button 				{ border-color	  : #0F0 }
+		button:hover	 	{ color 		  : black }
+		button:hover 		{ background-color: #0F0 }
+		button:hover 		{ border-color 	  : #aFa !important}
+		button:focus	 	{ color 		  : black }
+		button:focus 		{ background-color: #0F0 }
+		button:focus 		{ border-color 	  : #0F0 }
+		button:active	 	{ color 		  : black }
+		button:active 		{ background-color: #0F0 }
+		button:active 		{ border-color 	  : #444 }
+		.options_group 		{ border-color 	  : rgb( 63, 131, 245) }
+		.data				{ border-color 	  : rgb( 10,  80, 200) }
+		.data th, .data td  { border-color    : rgb(  0, 70,   0) }
+		.data th, .data td  { font-size 	  : .90em }
+		tr.newday			{ border-top-color: rgb( 10, 80, 200)}
+		.rain				{ color 		  : blue }
+		.not_found			{ border-color 	  : rgb( 10, 80, 200) } 
+		.messages			{ border-color    : rgb( 10, 80, 200) }
+		.messages_H			{ border-color    : rgb( 10, 80, 200) }
+		.imgbar td:hover 	{ background-color: #0F0 }
+		.imgbar_current_pic { background-color: #444 }
+		#timestamp 			{ border-color    : rgb( 10, 80, 200) }
+		.fine_print 		{ color			  : #0F0 }
+		.TESTING_MSG 		{ color 		  : red; }
+		/**end Dark 1 Theme  ******************************/
+		<?php
 	} 
 	if ($theme == 2) {
-		//--- Dark 2 -------------------------------------
-		$COLOR['body-bg']			= "black";
-		$COLOR['body']				= "#FFbf00";
-		$COLOR['hover-bg']			= "#333";
-		$COLOR['hover-border']		= "yellow";
-		$COLOR['hover-font']		= "";
-		$COLOR['focus-bg']			= "#333";
-		$COLOR['focus-border']		= "yellow";
-		$COLOR['focus-font']		= "yellow";
-		$COLOR['active-bg']			= "#FFbf00";
-		$COLOR['active-border']		= "yellow";
-		$COLOR['active-font']		= "black";
-		$COLOR['imgbar']			= "#444";
-		$COLOR['imgbar-font']		= "#777";
-		$COLOR['imgbar-slot']		= "#444";
-		$COLOR['fine-print']		= "#555";
-		$COLOR['input-bg']			= "black";
-		$COLOR['input-font']		= "#0F0";
-		$COLOR['input-border']		= "#0F0";
-		$COLOR['data-font-size']	= ".90em";
-		$COLOR['data-grid']			= "rgb(100,160,250)";
-		$COLOR['options-border']	= "rgb(63,131,245)";
-		$COLOR['borders']			= "#FFbf00"; //rgb(10,80,200)
-		$COLOR['data-border'] 		= $COLOR['borders'];
-		$COLOR['msgs-border']		= $COLOR['borders'];
-		$COLOR['msgs-h-border']		= $COLOR['borders'];
-		$COLOR['not-found-border']	= $COLOR['borders'];
-		$COLOR['rain']				= "cyan";
-		$COLOR['button-bg']			= "black";
-		$COLOR['button-border']		= "#FFbf00";
-		$COLOR['button-font']		= "#FFbf00";
-		$COLOR['svg-btn']			= "#FFbf00";
-		//End Dark 2 -------------------------------------
+		?>
+		/***** Dark 2 Theme  ******************************/
+		html 				{ font-size 	  : 100% }
+		body 				{ color			  : #0F0 }
+		body 				{ background-color: black }
+		label:hover 		{ color			  : yellow }
+		label:hover 		{ background-color: blue }
+		.active				{ color			  : yellow }
+		.active				{ background-color: blue }
+		input[type="text"]  { color 		  : #0F0 }
+		input[type="text"]  { border-color    : #0F0 }
+		input[type="text"]  { background-color: black }
+		select 				{ color			  : #0F0 }
+		select 				{ background-color: black }
+		select 				{ border-color 	  : #0F0 }
+		button				{ color 		  : #0F0 }
+		button 				{ background-color: black }
+		button 				{ border-color	  : #0F0 }
+		button:hover	 	{ color 		  : yellow }
+		button:hover 		{ background-color: blue }
+		button:hover 		{ border-color 	  : yellow }
+		button:focus	 	{ color 		  : yellow }
+		button:focus 		{ background-color: blue }
+		button:focus 		{ border-color 	  : yellow }
+		button:active	 	{ color 		  : yellow }
+		button:active 		{ background-color: blue }
+		button:active 		{ border-color 	  : #444 }
+		.options_group 		{ border-color 	  : rgb(63,131,245) }
+		.data				{ border-color 	  : rgb(10,80,200)  }
+		.data th, .data td  { border-color    : rgb(100,160,250)}
+		.data th, .data td  { font-size 	  : .90em }
+		tr.newday			{ border-top-color: rgb(10,80,200)}
+		.rain				{ color 		  : blue }
+		.not_found			{ border-color 	  : rgb(10,80,200) } 
+		.messages			{ border-color    : rgb(10,80,200) }
+		.messages_H			{ border-color    : rgb(10,80,200) }
+		.imgbar td:hover 	{ background-color: #444 }
+		.imgbar_current_pic { background-color: #333 }
+		#timestamp 			{ border-color    : rgb(10,80,200) }
+		.fine_print 		{ color			  : #0F0 }
+		.TESTING_MSG 		{ color 		  : red; }
+		/**end Dark 2 Theme  ******************************/
+		<?php
 	} 
 	if ($theme == 3) {
-		//--- Dark 3 -------------------------------------
-		$COLOR['body-bg']			= "black";
-		$COLOR['body']				= "#F00";
-		$COLOR['hover-bg']			= "#333";
-		$COLOR['hover-border']		= "yellow";
-		$COLOR['hover-font']		= "";
-		$COLOR['focus-bg']			= "#333";
-		$COLOR['focus-border']		= "yellow";
-		$COLOR['focus-font']		= "yellow";
-		$COLOR['active-bg']			= "#F00";
-		$COLOR['active-border']		= "yellow";
-		$COLOR['active-font']		= "black";
-		$COLOR['imgbar']			= "#444";
-		$COLOR['imgbar-font']		= "#777";
-		$COLOR['imgbar-slot']		= "#444";
-		$COLOR['fine-print']		= "#555";
-		$COLOR['input-bg']			= "black";
-		$COLOR['input-font']		= "#0FF";
-		$COLOR['input-border']		= "#0FF";
-		$COLOR['data-font-size']	= ".90em";
-		$COLOR['data-grid']			= "#FFbf00"; //rgb(100,160,250)
-		$COLOR['options-border']	= "rgb(63,131,245)";
-		$COLOR['borders']			= "#F00"; //rgb(10,80,200)
-		$COLOR['data-border'] 		= "#FFbf00";
-		$COLOR['msgs-border']		= $COLOR['borders'];
-		$COLOR['msgs-h-border']		= $COLOR['borders'];
-		$COLOR['not-found-border']	= $COLOR['borders'];
-		$COLOR['rain']				= "cyan";
-		$COLOR['button-bg']			= "black";
-		$COLOR['button-border']		= "#F00";
-		$COLOR['button-font']		= "#F00";
-		$COLOR['svg-btn']			= "#F00";
-		//End Dark 3 -------------------------------------
+		?>
+		/***** Dark 3 Theme  ******************************/
+		html 				{ font-size 	  : 100% }
+		body 				{ color			  : #FFbf00 }
+		body 				{ background-color: black }
+		label:hover 		{ color			  : black }
+		label:hover 		{ background-color: #FFbf00 }
+		.active				{ color			  : black }
+		.active				{ background-color: #FFbf00 }
+		input[type="text"]  { color 		  : #FFbf00 }
+		input[type="text"]  { border-color    : #FFbf00 }
+		input[type="text"]  { background-color: black }
+		select 				{ color			  : #FFbf00 }
+		select 				{ background-color: black }
+		select 				{ border-color 	  : #FFbf00 }
+		button				{ color 		  : #FFbf00 }
+		button 				{ background-color: black }
+		button 				{ border-color	  : #FFbf00 }
+		button:hover	 	{ color 		  : black }
+		button:hover 		{ background-color: #FFbf00 }
+		button:hover 		{ border-color 	  : yellow }
+		button:focus	 	{ color 		  : black }
+		button:focus 		{ background-color: #FFbf00 }
+		button:focus 		{ border-color 	  : yellow }
+		button:active	 	{ color 		  : black }
+		button:active 		{ background-color: #FFbf00 }
+		button:active 		{ border-color 	  : #444 }
+		.options_group 		{ border-color 	  : rgb(63,131,245) }
+		.data				{ border-color 	  : rgb(10,80,200)  }
+		.data th, .data td  { border-color    : rgb(110,80,0)}
+		.data th, .data td  { font-size 	  : .90em }
+		tr.newday			{ border-top-color: rgb(10,80,200)}
+		.rain				{ color 		  : blue }
+		.not_found			{ border-color 	  : rgb(10,80,200) } 
+		.messages			{ border-color    : rgb(10,80,200) }
+		.messages_H			{ border-color    : rgb(10,80,200) }
+		.imgbar td:hover 	{ background-color: #444 }
+		.imgbar_current_pic { background-color: #333 }
+		#timestamp 			{ border-color    : rgb(10,80,200) }
+		.fine_print 		{ color			  : #FFbf00 }
+		.TESTING_MSG 		{ color 		  : red; }
+		/**end Dark 3 Theme  ******************************/
+		<?php
 	} 
 }//end Set_Theme() { //********************************************************/
 
@@ -403,9 +459,9 @@ function Init() { //***********************************************************/
 
 
 
-	//Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
+	//Radar image URL's:  http://radar.weather.gov/lite/N0R/XXX_?.png    ? = 0 thru 7
 	//Used in Radar_Loop_js_functions()
-	define('RADAR_SITE_DEF', "IWA"); //Default radar site (Central AZ)
+	define('RADAR_SITE_DEF',  "IWA");  //Default radar site (IWA is central AZ)
 	define('RADAR_RANGE_STD', "N0R/"); // N<ZERO>R is base range.     "Views out to 124 nmi" (~143 miles).
 	define('RADAR_RANGE_EXT', "N0Z/"); // N<ZERO>Z is extended range. "Views out to 248 nmi" (~286 miles).
 	define('RADAR_RANGE_DEF', RADAR_RANGE_STD);
@@ -453,7 +509,7 @@ function Init() { //***********************************************************/
 	
 
 	//These must coorespond to the number & order of "if/then"'s in Set_Themes().
- 	$THEME_LIST = ["Default", "Dark", "Dark 2", "Dark 3"];
+ 	$THEME_LIST = ["Default", "Dark 1", "Dark 2", "Dark 3"];
 	$THEME_COUNT = count($THEME_LIST);
 
 }//end Init() { //*************************************************************/
@@ -672,7 +728,7 @@ function Get_GET() {//*********************************************************/
 	else {$SHOW_DISPLAY_OPTIONS = "false";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
 
 
-	//Radar options: $i=1 for AZ radar, $i=2 for user selected/custom location.
+	//Radar options: $i=1 for the default radar, $i=2 for user selected/custom location.
 	for ($i = 1; $i < 3; $i++) {
 		//Show Radar Options? ********************
  		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "true"))
@@ -887,7 +943,7 @@ function Extract_Weather_Data($raw_html) {//***********************************/
 
 function Display_Weather_V($location) {//**************************************/
 	//Display data in new Vertical table, each row one hour.
-	global $COLOR,  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 
 	$columns = count($SELECTED_ASPECTS) - 1;
 	
@@ -953,7 +1009,7 @@ function Display_Weather_V($location) {//**************************************/
 
 function Display_Weather_H($location) {//**************************************/
 	//Display data in new Horizontal table, each column one hour.
-	global $COLOR, $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 		
 	echo "<table class=data>\n";
 		
@@ -1013,7 +1069,7 @@ function Display_Weather_H($location) {//**************************************/
 
 
 function User_Options() {//****************************************************/
-	global	$COLOR, $DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
+	global	$DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
 			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
 			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS;
 
@@ -1027,7 +1083,7 @@ function User_Options() {//****************************************************/
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
 		
 		if ($key > 0) {
-			//Defined choices: Tempe, AJ, etc...
+			//Pre-defined choices
 			echo "<label>";
 			echo "	<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
 			echo hsc($location_name)."";
@@ -1112,13 +1168,14 @@ function User_Options() {//****************************************************/
 
 
 	if ($SHOW_RADAR) {
+		echo "<span id=MAP_OPTIONS>";	
 		//Don't wrap map, even if normally it would due to browser window width
 		$checked = "";
 		if ($DONT_WRAP_MAP) { $checked = " checked"; }
-		echo "<label><input type=checkbox name=DONT_WRAP_MAP value=true$checked>Don't wrap map</label>\n\n";
+		echo "<label><input id=dont_wrap_map type=checkbox name=DONT_WRAP_MAP value=true$checked>Don't wrap map</label>\n\n";
 		
 		
-		//Radar "zoom" level: central AZ or state view.
+		//Radar "zoom" level
 		$N0R_checked = ""; //N<ZERO>R   default  "Views out to 124 nmi" (~143 miles).
 		$N0Z_checked = ""; //N<ZERO>Z            "Views out to 248 nmi" (~286 miles).
 		if ($RADAR_VIEW == "N0Z") {$N0Z_checked = " checked"; } else {$N0R_checked = " checked";}
@@ -1126,6 +1183,7 @@ function User_Options() {//****************************************************/
 		echo 	"<label><input type=radio name=RADAR_VIEW value=N0R $N0R_checked>143 miles</label>\n";
 		echo 	"<label><input type=radio name=RADAR_VIEW value=N0Z $N0Z_checked>286 miles</label>\n";
 		echo "</span>\n";
+		echo "</span>";
 	}
 
 
@@ -1146,8 +1204,8 @@ function User_Options() {//****************************************************/
 
 function Show_Radar($i=1) { //***************************************************/
 	// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
-	global $COLOR, $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
-	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND;
+	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
+	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND, $RID;
 
 
 	if ($i == 2) {$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_0".RADAR_IMG_EXT;}
@@ -1225,7 +1283,6 @@ function Show_Radar($i=1) { //**************************************************
 
 
 function Radar_Loop_js_functions() { //****************************************/
-	global $COLOR;
 ?>
 
 <script>
@@ -1354,10 +1411,10 @@ function Change_Pic(Pics, prior_pic, once){ //****************************
 
 	//Display new image.
 	Pics.rotating_pic.src = Pics.pic_list[Pics.current_pic];
-	
+
 	//Update imgbar.
-	Pics.imgbar_slots[prior_pic].style.backgroundColor 		  = "";      //clear     imgbar spot of prior_pic.
-	Pics.imgbar_slots[Pics.current_pic].style.backgroundColor = "<?= $COLOR['imgbar-slot'] ?>";  //highlight imgbar spot for current pic.
+	Pics.imgbar_slots[prior_pic       ].classList.remove("imgbar_current_pic");
+	Pics.imgbar_slots[Pics.current_pic].classList.add("imgbar_current_pic");
 
 	Pics.loop_displayed.innerHTML = "(" + Pics.current_loop + ")";
 
@@ -1386,7 +1443,7 @@ function Init_Radar(pic_list, instance) { //******************************
 	Pix.top_pic  		= document.getElementById('ROTATING_PIC_' 	   + instance); //Currently, same as .rotating_pic
 	Pix.show_radar_opts = document.getElementById('SHOW_RADAR_OPTS_'   + instance); //<button> to show/hide radar options
 	Pix.radar_options 	= document.getElementById('RADAR_OPTIONS_' 	   + instance); //<div> container for radar options
-	Pix.show_radar_options	= document.getElementById('SHOW_RADAR_OPTIONS_'+ instance); //<input hidden> status of radar optons.  true/false
+	Pix.show_radar_options	= document.getElementById('SHOW_RADAR_OPTIONS_'+ instance); //<input hidden>  true/false
 	Pix.imgbar			= document.getElementById('IMGBAR_' 		   + instance); //Not currently used, but maybe someday...
 
 	Pix.rotating_pic.src 		  = Pix.pic_list[0];  //Load initial image
@@ -1401,7 +1458,11 @@ function Init_Radar(pic_list, instance) { //******************************
 
 	Pix.imgbar_slots = []; //<td>'s
 	for (var x=0; x < Pix.pic_list.length; x++) {Pix.imgbar_slots[x] = document.getElementById("slot_" + x  + "_" + instance);}
-	Pix.imgbar_slots[Pix.current_pic].style.backgroundColor = "<?= $COLOR['imgbar-slot'] ?>"; //Inital condition.
+
+	//##### Pix.imgbar_slots[Pix.current_pic].style.backgroundColor = "red"; //Inital condition.
+	//##### 
+	Pix.imgbar_slots[Pix.current_pic].classList.add("imgbar_current_pic");
+	
 
 	//Add events for imgbar click control
 	for (x=0; x < Pix.pic_list.length; x++) {
@@ -1433,15 +1494,15 @@ function Init_Radar(pic_list, instance) { //******************************
 
 
 function Init_Radar_URLs_etc_js() { //*****************************************/
-	global $COLOR, $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
+	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
 ?>
 <script>
 //************************************************************************/
-var PLAY_BTN  = '<svg class="play_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">';
+var PLAY_BTN  = '<svg class="play_btn" width="50px" height="21px" fill="#555">';
 	PLAY_BTN += '<polygon points="0,0  12.6,7.46  0,15.75" transform="translate(22,3)" /></svg>\n';
 
 
-var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">\n';
+var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="#555">\n';
 	PAUS_BTN += '	<g transform="translate(18,3.5)">\n';
     PAUS_BTN += '		<rect width="6" height="14" x="0"    y="0" rx="2" ry="2" />\n';
 	PAUS_BTN += '		<rect width="6" height="14" x="9.25" y="0" rx="2" ry="2" />\n';
@@ -1450,11 +1511,11 @@ var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="<?= $COL
 
 
 var STOP_BTN  = '<svg>\n';
-    STOP_BTN += '	<rect width="14" height="14" x="19" y="3.5" rx="2" ry="2" fill="<?= $COLOR['svg-btn'] ?>" />\n';
+    STOP_BTN += '	<rect width="14" height="14" x="19" y="3.5" rx="2" ry="2" fill="#555>" />\n';
 	STOP_BTN += '</svg>\n';
 
 
-var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="<?= $COLOR['svg-btn'] ?>">\n';
+var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="#555">\n';
 	CTRL_ICO += '	<g transform="translate(1.5,2)">\n';
 	CTRL_ICO += '		<rect width="2.5" height="18" x="0.5"  y="0" rx="1" ry="1" />\n';
 	CTRL_ICO += '		<rect width="2.5" height="18" x="8.5"  y="0" rx="1" ry="1" />\n';
@@ -1515,7 +1576,7 @@ if ('<?= $CUSTOM_RADAR_SITE ?>' != "" ) {
 
 
 //Radar objects instantiated at end of Show_Radar().
-//Radar[1] will be default (AZ), [2] will be user entered/custom site (if present).
+//Radar[1] will be default, [2] will be user entered/custom site (if present).
 var Radar = [];
 
 </script>
@@ -1627,14 +1688,13 @@ function Header_crap() {//*****************************************************/
 
 
 function Styles() {//**********************************************************/
-	global $COLOR, $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP,
+	global $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP, $THEME, 
 		   $SHOW_RADAR_OPTIONS, $SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS; 
 ?>
 
 <style>
-	body { background-color: <?= $COLOR['body-bg'] ?>; color: <?= $COLOR['body'] ?>; }
+	html * { font-family: arial; box-sizing: border-box; }
 	
-	*	{ font-family: arial; box-sizing: border-box; }
 	div {padding: 0; margin: 0}
 	pre	{ font-family: courier; margin: 0; }
 	h2 	{ font-size: 1.5em; margin: 0; }
@@ -1642,73 +1702,65 @@ function Styles() {//**********************************************************/
 
 	label {	display: inline-block; height: 24px; padding: 2px .5em 0 .5em; margin : 0 .2em 0 0; white-space: nowrap; }
 
-	label:hover { background-color: <?= $COLOR['hover-bg'] ?> }
+	input[type="checkbox"] { display: inline-block; margin: 0 2px 0 0; }
+	input[type="text"]	   { height: 20px; position: relative; top: 2; 
+							 padding: 0 0 0 0; margin: 0 0 0 0; 
+							 border: 1px solid }
 
-	[type="checkbox"] { display: inline-block; margin: 0 2px 0 0; }
-	[type="text"]	  { height: 20px; position: relative; top: 2; padding: 0 0 0 0; margin: 0 0 0 0; 
-						color			: <?= $COLOR['input-font'] ?>;
-						border			: 1px solid <?= $COLOR['input-border'] ?>;
-						background-color: <?= $COLOR['input-bg'] ?>;
-					  }
-
-	select { background-color: <?= $COLOR['input-bg'] ?>; color: <?= $COLOR['input-font'] ?>; border-color: <?= $COLOR['input-border'] ?>; }
+	select { border: 1px solid }
 
 	#location_search_ckbox_label { margin: 0; width: 194px; }
 	#location_search_label { margin: 0 -160px 0 0; padding-left: 4px; padding-right: .5em; position: relative; left: -172px; }
 	#location_search  { width: 160px; }
-	#rain_threshold	  { width:1.4em; padding: 1px 0 0 2px; }
-	#show_radar_label { margin-left: 1em; }
+	#rain_threshold	  { width:1.5em; padding: 1px 0 0 2px; }
+	#show_radar_label { margin-left: 1em }
 	#test_mode 		  { float: right; margin-right: 0 }
-	.rotate_loops_label {margin-right: 0;}
+	.rotate_loops_label { margin-right: 0; }
 
-	button				{ color: <?= $COLOR['button-font'] ?>; background-color: <?= $COLOR['button-bg'] ?>; border: 1px solid <?= $COLOR['button-border'] ?>; border-radius: 4px; height: 24px; margin: 0; }
-	button:hover	 	{ color: <?= $COLOR['hover-font'] ?>;   background-color: <?= $COLOR['hover-bg'] ?>;  border-color: <?= $COLOR['hover-border'] ?>;  }
-	button:focus	 	{ color: <?= $COLOR['focus-font'] ?>;   background-color: <?= $COLOR['focus-bg'] ?>;  border-color: <?= $COLOR['focus-border'] ?>;  }
-	button:active	 	{ color: <?= $COLOR['active-font'] ?>;  background-color: <?= $COLOR['active-bg'] ?>; border-color: <?= $COLOR['active-border'] ?>; }
+	button { border: 1px solid ; border-radius: 4px; height: 24px; margin: 0; }
 	button::-moz-focus-inner { border: 0; }
 
-	#top 	  { display: table; border-collapse: collapse; width: 100%; margin-bottom: .4em; border: 1px solid rgb(63,131,245); }
-	#top div  { display:table-cell; }
-	#top_left { }
+	#top 	   { display: table; width: 100%; border: 0; }
+	#top div   { display: table-cell; }
+	#top_left  {}
+	#top_right { text-align: right; }
 
-	/*class for various, but not all, show/hide buttons*/
-	/* //##### .show_hide { display: inline-block; padding: 0; margin: 0; height: 18px; position: relative; top: -4px;}*/
-	.show_hide {  padding: 0; margin: 0; height: 18px; font-size: 12px; }
+	#submit1 {}
+	#submit2 {}
 
-	#SHOW_LOCATION_OPTS { }
-	#SHOW_WEATHER_OPTS { XXXXXfloat: left;  } /** <button> **/
+	/*class for a couple, but not all, show/hide buttons*/
+	.show_hide {  padding: 0 .2em 0 0; margin: 0; XXXXheight: 18px; }
 
 	#LOCATION_OPTIONS { display: none; } /** //##### {display: none/block} **/
-
 	#WEATHER_OPTIONS  { display: none; }
-	
 	#DISPLAY_OPTIONS  { display: none; }
+	#MAP_OPTIONS	  { display: inline }
 
 	.w_container { display: inline-block; vertical-align: top; }
 
-	.options_group { border: 1px solid <?= $COLOR['options-border'] ?>; padding: 0; margin: 0 0 .4em 0; }
+	.options_group { border: 1px solid; padding: 0; margin: 0 0 .4em 0; }
 
-	.data		{ border: 1px solid <?= $COLOR['data-border'] ?>; border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
-	.data th, .data td {  border: 1px inset <?= $COLOR['data-grid'] ?>; font-size: <?= $COLOR['data-font-size'] ?>; text-align: center; vertical-align: top; padding: 0 .2em; }
+	.data		{ border: 1px solid; border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
+	.data th, .data td {  border: 1px inset; text-align: center; vertical-align: top; padding: 0 .2em; }
 	.data th	{}
 	.data td	{ min-width: 2.5em; max-width: 3.7em; white-space: normal; } /*Default for V display.*/
 
-	.newday		{border-top: 1px solid <?= $COLOR['borders'] ?>} /*rgb(63,131,245)*/
+	tr.newday		{border-top: 1px solid } /*rgb(63,131,245)*/
 
 	.hdr		{ font-weight: bold; padding: 0 .3em;}
 	.time		{}
 	.temp		{}
 	.wind_mph	{}
 	.wind_dir	{ text-align: left; padding: 0 0 0 0.25em; }
-	.rain		{ color: <?= $COLOR['rain'] ?>; font-weight: bold; }
+	.rain		{ font-weight: bold; }
 	.clouds		{}
 	.humidity	{}
 	.fog		{ max-width: 8em; padding: 0 .5em;}
 
-	.not_found	{ border: 2px solid <?= $COLOR['borders'] ?>; font-weight: bold; text-align: center; } /*rgb(63,131,245)*/
+	.not_found	{ border: 2px solid; font-weight: bold; text-align: center; } /*rgb(63,131,245)*/
 
-	.messages	{ border: 2px solid <?= $COLOR['borders'] ?>; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
-	.messages_H	{ border: 2px solid <?= $COLOR['borders'] ?>; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; }
+	.messages	{ border: 2px solid; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
+	.messages_H	{ border: 2px solid; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; }
 	
 	.indent		{ margin: 0 .5em }
 	
@@ -1722,9 +1774,10 @@ function Styles() {//**********************************************************/
 	.submit_default { float: right; }
 
 	#radar_view		  { margin-left: 1em; }
-	#radar_view input { margin-left: .2em; margin-right: .1em; }
+	#radar_view input { margin-left: .0em; margin-right: .0em; }
+	#radar_view label { }
 
-	.radar_div	   	 { position: relative; display: inline-block; border: solid 0px #444; text-align: right; margin-bottom: .5em; white-space: normal;}
+	.radar_div 		 { position: relative; display: inline-block; border: solid 0px #444; text-align: right; margin-bottom: .5em; white-space: normal;}
 	
 	.radar_controls	 { padding: 3px 0 3px 0; border: 0px solid #444; margin: 0;}
 
@@ -1734,21 +1787,64 @@ function Styles() {//**********************************************************/
 	.imgbar			 { display: inline-block; margin: 0 5px 0 0; font-size: 75%;
 					   width: 472px; height: 23px; border-collapse: collapse; }
 	.imgbar td		 { width: 59px;  height: 23px; border: 1px solid #444; color: #777; text-align: center;  padding: 0; cursor: default}
-	.imgbar td:hover { background-color: <?= $COLOR['hover-bg'] ?> }
-
+	
 	.radar_opts_div  { display: inline-block; visibility: hidden; white-space: nowrap; font-size: 92%;}
 	.radar_opts_div  { width: 513px;  padding: 0; margin: 0; border: solid 1px #444; text-align: left; }
 
 	.loops	{ margin-right: 0; padding: 0; white-space: nowrap}
 
-	#timestamp	 	{ margin: .2em 0 .2em 0; padding: 1px .3em 0 .2em; display: inline-block; border: 1px solid <?= $COLOR['borders'] ?>; }
+	#timestamp	 	{ margin: .2em 0 .2em 0; padding: 1px .3em 0 .2em; display: inline-block; border: 1px solid; }
 	#timestamp_row  { margin-bottom: .3em; }
 
 	.location_name	{ text-align: left; margin-left: 4em; }
-	.fine_print  	{ font-size: 90%; color: <?= $COLOR['fine-print'] ?>; }
+	.fine_print  	{ font-size: 90%; }
 	.TESTING_MSG 	{ color: red; }
 
+
+	/********** DEFAULT THEME (mostly colors) **********/
+	html 				{ font-size 	  : 100%  }
+	body 				{ color			  :}
+	body 				{ background-color: white }
+	label:hover 		{ background-color: #Fdd  }
+	.active				{ background-color: #Fbb }
+	input[type="text"]  { color 		  : black }
+	input[type="text"]  { border-color    : rgb(127,157,187); }
+	input[type="text"]  { background-color: white }
+	select 				{ color			  : black }
+	select 				{ background-color: white }
+	select 				{ border-color 	  : rgb(127,157,187) }
+	button				{ color 		  :}
+	button 				{ background-color:}
+	button 				{ border-color	  :}
+	button:hover	 	{ color 		  :}
+	button:hover 		{ background-color: #Fdd }
+	button:hover 		{ border-color 	  :}
+	button:focus	 	{ color 		  :}
+	button:focus 		{ background-color: #Fcc }
+	button:focus 		{ border-color 	  :}
+	button:active	 	{ color 		  :}
+	button:active 		{ background-color: $Fbb }
+	button:active 		{ border-color 	  : #444 }
+	.options_group 		{ border-color 	  : rgb(63,131,245) }
+	.data				{ border-color 	  : rgb(10,80,200)  }
+	.data th, .data td  { border-color    : rgb(100,160,250)}
+	.data th, .data td  { font-size 	  : .90em }
+	tr.newday			{ border-top-color: rgb(10,80,200)}
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : rgb(10,80,200) } 
+	.messages			{ border-color    : rgb(10,80,200) }
+	.messages_H			{ border-color    : rgb(10,80,200) }
+	.imgbar td:hover 	{ background-color: #Fcc }
+	.imgbar_current_pic { background-color: #ddd }
+	#timestamp 			{ border-color    : rgb(10,80,200) }
+	.fine_print 		{ color			  : #555 }
+	.TESTING_MSG 		{ color 		  : red; }
+	/*******END DEFAULT THEME (mostly colors) **********/
+
 <?php
+
+	Set_Theme($THEME);
+
 	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "#RADAR_OPTIONS_1 {visibility: visible}\n";}
 	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "#RADAR_OPTIONS_2 {visibility: visible}\n";}
 	if ($SHOW_LOCATION_OPTIONS == "true") { echo "#LOCATION_OPTIONS {display: block}\n";}
@@ -1775,70 +1871,59 @@ echo "</style>\n\n";
 // "Main" *********************************************************************/
 
 Init();
-Get_GET(); //needed before Set_Theme(), Styles(), User_Options()
-Set_Theme($THEME);
+
+Get_GET(); //needed before Styles(), Set_Theme(), User_Options()
+
 Header_crap();
+
 Styles();
+
 Time_Stamp_js();
+
 Prevent_Some_Keys_js();
 
 
-?>
-
-
-
-
-<?php
-
-
-
-
-
-
-if ($TEST_MODE) {echo "<script>document.write(window.innerWidth);</script>";} //##### 
-
 echo "\n<form name=USER_OPTIONS method=get id=options_form>\n";
 
+//Top row options ********************************************
 $theme_options = "";
 foreach ($THEME_LIST as $key => $theme_name) {
 	if ($THEME == $key) {$selected = " selected";} else {$selected = "";}
 	$theme_options .= "<option value={$key}{$selected}>{$theme_name}</option>\n";
 }
 
-?>
-	<div id=top>
-		<div id=top_left>									<!--up &#9650;  down &#9660; right  &#9658;   up/down &#8661;-->
-			<button type=button id=SHOW_LOCATION_OPTS class=show_hide>&#9660;&#9650;Locations</button>
-			<button type=button id=SHOW_WEATHER_OPTS  class=show_hide>&#9660;&#9650;Weather Options</button>
-			<button type=button id=SHOW_DISPLAY_OPTS  class=show_hide>&#9660;&#9650;Display Options</button>
-			
-			<input type=hidden  id=SHOW_LOCATION_OPTIONS name=SHOW_LOCATION_OPTIONS value=<?= $SHOW_LOCATION_OPTIONS ?>>
-			<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value=<?= $SHOW_WEATHER_OPTIONS ?>>
-			<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value=<?= $SHOW_DISPLAY_OPTIONS ?>>
-			
-			<label>Choose Theme: <select id=THEME name=THEME><?= $theme_options ?></select></label>
-			
-			<button type=submit id=submit1 class=submit style="float: right">Submit</button>
+?>	<div class=options_group>
+		<div id=top>
+			<div id=top_left>				<!--up &#9650;  down &#9660; right  &#9658;   up/down &#8661;-->
+				<button type=button id=SHOW_LOCATION_OPTS class=show_hide>&#9660;&#9650;Locations</button>
+				<button type=button id=SHOW_WEATHER_OPTS  class=show_hide>&#9660;&#9650;Weather Options</button>
+				<button type=button id=SHOW_DISPLAY_OPTS  class=show_hide>&#9660;&#9650;Display Options</button>
+				
+				<input type=hidden  id=SHOW_LOCATION_OPTIONS name=SHOW_LOCATION_OPTIONS value=<?= $SHOW_LOCATION_OPTIONS ?>>
+				<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value=<?= $SHOW_WEATHER_OPTIONS ?>>
+				<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value=<?= $SHOW_DISPLAY_OPTIONS ?>>
+				
+				<label>Color Themes: <select id=THEME name=THEME><?= $theme_options ?></select></label>
+			</div>
+			<div id=top_right>
+				<button type=submit id=submit1 class=submit>Submit</button>
+			</div>
 		</div>
 	</div>
 <?php
 
 
+
+//Locations, Weather aspects, Hours to display, Radar, etc...**
 User_Options();
 
 
+
+
 //Time Stamp, Data Source, Theme Options, Default, Reset, & Submit buttons
-
-
-//##### if ($TEST_MODE) {$data_source =  "<span class=fine_print>(Weather data source:<span class=TESTING_MSG>".hsc($RAW_HTML_SAMPLES[1])."</span>)</span>";}
-//##### else			{$data_source =  "";} //##### "<span class=fine_print>(Weather data source:www.weather.gov)</span>";}
-$data_source = ""; //##### 
-
 ?>
 <div id=timestamp_row>
 	<span id=timestamp><script>Time_Stamp('write');</script></span>
-	<?= $data_source ?>
-
 	<span class=submit_default>
 		<button type=button id=default_ops>Defaults Options</button>
 		<button type=reset  id=reset      >Reset Current Options</button>
@@ -1894,7 +1979,7 @@ echo "\n<div class=w_container id=weather_div>\n";
 		if ( !$LOCATION_FOUND ||
 			( ($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) && (count($SHOW_LOCATIONS) > 1) ) )
 		{
-			Show_Radar(1);  //default site (AZ)...
+			Show_Radar(1);  //default site...
 		}
 		
 		//US map...
@@ -1924,10 +2009,10 @@ function Stop_Propagation(event) { //*************************************
 
 function Show_Hide_Options(element, state, d_or_v, show, hide) {  //******
 	//element: element to show/hide
-	//state  : <input hidden>  Preserves state via form/URL value 
+	//state  : <input hidden>  true/false Preserves state via form/URL value 
 	//d_or_v : "display:" or "visibility:"   style property.
-	//show   : either ""        or "visible"       property value.
-	//hide   : either "visible" or "hidden"           "       "
+	//show   : "block"  or "visible" etc...        property value.
+	//hide   : "none"  or  "hidden"            "       "
 
 	//##### document.getElementById('TRACE_OUT').innerHTML += "in[" + element.style[d_or_v]  + ", " + state.value + ", " + show + ", " + hide  + "] "; 
 
@@ -1967,63 +2052,18 @@ function Focus(event) { //************************************************
 
 	//Clear label bg for the previous checkbox...
 	if ((ACTIVE.tagName == "INPUT") || (ACTIVE.tagName == "SELECT")) {
-		ACTIVE.parentElement.style.backgroundColor = "";
+		ACTIVE.parentElement.classList.remove("active");
 	}
 
 	//Set the label bg for the new checkbox...
 	if ((target.tagName == "INPUT") || (target.tagName == "SELECT")) {
-		target.parentElement.style.backgroundColor = "<?= $COLOR['focus-bg'] ?>";
+		target.parentElement.classList.add("active");
 	}	
 
 	//Save for next tab/click
 	ACTIVE = target;
 
 }//end Focus() //*********************************************************
-
-
-
-
-function pad_str(str, len, pad, left) { //********************************
-	if (str === undefined) {str = "---";}
-	if (pad === undefined) {pad = " ";}
-	str = str + "";
-
-	if (left) {for (var x=str.length; x < len; x++) {str = pad + str;}}
-	else      {for (var x=str.length; x < len; x++) {str = str + pad;}}
-	return str;
-}//end pad_str() //*******************************************************
-
-
-/******************************./
-//##### ########################
-? >
-<style>
-#TRACE_HDR {display: inline-block; width: 47em; height: 1.1em; font: 12px courier; border: 1px solid red; white-space: pre}
-#TRACE_OUT {display: inline-block; width: 47em; height: 30em; white-space: pre;
-			font: 12px courier; border: 1px solid red; }
-</style>
-<div style="display: inline-block">
-	<div id=TRACE_HDR> .type     : event source       : .activeElement       : ACTIVE</div><br>
-	<div id=TRACE_OUT></div>
-</div>
-< ?php
-//##### ########################
-/******************************/
-/****************./
-//##### ##########
-	TRACE = document.getElementById('TRACE_OUT'); 				//##### TRACE.innerHTML.length
-	TRACE = document.getElementById('TRACE_OUT'); 				//#####event.type
-	//.type     : event source       : .activeElement       : ACTIVE
-	TRACE.innerHTML += pad_str((event.type), 10) 				+ " : "
-					+  pad_str("...", 18)  				 		+ " : "
-					+  pad_str(document.activeElement.id, 20) 	+ " : "
-					+  pad_str(ACTIVE.id, 20) 				  	+ " ;\n";
-
-	xdiff = TRACE.innerHTML.length - 1760; //currently 22 lines at 80 bytes per line...
-	if (TRACE.innerHTML.length > 1760) {TRACE.innerHTML = TRACE.innerHTML.substring(xdiff);}
-	TRACE.scrollTop = TRACE.scrollHeight;
-//##### ##########
-/*****************/
 
 
 
