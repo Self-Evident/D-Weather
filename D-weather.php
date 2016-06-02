@@ -71,10 +71,10 @@ $DATA_URLS[$x] = $BASE_URL_OPTIONS."&textField1=33.4150&textField2=-111.5496"	; 
 define(LOCATIONS, count($DATA_URLS));
 define(DEFAULT_LOCATION, 1);
 
+$RADAR_IMG    = '<img src="http://radar.weather.gov/lite/N0R/IWA_0.png">';
+$RADAR_SAMPLE = '<img src="samples/IWA_0.png">';
 
-
-
-define(RAW_HTML_SAMPLE, "samples\weather.gov.html");
+define(RAW_HTML_SAMPLE, "samples/weather.gov.html");
 
 
 #Make sure time zone is correct.
@@ -193,14 +193,14 @@ function curl_get_contents($url) { //******************************************/
 
 function Get_Weather_Data($location){ //***************************************/
 	#get raw html page with weather data
-	global $RAW_HTML, $DATA_URLS, $TESTING_MSG;
+	global $RAW_HTML, $DATA_URLS, $TESTING_MSG, $RADAR_IMG, $RADAR_SAMPLE;
 
 
-	
+
 	if (isset($_GET["TEST_MODE"])){
 		$TESTING_MSG = "<span class=TESTING_MSG>SAMPLE DATA</span>\n";
 		$RAW_HTML = file_get_contents(RAW_HTML_SAMPLE);
-
+		$RADAR_IMG = $RADAR_SAMPLE;
 	} else { #/*** LIVE DATA ****/
 		$TESTING_MSG = "";
 		$RAW_HTML = curl_get_contents($DATA_URLS[$location]);
@@ -230,7 +230,7 @@ function Extract_Weather_Data() { //*******************************************/
 
 	//Extract desired data from table and save in $DATA array().
 	$nextset = 0; //For first 24 hour data set.
-
+	
 	for ($rowset=0; $rowset < 14; $rowset += 13) { //$rowset should only = 0 or 13
 		
 		$first_row =  1 + $rowset;
@@ -261,10 +261,11 @@ function Extract_Weather_Data() { //*******************************************/
 
 
 function Display_Weather_V($location) { //*************************************/
-	//Display data in new table, each row one hour.
+	//Display data in new Vertical table, each row one hour.
 	global  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_to_SHOW;
 
 	echo "<table class=data>\n";
+
 		echo "<tr>\n<td colspan=".WASPECTS.">";
 		echo "<h2>".$LOCATION_NAMES[$location].$TESTING_MSG."</h2>";
 		echo "</td>\n</tr>\n";
@@ -279,15 +280,15 @@ function Display_Weather_V($location) { //*************************************/
 			#Highlight rain% value if over specified value.
 			if ($DATA[w1_RAIN][$hour] > $RAIN_THRESHOLD) { $rain = "rain"; } else { $rain = ""; }
 			
-
-
-
-
-
-
+			#Add day of week after new date.  "YYYY"."/"."MM/DD"
+			$day = "";
+			if (($hour > 1) && ($DATA[w1_DATE][$hour - 1] != "") && ($DATA[w1_DATE][$hour] == "")) {
+				   $day = date('D', strtotime(date("Y")."/".$DATA[w1_DATE][$hour - 1]));
+			}
+			
 			#Display row of data.
 			echo "<tr>\n";
-				echo "<td class='hdr'>"				.hsc($DATA[w1_DATE    ][$hour])."</td>\n";
+				echo "<td class='hdr'>"				.hsc($DATA[w1_DATE    ][$hour])."$day</td>\n";
 				echo "<td class='hdr'>" 			.hsc($DATA[w1_HOUR    ][$hour])."</td>\n";
 				echo "<td class='$hdr'>"			.hsc($DATA[w1_TEMP    ][$hour])."</td>\n";
 				echo "<td class='$hdr'>"			.hsc($DATA[w1_WIND    ][$hour])."</td>\n";
@@ -306,7 +307,7 @@ function Display_Weather_V($location) { //*************************************/
 
 
 function Display_Weather_H($location) { //*************************************/
-	//Display data in new table, each column one hour.
+	//Display data in new Horizontal table, each column one hour.
 	global  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $DISPLAY_ORDER, $HOURS_to_SHOW;
 		
 	echo "<table class=data>\n";
@@ -324,14 +325,14 @@ function Display_Weather_H($location) { //*************************************/
 			echo "<tr>\n";
 			for ($hour = 0; $hour <= $HOURS_to_SHOW; $hour++) {
 				
-				$hdr = "";
+				#Add day of week after new date.  "YYYY"."/"."MM/DD"
+				$day = "";
+				if (($tr == 0) && ($hour > 1) && ($DATA[w1_DATE][$hour - 1] != "") && ($DATA[w1_DATE][$hour] == "")) {
+					$day = date('D', strtotime(date("Y")."/".$DATA[w1_DATE][$hour - 1]));
+				}
 				
-
-
-
-
 				#Highlight header/date & time rows. ***********************/
-				if (($tr == 0) || ($tr == 1)) {$hdr = "hdr";}
+				if (($tr == 0) || ($tr == 1)) {$hdr = "hdr";} else {$hdr = "";}
 				
 				#Highlight rain% value if over specified value.
 				$rain = "";
@@ -341,7 +342,7 @@ function Display_Weather_H($location) { //*************************************/
 				if ($hour == 0) 
 					{ echo "<th>".($DATA[$DISPLAY_ORDER[$tr]][$hour])."</th>\n"; }
 				else
-					{ echo "<td class='".$hdr." ".$rain."'>".hsc($DATA[$DISPLAY_ORDER[$tr]][$hour])."</td>\n"; }
+					{ echo "<td class='".$hdr." ".$rain."'>".hsc($DATA[$DISPLAY_ORDER[$tr]][$hour])."$day</td>\n"; }
 			}//end for($hour)
 			echo "</tr>\n";
 		}//end for($tr)
@@ -389,7 +390,7 @@ td 			 { min-width: 2.5em; max-width: 3em; white-space: normal; } /*Default for 
 #timestamp	 { margin: .2em 0 .2em 0; padding: 0 .3em 0 .2em; display: inline-block; border: 1px solid teal; }
 #data_source { font-size: 9pt; color: #555; }
 .options	 { margin: 0 2em 0 0; }
-.location_option { border: 1px solid rgb(63,131,245); padding: .2em .4em .2em .2em; margin-right: .5em;}
+.location_option { border: 1px solid rgb(63,131,245); padding: .1em .4em .1em .1em; margin-right: .5em;}
 .location_name	 { text-align: left; margin-left: 4em; }
 
 .TESTING_MSG 	 { color: red; padding-left: 1em; }
@@ -416,11 +417,12 @@ if ($HOURS_to_SHOW < 5) { echo "<style>.location_name {margin-left: .2em;}</styl
 function User_Options() {//****************************************************/
 	global $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_to_SHOW, $SHOW_LOCATIONS;
 	
-echo "<form method=get action=''>Show weather for: \n";
+echo "<form method=get action=''>\n";
 
 
 
 #First row: List location options ****
+echo "Show weather for: \n";
 $checked_location = 0;
 for ($LOCATION = 0; $LOCATION < LOCATIONS; $LOCATION++) {
 	$checked = "";
@@ -428,11 +430,10 @@ for ($LOCATION = 0; $LOCATION < LOCATIONS; $LOCATION++) {
 		$checked = "checked";
 		$checked_location++;
 	}
-	//echo "<span class=location_option>";
 	echo "<label class=location_option><input type=checkbox name=SHOW_LOCATIONS[] value=$LOCATION $checked>";
 	echo $LOCATION_NAMES[$LOCATION]."</label>\n";
-	//echo "</span>\n";
 }
+
 
 
 #Second row of options ****************
@@ -474,16 +475,16 @@ echo "%</span>\n";
 
 
 
-#TEST MODE option
+/*#TEST MODE option  *****/
 $checked = "";
 if (isset($_GET["TEST_MODE"])) {$checked = " checked";}
 echo "<label id=test_mode><input type=checkbox name=TEST_MODE value=true $checked>Test Mode</label>\n";
+/*************************/
 
 
 
 #SUBMIT button
 echo "<button class=button>Submit</button>\n";
-
 
 echo "</form>\n\n";
 
@@ -499,7 +500,7 @@ function Javascripts() {//*****************************************************/
 ?>
 <script>
 function Time_Stamp(){ //**********************************************/
-	//returns Day, yyyy-mm-dd hh:mm:ss am/pm
+	//returns Day, yyyy-mm-dd, hh:mm:ss am/pm
 
 	//older, simple timestamp:  m/d/yyy h:m:ssAM/PM
 	//now = new Date(); return now.toLocaleString(); 
@@ -527,7 +528,7 @@ function Time_Stamp(){ //**********************************************/
 	var FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
 	var FULLTIME = HOURS + ":" + MINS + ":" + SECS + " " + AMPM;
 
-	return DAY + ", " + FULLDATE + " &nbsp;" + FULLTIME;
+	return DAY + ", " + FULLDATE + ", " + FULLTIME;
 }//end Time_Stamp() //*************************************************/
 </script>
 <?php
@@ -539,9 +540,9 @@ function Time_Stamp(){ //**********************************************/
 function Get_GET() { //********************************************************/
 	global $HOURS_to_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES;
 
-	#Validate $_GET["HOURS_to_SHOW"]
+	#Validate $_GET["HOURS_to_SHOW"] ********
 
-	#Needed before Styles() & User_Options()
+	#Needed in Styles() & User_Options()
 	if (!isset($_GET["HOURS_to_SHOW"])) {
 		//only show 24 hours by default
 		$HOURS_to_SHOW = 24;
@@ -552,23 +553,23 @@ function Get_GET() { //********************************************************/
 	}
 
 
-	#Validate $_GET[SHOW_LOCATIONS]
+	#Validate $_GET[SHOW_LOCATIONS] *********
 
 	if (!isset($_GET["SHOW_LOCATIONS"])) { $SHOW_LOCATIONS[0] = DEFAULT_LOCATION; }
 	else 								 { $SHOW_LOCATIONS 	  = $_GET["SHOW_LOCATIONS"]; }
 
-	#make 'em all int's
-	foreach($SHOW_LOCATIONS as $key => $location) { $SHOW_LOCATIONS[$key] = $SHOW_LOCATIONS[$key] * 1; }
-
 	#make sure in valid range
 	foreach($SHOW_LOCATIONS as $key => $location) {
-		if (($location < 0) || ($location > (LOCATIONS - 1)) ) { unset($SHOW_LOCATIONS[$key]); }
+		if (!is_numeric($key) || !is_numeric($location)) 			{ unset($SHOW_LOCATIONS[$key]); }
+		else if (($location < 0) || ($location > (LOCATIONS - 1)) ) { unset($SHOW_LOCATIONS[$key]); }
+		else /*make 'em int's*/										{ $SHOW_LOCATIONS[$key] *= 1;   }
 	}
 
 	sort($SHOW_LOCATIONS);
 	$SHOW_LOCATIONS = array_values($SHOW_LOCATIONS);
 
-
+	#"manual" TEST_MODE alias (allows adding &TEST to URL even without a <form> option)
+	if (isset($_GET["TEST"]) || isset($_GET["test"])) {$_GET["TEST_MODE"] = "true";}
 
 }//end Get_GET() //************************************************************/
 
@@ -578,36 +579,40 @@ function Get_GET() { //********************************************************/
 # "Main" //********************************************************************/
 #
 Header_crap();
-Javascripts();
 Get_GET(); //needed before Styles() & User_Options();
+Javascripts();
 Styles();
 User_Options();
 
 
 #Time Stamp
-echo "<div id=timestamp><script>document.write(Time_Stamp() );</script></div>";
+echo "<div id=timestamp><script>document.write(Time_Stamp());</script></div>";
 
 
 #Data Source
 echo " <span id=data_source>(Weather data source: ";
-	if (isset($_GET["TEST_MODE"]))  {echo "<span class=TESTING_MSG>".getcwd()."\\".RAW_HTML_SAMPLE."</span>";}
+	if (isset($_GET["TEST_MODE"]))  {echo "<span class=TESTING_MSG>".getcwd()."\\".dirname(RAW_HTML_SAMPLE)."</span>";}
 	else							{echo "www.weather.gov";}
 echo ")</span>\n";
 
 
-
 #Get & display weather for selected locations
 echo "<div id=container>\n";
-for ($SELECTED = 0; $SELECTED < COUNT($SHOW_LOCATIONS); $SELECTED++) {
+	for ($SELECTED = 0; $SELECTED < COUNT($SHOW_LOCATIONS); $SELECTED++) {
+		
+		Get_Weather_Data($SHOW_LOCATIONS[$SELECTED]);
+		
+		Extract_Weather_Data();
+		
+		if ($_GET["V_or_H"] == "H") { Display_Weather_H($SHOW_LOCATIONS[$SELECTED]); }
+		else 						{ Display_Weather_V($SHOW_LOCATIONS[$SELECTED]); }
+	}//end for $SELECTED
 
-	Get_Weather_Data($SHOW_LOCATIONS[$SELECTED]);
+	if (COUNT($SHOW_LOCATIONS) < 3) {echo $RADAR_IMG;}
+echo "</div>\n"; //end container
 
-	Extract_Weather_Data();
+if (COUNT($SHOW_LOCATIONS) > 2) {echo $RADAR_IMG;}
 
-	if ($_GET["V_or_H"] == "H") { Display_Weather_H($SHOW_LOCATIONS[$SELECTED]); }
-	else 						{ Display_Weather_V($SHOW_LOCATIONS[$SELECTED]); }
-}//end for $SELECTED
-echo "</div>";
 
 
 #echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
