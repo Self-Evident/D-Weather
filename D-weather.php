@@ -1,11 +1,16 @@
 ﻿<?php
 /*******************************************************************************
 #Common URL  (w/Tempe lat & lon)
+
+&textField1=33.4148&textField2=-111.9093
+
 http://forecast.weather.gov/MapClick.php?lat=33.4148&lon=-111.9093&unit=0&lg=english&FcstType=digital
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=48             &FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=&AheadDay.x=76&AheadDay.y=8
 http://forecast.weather.gov/MapClick.php?lat=33.4148&lon=-111.9093&unit=0&lg=english&FcstType=digital&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=
+
+
 
 #URL Breakdown:
 http://forecast.weather.gov/MapClick.php
@@ -73,7 +78,7 @@ Rows:
 
 
 function Init() { //***********************************************************/
-	global $BASE_URL, $BASE_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, 
+	global $URL_BASE, $URL_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, 
 		   $DESIRED, $DISPLAY_ORDER, $DATA, $DEFAULT_ASPECTS, $SAMPLE_SET, 
 		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE;
 
@@ -83,9 +88,9 @@ function Init() { //***********************************************************/
 
 
 	#Weather url's *****************************************************************
-	$BASE_URL = "http://forecast.weather.gov/MapClick.php?";
-	$BASE_OPTIONS = "&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=";
-	$URL_MOST = $BASE_URL.$BASE_OPTIONS;
+	$URL_BASE = "http://forecast.weather.gov/MapClick.php?";
+	$URL_OPTIONS = "&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=";
+	$URL_MOST = $URL_BASE.$URL_OPTIONS; //only needs lat & lon (textField1 & textField2)
 
 
 	#A few pre-defined locations...
@@ -496,7 +501,7 @@ function Get_GET() {//*********************************************************/
 
 
 function Search_for_custom_location() {//**************************************/
-	global $URL_MOST, $DATA_URLS, $BASE_OPTIONS, $LOCATION_NAMES, $TEST_MODE;
+	global $DATA_URL, $URL_BASE, $URL_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, $CUSTOM_RADAR_SITE,  $TEST_MODE;
 
 
 	#####################################################################
@@ -520,48 +525,75 @@ function Search_for_custom_location() {//**************************************/
 	$search_for = '/Location: .*$/m';
 	$location_found = preg_match($search_for, $HEADERS ,$found); //$found is always an array.
 
-//##### echo "<br><pre>\n$Search_URL\n\n".hsc($HEADERS)."</pre>"; //##### die(); //#####
-
 	if ($location_found) {
 		$HEADERS_Location = substr($found[0], 10); //Drop the "Location: " prefix
 		$HEADERS_Location_query = parse_url(trim($HEADERS_Location), PHP_URL_QUERY);
 		parse_str($HEADERS_Location_query, $Query_values);
 
 
-/*****************************************************************************./
-//##### function dump_array($var, $name="", $ECHO = 1, $PRE=1, $BRDR=1, $DSPLY=1, $VD=0, $LVL=0) { //##### 
-echo "<br>".dump_array($Query_values,'Location $Query_values:',0)."<hr>";
-
-$forecast_html = trim(curl_get_contents($HEADERS_Location))."\n";
-echo "<br><pre>\n{$HEADERS_Location}\n\n";
-#echo hsc($forecast_html);
-echo "</pre><hr>";
-
-
-$DOM = new DOMDocument;
-@$DOM -> loadHTML($forecast_html);
-$links = $DOM -> getElementsByTagName('a');
-
-echo "<pre>";
-$x = 0;
-foreach ($links as $node) {
-	$node_array[]  = $node;
-	#$linksx[$x]['value'] = $node -> nodeValue;
+		//##### $forecast_page = trim(curl_get_contents($Search_URL, 1, 1))."\n";
+		
+		/******************************************************************************/
+		//##### function dump_array($var, $name="", $ECHO = 1, $PRE=1, $BRDR=1, $DSPLY=1, $VD=0, $LVL=0) { //##### 
+		echo "<br><pre>\n$Search_URL\n\n".hsc($HEADERS)."</pre>";
+		echo "<br>".dump_array($Query_values,'Location $Query_values:',0)."<hr>";
+		
+		$forecast_html = trim(curl_get_contents($HEADERS_Location))."\n";
+		echo "<br><pre>\n{$HEADERS_Location}\n\n";
+		#echo hsc($forecast_html);
+		echo "</pre>";
+		
+		
+		$DOM = new DOMDocument;
+		@$DOM -> loadHTML($forecast_html);
+		$links = $DOM -> getElementsByTagName('a');
+		
+		echo "<pre>";
+		$tab_forecast_found = false;
+		$rid_found			= false;
+		$x = 0;
+		foreach ($links as $node) {
+			
+			#Search for final url...
+			if (($node -> nodeValue) === "Tabular Forecast") {
+				//##### $URL_BASE = "http://forecast.weather.gov/MapClick.php?";
+				$FULL_URL = "http://forecast.weather.gov/".$node->getAttribute('href').$URL_OPTIONS;
+				echo $FULL_URL."<hr>";
+				$tab_forecast_found = true;
+			}
 	
-	$linksx[$x]['text'] = $node -> nodeValue;
-	$linksx[$x]['href'] = $node -> getAttribute('href');
-	$x++;
-} //
+			#search for rid=??? & extract ???
+			if (($node -> nodeValue) === "") { //Only check those <a>'s with no text as it's an <img>
+				$link = $node -> getAttribute('href'); //pull link & search for rid=.
+				$query_string = parse_url(trim($link), PHP_URL_QUERY);
+				parse_str($query_string, $query_values);
 
-dump_array($linksx);
-echo "<hr>";
-echo "</pre>";
+				if (isset($query_values["rid"])) {
+					$CUSTOM_RADAR_SITE = strtoupper($query_values["rid"]);
+					echo $CUSTOM_RADAR_SITE;
+					$rid_found = true;
+				}
 
+				dump_array($query_values);
 
-die(); //#####
-/******************************************************************************/
-
-
+				if (0) {;}
+				//##### $URL_BASE = "http://forecast.weather.gov/MapClick.php?";
+				$FULL_URL = "http://forecast.weather.gov/".$node->getAttribute('href').$URL_OPTIONS;
+				echo "x ".$FULL_URL."<hr>y ".$DATA_URLS[0]."<hr>"	; 
+			}
+				
+			$linksx[$x]['text'] = $node -> nodeValue;
+			$linksx[$x]['href'] = $node -> getAttribute('href');
+			$x++;
+			
+			if ($tab_forecast_found && $rid_found) { break;}
+		}//
+		
+		dump_array($linksx);
+		echo "xxxxxxxxx<hr>";
+		echo "</pre>";
+		die(); //#####
+		/******************************************************************************/
 
 
 		if (isset($Query_values["lat"])) { $lat = $Query_values["lat"];		   $lon = $Query_values["lon"]; }
@@ -606,7 +638,7 @@ function Get_Weather_Pages($location){//***************************************/
 	if 		($HOURS_TO_SHOW > 144) {$pages_to_get = 4;}
 	else if	($HOURS_TO_SHOW >  96) {$pages_to_get = 3;}
 	else if ($HOURS_TO_SHOW >  48) {$pages_to_get = 2;}
-	else    					   {$pages_to_get = 1;}
+	else    /*----------------->*/ {$pages_to_get = 1;}
 
 	$raw_html = array(1=>"");
 	
@@ -623,9 +655,13 @@ function Get_Weather_Pages($location){//***************************************/
 			else 				{ $headers_too = false; }
 			
 			$data_url = $DATA_URLS[$location]."&AheadHour=".$AheadHour[$page];
-			$raw_html[$page] = curl_get_contents($data_url, $headers_too);
+			$raw_html[$page] = curl_get_contents($data_url);
 			#$raw_html = file_get_contents($data_url);  //stopped working sometime 2015-03-31
 			
+			//##### 			echo "<pre>".hsc($raw_html[$page]); die(); //#####
+			//#####
+			
+			//##### ########################################
 			# Find the radar id for user provided $location
 			# (as ?rid=abc in the query portion of the href of an <a> in the $raw_html)
 			# preg_match returns an array, but there should be only one...
@@ -1380,7 +1416,7 @@ echo "\n<div class=w_container>\n";
 		$RAW_HTML = Get_Weather_Pages($location);
 		
 //##### echo "<pre>".hsc(print_r($RAW_HTML,1))."\n\n".$DATA_URLS[0]."</pre>";//##### 
-//##### #echo ($LOCATION_FOUND*1); //die(); //##### 
+//##### echo ($LOCATION_FOUND*1); //die(); //##### 
 		
 		Extract_Weather_Data($RAW_HTML);
 		
