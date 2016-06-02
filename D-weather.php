@@ -5,19 +5,24 @@ http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=p
 
 #URL Breakdown:
 http://forecast.weather.gov/MapClick.php
-?w0=t					temp
-&w1=td					dew point (temp)
-&w3=sfcwind				surface wind
-&w3u=1					
-&w4=sky					Sky Coverage (clouds)
-&w5=pop					Probability of Precipitation (%)
-&w6=rh					Relative Humidity
+?w0=t					Temperature
+&w1=td					(Temp) Dep Point
+&w2=wc					Wind Chill
+&w3=sfcwind				Surface Wind Speed
+&w3u=1					?
+&w4=sky					Sky Coverage %
+&w5=pop					Precipitation Potential %
+&w6=rh					Relative Humidity %
 &w7=rain				Rain
+&w8=thunder				Thunder
+&w9=snow				Snow
+&w10=fzg				Freezing Rain
+&w11=sleet				Sleet
 &w12=fog				Fog
-&w13u=0
-&w15u=1
-&w16u=1
-&AheadHour=0
+&w13u=0					?
+&w15u=1					?
+&w16u=1					?
+&AheadHour=0			Offset from current hour to first hour.
 &Submit=Submit
 &FcstType=digital
 &textField1=33.4148			textField1 may also be named lat
@@ -27,9 +32,11 @@ http://forecast.weather.gov/MapClick.php
 &dd=
 &bw=
 
+
+
 /*******************************************************************************
 # The following based on the weather table from the options in the URL above. 
-# The table consists of 26 rows (<tr>'s) and 25 columns (<td>'s)
+# The table consists of 36 rows (<tr>'s) and 25 columns (<td>'s)
 # Column 0: labels. Columns 1 thru 24: each column contains one hour of data,
 # starting with the current hour, unless a later hour is selected.
 Rows:
@@ -38,26 +45,33 @@ Rows:
  2: Hour
  3: Temp
  4: Dewpoint
- 5: Wind speed
- 6: Wind direction
- 7: Gust
- 8: Cloud cover
- 9: Rain %
-10: Humidity %
-11: Rain amount
-12: Fog
-13: ...
- |: ... rows 13-25 rows repeat rows 0-12...
-25: ...
+ 5: Wind chill
+ 6: Surface Wind Speed
+ 7: Wind direction
+ 8: Gust
+ 9: Sky/Cloud cover %
+10: Precipitation %
+11: Humidity %
+12: Rain chance
+13: Thunder
+14: Snow
+15: Freezing Rain
+16: Sleet
+17: Fog
+18: ...
+ |: ... rows 18-35 rows repeat rows 0-17...
+35: ...
 
-
-http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w9=fog&w10u=0&w12u=1&w13u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
 /******************************************************************************/
+
+
+#Make sure time zone is correct.
+date_default_timezone_set("America/New_York");
 
 
 
 #Weather url's
-$BASE_URL_OPTIONS = "http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&site=all&unit=0&dd=&bw=&textField1=";
+$BASE_URL_OPTIONS = "http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&site=all&unit=0&dd=&bw=&textField1=";
 
 $x = 0;
 #The first, zero, location is a placeholder for the "Search For" location option.
@@ -75,6 +89,121 @@ define('DEFAULT_LOCATION', 2);
 define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring=");
 
 
+
+#Weather data is the 8th <table> in the source html (as of 2015-03-29).
+#(8th counting from 1, but computer programmers like to count from 0...)
+define('WEATHER_TABLE', 7);
+
+
+# Rows (<tr>) of data in source html table.
+# The following rows are determined by options in the URL.
+# weather.gov displays 48 hours at once, starting with current hour,
+# in two 24 hour sets.
+# The d1_ or w2_ prefix denotes which set of rows of 24 hour data. 
+# The (lower-case) "w" prefix just means "weather".
+
+define('d1_DATE',       1);
+define('d1_HOUR',       2);
+define('d1_TEMP',       3);
+define('d1_DEWPOINT',   4);
+define('d1_WIND_CHILL', 5);
+define('d1_WIND',       6);
+define('d1_WIND_DIR',   7);
+define('d1_GUST',       8);
+define('d1_CLOUDS',     9);
+define('d1_RAIN',      10);
+define('d1_HUMIDITY',  11);
+define('d1_RAIN_CHNC', 12);
+define('d1_THUNDER',   13);
+define('d1_SNOW',      14);
+define('d1_FRZ_RAIN',  15);
+define('d1_SLEET',     16);
+define('d1_FOG',       17);
+
+define('ASPECTS_TOTAL', 17); //Total number of weather aspects available.
+define('w2_OFFSET',     18); //offset to first row of next set of rows of weather.
+							 //Currently there is one blank/divider row between the sets.
+define('FIRST_ROW', w2_OFFSET - ASPECTS_TOTAL);
+
+define('w2_DATE',      19);
+define('w2_HOUR',      20);
+define('w2_TEMP',      21);
+define('w2_DEWPOINT',  22);
+define('w2_WIND_CHILL',23);
+define('w2_WIND',      24);
+define('w2_WIND_DIR',  25);
+define('w2_GUST',      26);
+define('w2_CLOUDS',    27);
+define('w2_RAIN',      28);
+define('w2_HUMIDITY',  29);
+define('w2_RAIN_CHNC', 30);
+define('w2_THUNDER',   31);
+define('w2_SNOW',      32);
+define('w2_FRZ_RAIN',  33);
+define('w2_SLEET',     34);
+define('w2_FOG',       35);
+
+
+# Used as headers of displayed data ($DATA[x][0]).
+$data_labels[d1_DATE]		= "Date";
+$data_labels[d1_HOUR]		= "Hour";
+$data_labels[d1_TEMP]		= "Temp °f";
+$data_labels[d1_DEWPOINT]	= "Dew Point";
+$data_labels[d1_WIND_CHILL]	= 'Wind Chill';
+$data_labels[d1_WIND]		= "Wind mph";
+$data_labels[d1_WIND_DIR]	= "Wind dir";
+$data_labels[d1_GUST]		= "Gusts mph";
+$data_labels[d1_CLOUDS]		= "Clouds %";
+$data_labels[d1_RAIN]		= "Prcip %";
+$data_labels[d1_HUMIDITY]	= "Humid %";
+$data_labels[d1_RAIN_CHNC]	= "Rain";			#Rain, Thunder, Snow, Freezing Rain, Sleet, & Fog
+$data_labels[d1_THUNDER]	= "Thndr";			#values are "Lkly", "Schc", etc...
+$data_labels[d1_SNOW]		= "Snow";
+$data_labels[d1_FRZ_RAIN]	= "Frzng Rain";
+$data_labels[d1_SLEET]		= "Sleet";
+$data_labels[d1_FOG]		= "Fog";
+
+
+#Desired rows of data to extract from source html table. Currently all rows.
+$DESIRED = array(
+	d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_CLOUDS, d1_RAIN, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW, 
+	w2_DATE, w2_HOUR, w2_TEMP, w2_WIND, w2_WIND_DIR, w2_GUST, w2_CLOUDS, w2_RAIN, w2_HUMIDITY, w2_FOG, w2_RAIN_CHNC, w2_THUNDER, w2_FRZ_RAIN, w2_SLEET, w2_SNOW, 
+);//
+
+
+#Order to subsequently re-display data (not neccessarily all of, or same order as, the source)
+#$DISPLAY_ORDER is also used in Get_GET() to validate values in $_GET["ASPECTS"] (selected aspects).
+$DISPLAY_ORDER = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
+
+
+#Number of weather aspects displayed (TIME, FORCAST, TEMP, etc...)
+define('WASPECTS', count($DISPLAY_ORDER));
+
+
+#For the extracted Data. $DATA[n][0] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
+#The two set of rows (from original source html), of 24 hour data columns, will be concatenated to a single 48 hour data set.
+$x = 0;
+$DATA = array();
+for ($x = 0; $x < WASPECTS; $x++) {
+	$DATA[$DISPLAY_ORDER[$x]] 	 = array();
+	$DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x]];
+}
+
+
+
+#Default aspects to display
+#Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed *by default*.
+#The option box will be available, but unchecked.
+#$DEFAULT_ASPECTS = $DISPLAY_ORDER; #All aspects
+#$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
+$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG);
+
+
+
+
+
+
+
 #Occasionally, a "Radar data are unavailable" image is served.
 #May add check for this at some point so it can be ignored.
 #Maybe. Possibly. Sometime. But no promises.
@@ -85,7 +214,7 @@ define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring="
 #1 for actual sample radar images, 2 for simple graphics.
 # If change either $..._SAMPLE below, change cooresponding value in Get_GET();
 $SAMPLE_SET = 1;
-$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.html";
+$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.1.html";
 $RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
@@ -128,107 +257,6 @@ define('ROTATE_LOOPS_MIN',  1);
 define('ROTATE_LOOPS_MAX', 99);
 define('ROTATE_LOOPS_DEF', 10);
 define('ROTATE_LOOPS_INC',  1);
-
-
-#Make sure time zone is correct.
-date_default_timezone_set("America/New_York");
-
-
-#Weather data is the 8th <table> in the source html (as of 2015-03-29).
-#(8th counting from 1, but computer programmers like to count from 0...)
-define('WEATHER_TABLE', 7);
-
-
-# Rows (<tr>) of data in source html table.
-# The following rows are determined by options in the URL.
-# weather.gov displays 48 hours at once, starting with current hour,
-# in two 24 hour sets.
-# The w1_ or w2_ prefix denotes which set of rows of 24 hour data. 
-# The (lower-case) "w" prefix just means "weather".
-define('w1_DATE',      1);
-define('w1_HOUR',      2);
-define('w1_TEMP',      3);
-define('w1_DEWPOINT',  4);
-define('w1_WIND',      5);
-define('w1_WIND_DIR',  6);
-define('w1_GUST',      7);
-define('w1_CLOUDS',    8);
-define('w1_RAIN',      9);
-define('w1_HUMIDITY', 10);
-define('w1_RAIN_AMT', 11);
-define('w1_FOG',      12);
-
-define('w2_DATE',     14);
-define('w2_HOUR',     15);
-define('w2_TEMP',     16);
-define('w2_DEWPOINT', 17);
-define('w2_WIND',     18);
-define('w2_WIND_DIR', 19);
-define('w2_GUST',     20);
-define('w2_CLOUDS',   21);
-define('w2_RAIN',     22);
-define('w2_HUMIDITY', 23);
-define('w2_RAIN_AMT', 24);
-define('w2_FOG',      25);
-
-
-# Used as headers of displayed data ($DATA[x][0]).
-$data_labels[w1_DATE]		= "Date";
-$data_labels[w1_HOUR]		= "Hour";
-$data_labels[w1_TEMP]		= "Temp °f";
-$data_labels[w1_DEWPOINT]	= "Dew Point";
-$data_labels[w1_WIND]		= "Wind mph";
-$data_labels[w1_WIND_DIR]	= "Wind dir";
-$data_labels[w1_GUST]		= "Gusts mph";
-$data_labels[w1_CLOUDS]		= "Clouds %";
-$data_labels[w1_RAIN]		= "Rain %";
-$data_labels[w1_HUMIDITY]	= "Humid %";
-$data_labels[w1_RAIN_AMT]	= 'Rain "';
-$data_labels[w1_FOG]		= "Fog";
-
-
-#Desired rows of data from source html table. currently ignoring DEWPOINT & RAIN_AMT rows.
-$DESIRED = array(
-	w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_GUST, w1_WIND_DIR, w1_CLOUDS, w1_RAIN, w1_HUMIDITY, w1_FOG, 
-	w2_DATE, w2_HOUR, w2_TEMP, w2_WIND, w2_GUST, w2_WIND_DIR, w2_CLOUDS, w2_RAIN, w2_HUMIDITY, w2_FOG, 
-);//
-
-
-#Order to subsequently re-display data (not neccessarily same order as in source)
-#Should correlate to $DATA[$x][0] values below!
-#$DISPLAY_ORDER is also used in Get_GET() to validate values in $_GET["ASPECTS"] (selected aspects).
-$DISPLAY_ORDER = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_GUST, w1_RAIN, w1_CLOUDS, w1_HUMIDITY, w1_FOG);
-
-
-
-#Number of weather rows displayed (TIME, FORCAST, TEMP, etc...)
-define('WASPECTS', count($DISPLAY_ORDER));
-
-
-
-#For the extracted Data. $DATA[n][0] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
-#The two set of rows, of 24 hour data columns, will be concatenated to a single 48 hour data set.
-$x = 0;
-$DATA = array();
-for ($x = 0; $x < WASPECTS; $x++) {
-	$DATA[$DISPLAY_ORDER[$x]] 	 = array();
-	$DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x]];
-}
-
-
-
-
-
-
-
-
-
-#Default aspects to display
-#Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed by default.
-#(The option box will also be unchecked.)
-$DEFAULT_ASPECTS = $DISPLAY_ORDER; #All aspects
-#$DEFAULT_ASPECTS = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_GUST, w1_RAIN, w1_CLOUDS, w1_HUMIDITY, w1_FOG);
-#$DEFAULT_ASPECTS = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_RAIN, w1_CLOUDS, w1_HUMIDITY);
 
 
 
@@ -290,8 +318,8 @@ function Get_GET() {//*********************************************************/
 	#Which sample set (1 or 2) of radar images to use
 	if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
 	if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
-	$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.html";
-	$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
+	#$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.html";
+	#$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
 	#"SEARCH_FOR_LOCATION" ******************
@@ -474,7 +502,7 @@ function Get_Weather_Page($location){//****************************************/
 
 
 
-function Extract_Weather_Data($raw_html) {//***************************/
+function Extract_Weather_Data($raw_html) {//***********************************/
 	//Extract desired data from table and save in $DATA array().
 	global $DESIRED, $DATA;
 	
@@ -491,10 +519,10 @@ function Extract_Weather_Data($raw_html) {//***************************/
 	$ROWS  = $WEATHER_TABLE	-> getElementsByTagName('tr');
 
 	$nextset = 0; //For first 24 hour data set.
-	for ($rowset=0; $rowset < 14; $rowset += 13) { //*$rowset should only = 0 or 13
+	for ($rowset=0; $rowset <= w2_OFFSET; $rowset += w2_OFFSET) { //*$rowset should only = 0 or w2_OFFSET
 		
-		$first_row =  1 + $rowset;
-		$last_row  = 12 + $rowset;
+		$first_row = FIRST_ROW	   + $rowset;
+		$last_row  = ASPECTS_TOTAL + $rowset;
 		for ($row = $first_row; $row <= $last_row; $row++) {
 			
 			//only extract desired rows
@@ -526,7 +554,7 @@ function Display_Weather_V($location) {//***************************************
 	global  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS;
 
 	echo "<table class=data>\n";
-			  # WASPECTS is max num of columns. but it's ok if there are fewer.
+		# WASPECTS is max num of columns. but it's ok if there are fewer.
 		echo "<tr>\n<td colspan=".WASPECTS.">";
 		echo "<h2>".hsc($LOCATION_NAMES[$location])."<br>".$TESTING_MSG."</h2>";
 		echo "</td>\n</tr>\n";
@@ -538,8 +566,8 @@ function Display_Weather_V($location) {//***************************************
 			
 			#Show day of week after new date.  (skip $hour 0 now as it is only a header)
 			$day = "";
-			if (($hour > 1) && ($DATA[w1_DATE][$hour - 1] != "") && ($DATA[w1_DATE][$hour] == "")) {
-				   $day = date('D', strtotime(date("Y")."/".$DATA[w1_DATE][$hour - 1]));
+			if (($hour > 1) && ($DATA[d1_DATE][$hour - 1] != "") && ($DATA[d1_DATE][$hour] == "")) {
+				   $day = date('D', strtotime(date("Y")."/".$DATA[d1_DATE][$hour - 1]));
 			}
 			
 			#Display row of weather data for the current $hour
@@ -562,13 +590,13 @@ function Display_Weather_V($location) {//***************************************
 					
 					#Highlight rain% value if >= specified value.
 					if (($hour > 0) && 
-						($DISPLAY_ORDER[$aspect] == w1_RAIN) && 
-						($DATA[w1_RAIN][$hour] >= $RAIN_THRESHOLD))
+						($DISPLAY_ORDER[$aspect] == d1_RAIN) && 
+						($DATA[d1_RAIN][$hour] >= $RAIN_THRESHOLD))
 						{ $aspect_class = " rain"; }
 					
 					#Adjust css for a couple of columns
-					if (($hour >  0) && ($DISPLAY_ORDER[$aspect] == w1_WIND_DIR)) { $aspect_class = " wind_dir";}
-					if (($DISPLAY_ORDER[$aspect] == w1_FOG)) {$aspect_class = " fog";}
+					if (($hour >  0) && ($DISPLAY_ORDER[$aspect] == d1_WIND_DIR)) { $aspect_class = " wind_dir";}
+					if (($DISPLAY_ORDER[$aspect] == d1_FOG)) {$aspect_class = " fog";}
 					
 					echo "<$td class='$hdr$aspect_class'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."$day</$td>\n";
 				}
@@ -603,8 +631,8 @@ function Display_Weather_H($location) {//***************************************
 				
 				#Add day of week after new date (if there's room).
 				$day = "";
-				if (($tr == 0) && ($hour > 1) && ($DATA[w1_DATE][$hour - 1] != "") && ($DATA[w1_DATE][$hour] == "")) {
-					$day = date('D', strtotime(date("Y")."/".$DATA[w1_DATE][$hour - 1]));
+				if (($tr == 0) && ($hour > 1) && ($DATA[d1_DATE][$hour - 1] != "") && ($DATA[d1_DATE][$hour] == "")) {
+					$day = date('D', strtotime(date("Y")."/".$DATA[d1_DATE][$hour - 1]));
 				}
 				
 				#Highlight header/date & time rows. ***********************/
@@ -612,7 +640,7 @@ function Display_Weather_H($location) {//***************************************
 				
 				#Highlight rain% value if over specified value.
 				$rain = "";
-				if (($DISPLAY_ORDER[$tr] == w1_RAIN) && ($DATA[w1_RAIN][$hour] >= $RAIN_THRESHOLD)) { $rain = "rain"; }
+				if (($DISPLAY_ORDER[$tr] == d1_RAIN) && ($DATA[d1_RAIN][$hour] >= $RAIN_THRESHOLD)) { $rain = "rain"; }
 				
 				#Finally, ouput the weather info. hour 0 is the header/label.
 				if ($hour == 0) 
@@ -1124,7 +1152,7 @@ if ($TEST_MODE) {
 	echo '<hr><pre style="clear: both;">$SELECTED_ASPECTS: '.hsc(print_r($SELECTED_ASPECTS, true))."</pre>\n";
 	echo '<hr><pre style="clear: both;">$LOCATION_NAMES: '  .hsc(print_r($LOCATION_NAMES, true))."</pre>\n";
 	echo '<hr><pre style="clear: both;">$DATA: '		    .hsc(print_r($DATA, true))."</pre>\n";
-	echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
+	#echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
 }
 ################################################################################
 
