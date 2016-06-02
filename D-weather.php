@@ -86,6 +86,10 @@ define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring="
 define('RAW_HTML_SAMPLE', "D:/www/Weather/weather.gov/samples/weather.gov.html");
 
 
+
+
+
+
 #Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
 #Used in Radar_Loop_scripts()
 define('RADAR_SITE_DEF', "IWA_"); //Default radar site (Central AZ)
@@ -93,8 +97,6 @@ define('RADAR_URL_BASE', "http://radar.weather.gov/lite/N0R/");
 define('RADAR_URL_BASE_DEF', "http://radar.weather.gov/lite/N0R/".RADAR_SITE_DEF);
 define('RADAR_URL_BASE_SAMPLE', "/Weather/weather.gov/samples/SAMPLE_");
 define('RADAR_IMG_EXT', ".png");
-
-
 
 #The min, max, & default hours to display
 define('HOURS_MIN',  6);
@@ -199,36 +201,36 @@ $DESIRED = array(
 $DISPLAY_ORDER = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_GUST, w1_RAIN, w1_CLOUDS, w1_HUMIDITY, w1_FOG);
 
 
-#For the extracted Data. $DATA[n][0] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
-#The two set of rows, of 24 hour data columns, will be concatenated to a single 48 hour data set.
-$x=0;
-$DATA = array();
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-$DATA[$DISPLAY_ORDER[$x]] = array();   $DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x++]];
-
-
-//##############################################
-#Default aspects to display
-
-#Desired action: leave aspect out of $DEFAULT_ASPECTS if don't want it displayed (option box unchecked) by default. 
-#Then, should be able to manually check the box & have aspect displayed. 
-# -- Doesn't work: if an aspect is not in $DISPLAY_ORDER, it's option will uncheck & not display data.
-
-$DEFAULT_ASPECTS = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_GUST, w1_WIND_DIR, w1_RAIN, w1_CLOUDS, w1_HUMIDITY, w1_FOG); //$DISPLAY_ORDER;
-//##############################################
-
 
 #Number of weather rows displayed (TIME, FORCAST, TEMP, etc...)
 define('WASPECTS', count($DISPLAY_ORDER));
+
+
+
+#For the extracted Data. $DATA[n][0] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
+#The two set of rows, of 24 hour data columns, will be concatenated to a single 48 hour data set.
+$x = 0;
+$DATA = array();
+for ($x = 0; $x < WASPECTS; $x++) {
+	$DATA[$DISPLAY_ORDER[$x]] 	 = array();
+	$DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x]];
+}
+
+
+
+
+
+
+
+
+
+#Default aspects to display
+#Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed by default.
+#(The option box will also be unchecked.)
+$DEFAULT_ASPECTS = $DISPLAY_ORDER; #All aspects
+#$DEFAULT_ASPECTS = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_GUST, w1_RAIN, w1_CLOUDS, w1_HUMIDITY, w1_FOG);
+#$DEFAULT_ASPECTS = array(w1_DATE, w1_HOUR, w1_TEMP, w1_WIND, w1_WIND_DIR, w1_RAIN, w1_CLOUDS, w1_HUMIDITY);
+
 
 
 
@@ -274,7 +276,15 @@ function Get_GET() {//*********************************************************/
 	#Get & validate URL parameters
 	global  $HOURS_TO_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES, $DISPLAY_ORDER, $RAIN_THRESHOLD, 
 			$DISPLAY_H, $SELECTED_ASPECTS, $DISPLAY_ORDER, $SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP,
-			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $TEST_MODE;
+			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, $TEST_MODE;
+
+	$_GET = array_change_key_case($_GET, CASE_UPPER);
+
+
+	#TEST_MODE alias' (accept as URL param even if <form> option is missing)
+	#LEAVE CHECK FOR TEST MODE HERE! It's result is used below.
+	if (isset($_GET["TEST"]) || isset($_GET["TEST_MODE"])) {$TEST_MODE = true; }
+	else 												   {$TEST_MODE = false;}
 
 
 	#"SEARCH_FOR_LOCATION" ******************
@@ -294,13 +304,9 @@ function Get_GET() {//*********************************************************/
 
 
 	#Weather "ASPEPCTS" *********************
-	if (!isset($_GET["ASPECTS"])) {
-		//Defaults
-		$SELECTED_ASPECTS = array_slice($DISPLAY_ORDER,2); //(ignore Date and Hour)
-		$SELECTED_ASPECTS = array_values($SELECTED_ASPECTS); //Re-index $SELECTED_ASPECTS from 0
-	} else {
-		$SELECTED_ASPECTS = $_GET["ASPECTS"];
-	}
+	if (!isset($_GET["ASPECTS"])) { $SELECTED_ASPECTS = $DEFAULT_ASPECTS; }
+	else 						  { $SELECTED_ASPECTS = $_GET["ASPECTS"]; }
+	
 	#make sure in valid range
 	foreach($SELECTED_ASPECTS as $key => $aspect) {
 		if     (!is_numeric($key) || !is_numeric($aspect))	{ unset($SELECTED_ASPECTS[$key]); }
@@ -311,13 +317,13 @@ function Get_GET() {//*********************************************************/
 	$SELECTED_ASPECTS = array_values($SELECTED_ASPECTS);
 
 
-	#"HOURS_to_SHOW" ************************
+	#"HOURS_TO_SHOW" ************************
 	#Needed before Styles() & User_Options() are called
-	if (!isset($_GET["HOURS_to_SHOW"])) {
+	if (!isset($_GET["HOURS_TO_SHOW"])) {
 		//default if not selected
 		$HOURS_TO_SHOW = HOURS_DEF;
 	} else {
-		$HOURS_TO_SHOW  = intval(trim($_GET['HOURS_to_SHOW']));
+		$HOURS_TO_SHOW  = intval(trim($_GET['HOURS_TO_SHOW']));
 		if 	   ($HOURS_TO_SHOW < HOURS_MIN) { $HOURS_TO_SHOW = HOURS_MIN; }
 		elseif ($HOURS_TO_SHOW > HOURS_MAX) { $HOURS_TO_SHOW = HOURS_MAX; }
 	}
@@ -329,9 +335,10 @@ function Get_GET() {//*********************************************************/
 
 
 	#SHOW_RADAR *****************************
-	if     (empty($_GET))				{ $SHOW_RADAR = TRUE;  } #Default
-	elseif (isset($_GET["SHOW_RADAR"])) { $SHOW_RADAR = TRUE;  }
-	else								{ $SHOW_RADAR = FALSE; }
+	if     (empty($_GET))					 { $SHOW_RADAR = TRUE;  } #Default
+	elseif ($TEST_MODE && count($_GET == 1)) { $SHOW_RADAR = TRUE;  } #Default also in TEST_MODE
+	elseif (isset($_GET["SHOW_RADAR"]))		 { $SHOW_RADAR = TRUE;  }
+	else									 { $SHOW_RADAR = FALSE; }
 	
 
 	#"RAIN_THRESHOLD" Hightlight rain values when over this amount (%).
@@ -357,13 +364,6 @@ function Get_GET() {//*********************************************************/
 	#"ROTATE_LOOPS" *************************
 	if (isset($_GET["ROTATE_LOOPS"])) {$ROTATE_LOOPS = $_GET['ROTATE_LOOPS'];} else {$ROTATE_LOOPS = ROTATE_LOOPS_DEF;}
 	if (!is_numeric($ROTATE_LOOPS) || ($ROTATE_LOOPS < ROTATE_LOOPS_MIN) || ($ROTATE_LOOPS > ROTATE_LOOPS_MAX)) {$ROTATE_LOOPS = ROTATE_LOOPS_DEF;}
-
-
-	#TEST_MODE alias' (accept as URL param even if <form> option is missing)
-	if (isset($_GET["test"]) || isset($_GET["TEST"]) || isset($_GET["TEST_MODE"]))
-		{$TEST_MODE = true;}
-	else
-		{$TEST_MODE = false;}
 
 }//end Get_GET() //************************************************************/
 
@@ -531,12 +531,14 @@ function Display_Weather_V($location) {//***************************************
 			
 			#Display row of weather data for the current $hour
 			echo "<tr>\n";
-				echo "<th>".hsc($DATA[w1_DATE][$hour])."$day</th>\n";
-				echo "<th>".hsc($DATA[w1_HOUR][$hour])."</th>\n";
+				
+				#get number of weather aspects selected to display
+				$aspects = count($DISPLAY_ORDER);
 				
 				#Show data...
-				$aspects = count($DISPLAY_ORDER);
-				for ($aspect=2; $aspect < $aspects; $aspect++) {
+				for ($aspect=0; $aspect < $aspects; $aspect++) {
+					if ($aspect > 1 ) {$td = "td";} else {$td = "th";}
+					if ($aspect > 0 ) {$day = "";}
 					
 					#...but skip un-selected weather aspects (Temp, rain, wind, etc).
 					if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
@@ -546,10 +548,12 @@ function Display_Weather_V($location) {//***************************************
 						 { $rain = " rain"; }
 					else { $rain = ""; }
 					
-					#Adjust css for wind
-					if ( ($hour > 0) && ($DISPLAY_ORDER[$aspect] == w1_WIND_DIR)) { $wind= " wind_dir";} else { $wind = ""; }
+					#Adjust css for wind_dir
+					if ( ($hour > 0) && ($DISPLAY_ORDER[$aspect] == w1_WIND_DIR)) {
+						   $wind_dir = " wind_dir";}
+					else { $wind_dir = ""; }
 					
-					echo "<td class='$hdr$rain$wind'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."</td>\n";
+					echo "<$td class='$hdr$rain$wind_dir'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."$day</$td>\n";
 				}
 			echo "</tr>\n";
 			
@@ -622,7 +626,7 @@ function Header_crap() {//*****************************************************/
 
 function User_Options() {//****************************************************/
 	global	$LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
-			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DATA, $DISPLAY_ORDER, $DEFAULT_ASPECTS, $WRAP_MAP, $DONT_WRAP_MAP;
+			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DATA, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP;
 
 	#First row: Locations **********************************
 	echo "\n<div class=options_group>\n";
@@ -633,7 +637,7 @@ function User_Options() {//****************************************************/
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
 		
 		if ($key > 0) {
-			#Defined choices: Tempe, AJ,  etc...
+			#Defined choices: Tempe, AJ, etc...
 			echo "<label class='option_label location_label'>";
 			echo "<input type=checkbox name=SHOW_LOCATIONS[$key] value=$key tabindex=1$checked>";
 			echo hsc($location_name)."</label>\n";
@@ -657,10 +661,11 @@ function User_Options() {//****************************************************/
 	echo "\n<p class=options_group>\n";
 
 	echo "Show: &nbsp;\n";
-	for ($aspect=2; $aspect < WASPECTS; $aspect++) {
+	for ($aspect=0; $aspect < WASPECTS; $aspect++) {
 		$checked = "";
-		if (in_array($DEFAULT_ASPECTS[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
-		echo "<label class=option_label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] value=$DISPLAY_ORDER[$aspect] tabindex=2$checked>";
+		if (in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
+		echo "<label class=option_label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] ";
+		echo "value=$DISPLAY_ORDER[$aspect] tabindex=2$checked>";
 		echo $DATA[$DISPLAY_ORDER[$aspect]][0]."</label>\n";
 	}
 	
@@ -671,7 +676,7 @@ function User_Options() {//****************************************************/
 	echo "\n<p class=options_group>\n";
 
 	#Hours to display (12, 24, 36, 48)
-	echo "<span class=options>Display &nbsp;<select name=HOURS_to_SHOW tabindex=3>\n";
+	echo "<span class=options>Display &nbsp;<select name=HOURS_TO_SHOW tabindex=3>\n";
 	for ($option = HOURS_OPT_MIN; $option <= HOURS_OPT_MAX; $option += HOURS_OPT_INC) {
 		if ($HOURS_TO_SHOW == $option){ $selected = " selected"; } else {$selected = "";}
 		echo "<option value=$option$selected>".$option."</option>\n";
