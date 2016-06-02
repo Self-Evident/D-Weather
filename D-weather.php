@@ -480,7 +480,7 @@ function Init() { //***********************************************************/
 	//The option box will be available, but unchecked.
 	//$DEFAULT_ASPECTS = $DISPLAY_ORDER; //All aspects
 	//$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
-	$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG);
+	$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_HUMIDITY, d1_FOG);
 
 
 
@@ -787,29 +787,29 @@ function Get_GET() {//*********************************************************/
 
 
 	//Show Location Options/Aspects? *********
-	if (isset($_GET["SHOW_LOCATION_OPTIONS"]) && ($_GET["SHOW_LOCATION_OPTIONS"] == "true"))
-		 {$SHOW_LOCATION_OPTIONS = "true";}
-	else {$SHOW_LOCATION_OPTIONS = "false";}  //Default to value set in style sheet for #LOCATION_OPTIONS
+	if (isset($_GET["SHOW_LOCATION_OPTIONS"]) && ($_GET["SHOW_LOCATION_OPTIONS"] == "checked"))
+		 {$SHOW_LOCATION_OPTIONS = "checked";}
+	else {$SHOW_LOCATION_OPTIONS = "";}  //Default to value set in style sheet for #LOCATION_OPTIONS
 
 
 	//Show Weather Options/Aspects? **********
-	if (isset($_GET["SHOW_WEATHER_OPTIONS"]) && ($_GET["SHOW_WEATHER_OPTIONS"] == "true"))
-		 {$SHOW_WEATHER_OPTIONS = "true";}
-	else {$SHOW_WEATHER_OPTIONS = "false";}  //Default to value set in style sheet for #WEATHER_OPTIONS
+	if (isset($_GET["SHOW_WEATHER_OPTIONS"]) && ($_GET["SHOW_WEATHER_OPTIONS"] == "checked"))
+		 {$SHOW_WEATHER_OPTIONS = "checked";}
+	else {$SHOW_WEATHER_OPTIONS = "";}  //Default to value set in style sheet for #WEATHER_OPTIONS
 
 
 	//Show Display  Options? *****************
-	if (isset($_GET["SHOW_DISPLAY_OPTIONS"]) && ($_GET["SHOW_DISPLAY_OPTIONS"] == "true"))
-		 {$SHOW_DISPLAY_OPTIONS = "true";}
-	else {$SHOW_DISPLAY_OPTIONS = "false";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
+	if (isset($_GET["SHOW_DISPLAY_OPTIONS"]) && ($_GET["SHOW_DISPLAY_OPTIONS"] == "checked"))
+		 {$SHOW_DISPLAY_OPTIONS = "checked";}
+	else {$SHOW_DISPLAY_OPTIONS = "";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
 
 
 	//Radar options: $i=1 for default radar, $i=2 for user selected/custom location.
 	for ($i = 1; $i < 3; $i++) {
 		//Show Radar Options? ********************
- 		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "true"))
-			 {$SHOW_RADAR_OPTIONS[$i] = "true";}
-		else {$SHOW_RADAR_OPTIONS[$i] = "false";}
+ 		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "checked"))
+			 {$SHOW_RADAR_OPTIONS[$i] = "checked";}
+		else {$SHOW_RADAR_OPTIONS[$i] = "";}
 		
 		//"FRAME_RATE" ***************************
 		if (isset($_GET["FRAME_RATE"][$i]))   {$FRAME_RATE[$i]   = $_GET["FRAME_RATE"][$i];} else   {$FRAME_RATE[$i] = FRAME_RATE_DEF;}
@@ -1022,13 +1022,13 @@ function Display_Weather_V($location) {//**************************************/
 	//Display data in new Vertical table, each row one hour.
 	global $COLOR,  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 
+	//##### $columns = ASPECTS_TOTAL - 1;
 	$columns = count($SELECTED_ASPECTS) - 1;
-	
-	echo "<table class=data>\n";
-		
-		echo "<tr>\n<td colspan=".$columns.">"; 
-		echo "<h2>".hsc($LOCATION_NAMES[$location])."<br>".$TESTING_MSG."</h2>";
-		echo "</td>\n</tr>\n";
+
+	?>
+	<table id=DATA_TABLE_<?= $location ?> class=data>
+		<caption><?= hsc($LOCATION_NAMES[$location]) ?><br><?= $TESTING_MSG ?></caption>
+	<?php
 		
 		//$data_index is from 0 (current/first hour of data) to $HOURS_TO_SHOW
 		for ($data_index = 0; $data_index <= $HOURS_TO_SHOW; $data_index++) {
@@ -1039,6 +1039,7 @@ function Display_Weather_V($location) {//**************************************/
 			//If a (new day) or (start of data), add row with day, date...
 			if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) {
 				$day_of_week = date('D', strtotime(date("Y")."/".$DATA[$data_index][d1_DATE]));
+				
 				echo "<tr class=newday><th colspan=".$columns.">$day_of_week, ";
 				echo  hsc($DATA[$data_index][$DISPLAY_ORDER[0]])."</th></tr>\n";
 			}
@@ -1049,7 +1050,9 @@ function Display_Weather_V($location) {//**************************************/
 			//Show selected data...
 			echo "<tr>";
 			for ($aspect=1; $aspect < $aspects; $aspect++) {
-				if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
+				
+				//Always show Hour ($aspect 1)
+				if (($aspect > 1) && !in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
 				
 				if ($aspect < 2) {$td = "th";} else {$td = "td";} //header or data?
 				
@@ -1124,7 +1127,7 @@ function Display_Weather_H($location) {//**************************************/
 					 ($data_index				  > 0) )
 				{ $rain = "rain"; }
 				
-				//Highlight start of a new day... (bolds line between day columns) //#####
+				//Highlight start of a new day... (bolds line between day columns)
 				$newday = "";
 				if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) { $newday = "newday_h";}
 				
@@ -1187,7 +1190,8 @@ function User_Options() {//****************************************************/
 	echo "\n<div id=WEATHER_OPTIONS class=options_group>\n";
 
 	echo "<span class=indent>Show:</span>\n";
-	for ($aspect=1; $aspect < WASPECTS; $aspect++) {
+	//Skip Date & Hour (columns 0 & 1), start at Temp (column 2).
+	for ($aspect=2; $aspect < WASPECTS; $aspect++) {
 		$checked = "";
 		if (in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
 		echo "<label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] ";
@@ -1241,7 +1245,7 @@ function User_Options() {//****************************************************/
 	//Show Radar option
 	$checked = "";
 	if ($SHOW_RADAR) { $checked = " checked"; }
-	echo "<label id=show_radar_label><input type=checkbox name=SHOW_RADAR value=true$checked>Radar Map</label>\n\n";
+	echo "<label id=show_radar_label><input id=SHOW_RADAR type=checkbox name=SHOW_RADAR value=true$checked>Radar Map</label>\n\n";
 
 
 	if ($SHOW_RADAR) {
@@ -1315,9 +1319,9 @@ function Show_Radar($i=1) { //**************************************************
 
 	//show default radar & controls
 ?>
-	<div id=radar<?= $i ?> class="radar_div">
+	<div id=radar<?= $i ?> class=radar_div>
 		
-		<img src="<?= $default_img ?>" id="ROTATING_PIC_<?= $i ?>" alt="Radar Image - Forecast Area"><br>
+		<img src="<?= $default_img ?>" id=ROTATING_PIC_<?= $i ?> alt="Radar Image - Forecast Area"><br>
 		
 		<div class=radar_controls>
 			<button type=button id=START_STOP_<?= $i ?> class=start_stop></button>&nbsp;
@@ -1325,7 +1329,7 @@ function Show_Radar($i=1) { //**************************************************
 			<table id=IMGBAR_<?= $i ?> class=imgbar><tr><?= $imgbar_slots ?></tr></table>
 			
 			<button type=button id=SHOW_RADAR_OPTS_<?= $i ?> class=radar_opts_btn>Opt</button>
-			<input type=hidden id=SHOW_RADAR_OPTIONS_<?= $i ?> name=SHOW_RADAR_OPTIONS[<?= $i ?>] value=<?= $SHOW_RADAR_OPTIONS[$i] ?>>
+			<input type=hidden id=SHOW_RADAR_OPTIONS_<?= $i ?> name=SHOW_RADAR_OPTIONS[<?= $i ?>] value="<?= $SHOW_RADAR_OPTIONS[$i] ?>">
 		</div>
 		
 		<div id=RADAR_OPTIONS_<?= $i ?> class=radar_opts_div>
@@ -1521,7 +1525,7 @@ function Init_Radar(pic_list, instance) { //******************************
 	Pix.top_pic  		= document.getElementById('ROTATING_PIC_' 	   + instance); //Currently, same as .rotating_pic
 	Pix.show_radar_opts = document.getElementById('SHOW_RADAR_OPTS_'   + instance); //<button> to show/hide radar options
 	Pix.radar_options 	= document.getElementById('RADAR_OPTIONS_' 	   + instance); //<div> container for radar options
-	Pix.show_radar_options	= document.getElementById('SHOW_RADAR_OPTIONS_'+ instance); //<input hidden>  true/false
+	Pix.show_radar_options	= document.getElementById('SHOW_RADAR_OPTIONS_'+ instance); //<input> value = "checked" or ""
 	Pix.imgbar			= document.getElementById('IMGBAR_' 		   + instance); //Not currently used, but maybe someday...
 
 	Pix.rotating_pic.src 		  = Pix.pic_list[0];  //Load initial image
@@ -1532,15 +1536,14 @@ function Init_Radar(pic_list, instance) { //******************************
 	Pix.top_pic.onclick 		= function(     ){Start_Stop(Pix); document.getElementById('START_STOP_' + instance).focus();}
 	Pix.start_stop.onclick 		= function(     ){Start_Stop(Pix); Stop_Propagation(event)}
 	Pix.start_stop.onkeydown 	= function(event){Imgbar_Control(event, Pix); Stop_Propagation(event)}
-	Pix.show_radar_opts.onclick = function(     ){Show_Hide_Options(Pix.radar_options, Pix.show_radar_options, "visibility", "visible", "hidden")}
+	Pix.show_radar_opts.onclick = function(     ){
+		Show_Hide(Pix.radar_options.id, Pix.show_radar_options.id, "visibility", "visible", "hidden")
+	}
 
 	Pix.imgbar_slots = []; //<td>'s
 	for (var x=0; x < Pix.pic_list.length; x++) {Pix.imgbar_slots[x] = document.getElementById("slot_" + x  + "_" + instance);}
 
-	//##### Pix.imgbar_slots[Pix.current_pic].style.backgroundColor = "red"; //Inital condition.
-	//##### 
 	Pix.imgbar_slots[Pix.current_pic].classList.add("imgbar_current_pic");
-	
 
 	//Add events for imgbar click control
 	for (x=0; x < Pix.pic_list.length; x++) {
@@ -1576,43 +1579,10 @@ function Init_Radar_URLs_etc_js() { //*****************************************/
 ?>
 <script>
 //************************************************************************/
-var PLAY_BTN  = '<svg class="play_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">';
-	PLAY_BTN += '<polygon points="0,0  12.6,7.46  0,15.75" transform="translate(22,3)" /></svg>\n';
-
-
-var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">\n';
-	PAUS_BTN += '	<g transform="translate(18,3.5)">\n';
-    PAUS_BTN += '		<rect width="6" height="14" x="0"    y="0" rx="2" ry="2" />\n';
-	PAUS_BTN += '		<rect width="6" height="14" x="9.25" y="0" rx="2" ry="2" />\n';
-	PAUS_BTN += '	<g>';
-	PAUS_BTN += '</svg>';
-
-
-var STOP_BTN  = '<svg>\n';
-    STOP_BTN += '	<rect width="14" height="14" x="19" y="3.5" rx="2" ry="2" fill="<?= $COLOR['svg-btn'] ?>" />\n';
-	STOP_BTN += '</svg>\n';
-
-
-var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="<?= $COLOR['svg-btn'] ?>">\n';
-	CTRL_ICO += '	<g transform="translate(1.5,2)">\n';
-	CTRL_ICO += '		<rect width="2.5" height="18" x="0.5"  y="0" rx="1" ry="1" />\n';
-	CTRL_ICO += '		<rect width="2.5" height="18" x="8.5"  y="0" rx="1" ry="1" />\n';
-	CTRL_ICO += '		<rect width="2.5" height="18" x="16.5" y="0" rx="1" ry="1" />\n';
-	CTRL_ICO += '		<circle cx="1.75"  cy="15.5" r="3" stroke="transparent"/>\n';
-	CTRL_ICO += '		<circle cx="9.75"  cy="2.75" r="3" stroke="transparent"/>\n';
-	CTRL_ICO += '		<circle cx="17.75" cy="11"   r="3" stroke="transparent"/>\n';
-	//CTRL_ICO += '		<rect width="36" height="22" x="0" y="0" rx="3" ry="3" ';
-	//CTRL_ICO += '		fill="transparent" fill-opacity="0.25" stroke="#444" class="icon_bg"/>';
-	CTRL_ICO += '	</g>\n';
-	CTRL_ICO += '</svg>\n';
-
-
-//##### if (!Supports_SVG()) {
-	PLAY_BTN = "Play &nbsp; &#x25Ba;";  //# >  &#x25B7; &#x25ba;
-	PAUS_BTN = "Pause  <b>| |</b>";     //# <b>| |</b> &#9616;&#9616;  &#10073;&#10073; &#9612;&#9612;   &#9015;&#9015;
-	STOP_BTN = "STOP";
-	CTRL_ICO = "Opt";
-//##### }
+PLAY_BTN = "Play &nbsp; &#x25Ba;";  //# >  &#x25B7; &#x25ba;
+PAUS_BTN = "Pause  <b>| |</b>";     //# <b>| |</b> &#9616;&#9616;  &#10073;&#10073; &#9612;&#9612;   &#9015;&#9015;
+STOP_BTN = "STOP";
+CTRL_ICO = "Opt";
 //************************************************************************/
 
 
@@ -1754,13 +1724,13 @@ function Time_Stamp(write_return){ //************************************/
 
 
 function Header_crap() {//*****************************************************/
-
+	ob_get_clean(); //Should be empty. Should be...
 	header('Content-type: text/html; charset=UTF-8');
 	echo "<!DOCTYPE html>\n";
 	echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'."\n";
 	echo '<link rel="shortcut icon" href="http://d/D.ico"/>'."\n";
 	echo "<title>Weather</title>\n";
-}//end Header() {//************************************************************/
+}//end Header_crap() {//*******************************************************/
 
 
 
@@ -1774,7 +1744,6 @@ function Styles() {//**********************************************************/
 <style>
 	/** @viewport{ zoom: 1.0; width: extend-to-zoom; }**/
 
-
 	html * { font-family: arial; box-sizing: border-box; }
 	
 	div { padding: 0; margin: 0 }
@@ -1782,13 +1751,9 @@ function Styles() {//**********************************************************/
 	h2 	{ font-size: 1.5em; margin: 0; }
 	img	{ vertical-align: top; }
 
-
+	caption	{ font-size: 1.5em; margin: 0; font-weight: bold; border: 1px solid black; border-bottom: 0; }
 
 	label {	display: inline-block; height: 24px; padding: 2px .5em 0 .5em; margin : 0 .2em 0 0; white-space: nowrap; }
-
-
-	/***** //##### button, label { -webkit-transition: background-color .2s} *****/
-
 
 	input[type="checkbox"] { display: inline-block; margin: 0 2px 0 0; }
 	input[type="text"]	   { height: 20px; position: relative; top: 2; padding: 0 0 0 0; margin: 0 0 0 0; border: 1px solid }
@@ -1853,12 +1818,13 @@ function Styles() {//**********************************************************/
 
 	.submit_default { display: inline-block; float: right; border: solid 0px red;}
 
-	#reset			{ font-size: 70% }
-	#default_ops 	{ font-size: 70% }
 	.submit			{ width: 9em; margin: 0 0 0 0; }
 
 	#submit1 {}
-	#submit2 {margin-left: 5em}
+	#submit2 {margin-right: 3em}
+
+	#reset_btn		{ font-size: 70% }
+	#default_ops 	{ font-size: 70% }
 	
 	#radar_view		  { margin-left: 1em; }
 	#radar_view input { margin-left: .0em; margin-right: .0em; }
@@ -1892,7 +1858,7 @@ function Styles() {//**********************************************************/
 	html 				{ font-size 	  : 100%  }
 	body 				{ color			  :}
 	body 				{ background-color: white }
-
+	caption				{ border-color    : rgb(10,80,200)  }
 	label:hover 		{ background-color: rgb(177,214,230) } /*soft blue 1*/ /*faded red 1 #Fdd */
 	.active				{ background-color: rgb(110,179,208) } /*soft blue 3*/ /*faded red 3 #Fbb*/
 	input[type="text"]  { color 		  : black }
@@ -1932,11 +1898,11 @@ function Styles() {//**********************************************************/
 	/*******END DEFAULT THEME (mostly colors) **********/
 
 <?php
-	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "	#RADAR_OPTIONS_1 {visibility: visible}\n";}
-	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "	#RADAR_OPTIONS_2 {visibility: visible}\n\n";}
-	if ($SHOW_LOCATION_OPTIONS == "true") { echo "	#LOCATION_OPTIONS {display: block}\n\n";}
-	if ($SHOW_WEATHER_OPTIONS  == "true") { echo "	#WEATHER_OPTIONS  {display: block}\n\n";}
-	if ($SHOW_DISPLAY_OPTIONS  == "true") { echo "	#DISPLAY_OPTIONS  {display: block}\n\n";}
+	if ($SHOW_RADAR_OPTIONS[1] == "checked") { echo "	#RADAR_OPTIONS_1 {visibility: visible}\n";}
+	if ($SHOW_RADAR_OPTIONS[2] == "checked") { echo "	#RADAR_OPTIONS_2 {visibility: visible}\n\n";}
+	if ($SHOW_LOCATION_OPTIONS == "checked") { echo "	#LOCATION_OPTIONS {display: block}\n\n";}
+	if ($SHOW_WEATHER_OPTIONS  == "checked") { echo "	#WEATHER_OPTIONS  {display: block}\n\n";}
+	if ($SHOW_DISPLAY_OPTIONS  == "checked") { echo "	#DISPLAY_OPTIONS  {display: block}\n\n";}
 
 	if ($DONT_WRAP_MAP) {echo "	.w_container {white-space: nowrap;}\n";}
 
@@ -1991,9 +1957,9 @@ foreach ($THEME_LIST as $key => $theme_name) {
 				<button type=button id=SHOW_WEATHER_OPTS  class=show_hide>&#9660;&#9650;Weather Options</button>
 				<button type=button id=SHOW_DISPLAY_OPTS  class=show_hide>&#9660;&#9650;Display Options</button>
 				
-				<input type=hidden  id=SHOW_LOCATION_OPTIONS name=SHOW_LOCATION_OPTIONS value=<?= $SHOW_LOCATION_OPTIONS ?>>
-				<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value=<?= $SHOW_WEATHER_OPTIONS ?>>
-				<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value=<?= $SHOW_DISPLAY_OPTIONS ?>>
+				<input type=hidden  id=SHOW_LOCATION_OPTIONS name=SHOW_LOCATION_OPTIONS value="<?= $SHOW_LOCATION_OPTIONS ?>">
+				<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value="<?= $SHOW_WEATHER_OPTIONS ?>">
+				<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value="<?= $SHOW_DISPLAY_OPTIONS ?>">
 				
 				<label id=theme_label>Color Themes: <select id=THEME name=THEME><?= $theme_options ?></select></label>
 			</div>
@@ -2017,13 +1983,21 @@ User_Options();
 ?>
 <div id=timestamp_row>
 	<span id=timestamp><script>Time_Stamp('write');</script></span>
+	
+	(To "save" the current options, press Submit, then bookmark the page.)
+	
 	<span class=submit_default>
-		<button type=button id=default_ops>Default Options</button>
-		<button type=reset  id=reset      >Reset Current Options</button>
 		<button type=submit id=submit2 class=submit>Submit</button>
+		<button type=reset  id=reset_btn>Reset Current Options</button>
+		<button type=button id=default_ops>Default Options</button>
 	</span>
 </div><!-- End timestamp_row -->
 <?php
+
+
+
+if ($TEST_MODE) {echo "<div id=TRACE_OUT style='border: solid 1px red'>&gt;</div>\n";} //#####
+
 
 
 //Get & display weather for selected locations
@@ -2076,15 +2050,24 @@ echo "\n<div class=w_container id=weather_div>\n";
 		}
 		
 		//US map...
+		echo "<hr><div id=us_map class=radar_div>";
 		if ($TEST_MODE){
 			echo '<a href="/weather/weather.gov/ridge/Conus/RadarImg/latest.gif" target=_blank>';
 			echo '<img id=radar_us src="/weather/weather.gov/ridge/Conus/RadarImg/latest_Small.gif" alt="Test Mode Radar Image - US"></a>';
 		}
 		else {
-			echo '<hr><a href="'.RADAR_URL_US.'" target=_blank>';
+			echo '<a href="'.RADAR_URL_US.'" target=_blank>';
 			echo '<img id=radar_us src="'.RADAR_URL_US_SMALL.'" alt="Radar Image - US"></a>';
 		}
-	}	
+		echo "</div>";
+	}
+	else {
+		?>
+		<div id=radar0 style="display: inline-block"></div>
+		<?php
+	}
+	
+	
 echo "</div>\n"; //end w_container
 echo "</form>\n\n";
 
@@ -2096,6 +2079,8 @@ echo "</form>\n\n";
 
 
 ?>
+
+
 <script>
 function Stop_Propagation(event) { //*************************************
 	event.cancelBubble = true;
@@ -2105,33 +2090,51 @@ function Stop_Propagation(event) { //*************************************
 
 
 
-function Show_Hide_Options(element, state, d_or_v, show, hide) {  //******
-	//element: element to show/hide
-	//state  : <input hidden>  true/false Preserves state via form/URL value 
-	//d_or_v : "display:" or "visibility:"   style property.
-	//show   : "block"  or "visible" etc...        property value.
-	//hide   : "none"  or  "hidden"            "       "
 
-	//##### document.getElementById('TRACE_OUT').innerHTML += "in[" + element.style[d_or_v]  + ", " + state.value + ", " + show + ", " + hide  + "] "; 
+function Show_Hide_Maps(class_to_hide, ckbox_id) { //*********************
 
-	if ((typeof element.currentStyle)  !== 'undefined') { //IE
-		var visibility = element.currentStyle[d_or_v];
-	} else {
-		var visibility = window.getComputedStyle(element).getPropertyValue(d_or_v);
+	//Radar only available if available on page load.  If so, then can show/hide without a reload.
+	if (!<?= ($SHOW_RADAR*1) ?>) { document.getElementById('radar0').innerHTML = "Press [Submit] to display radar map."; }
+
+	var Check_Box = document.getElementById(ckbox_id);
+	var current_state  = Check_Box.value;	//Current show/hide state
+
+	var maps  = document.getElementsByClassName('radar_div'); 	//<elements> to show/hide
+
+	for (var x = 0; x < maps.length; x++){
+		
+		Check_Box.value = current_state; //reset to current state before each map, but not after LAST map.
+		
+		Show_Hide(maps[x].id, ckbox_id, "display", "inline-block", "none");
 	}
 
-	if (state.value == "false") {
-		element.style[d_or_v] = show;     //<div>
-		state.value           = "true";	  //<input hidden>
+}//end Show_Hide_Maps() //************************************************
+
+
+
+
+
+function Show_Hide(id_show_hide, id_state, d_or_v, show, hide) {  //******
+
+	var ele	  = document.getElementById(id_show_hide); 	//<element> to show/hide
+	var state = document.getElementById(id_state); 		//<input> value = "checked" or ""
+
+	//ele    : element to show/hide
+	//state  : <input hidden> element.  Preserves state via form/URL value 
+	//d_or_v : "display" or "visibility"
+	//show   : "block", or "inline-block, or "table-cell", or "visible" etc...
+	//hide   : "none"  or  "hidden"
+
+	if (state.value == "") {
+		ele.style[d_or_v] = show; 		//<div>
+		state.value 	  = "checked"; 	//<input>
 	}
 	else {
-		element.style[d_or_v] = hide;     //<div>
-		state.value 		  = "false";  //<input hidden>
+		ele.style[d_or_v] = hide; 		//<div>
+		state.value 	  = ""; 		//<input>
 	}
 
-	//##### document.getElementById('TRACE_OUT').innerHTML += "out[" + element.style[d_or_v]  + ", " + state.value + "] :: ";
-
-}//end Show_Hide_Options() //*********************************************
+}//end Show_Hide() //*****************************************************
 
 
 
@@ -2167,6 +2170,8 @@ function Focus(event) { //************************************************
 
 
 
+
+//*** ASSIGN EVENTS (radar controls assigned in Init_Radar())*************
 document.onkeydown = function(event){Focus(event)}
 document.onkeyup   = function(event){Focus(event)}
 document.onclick   = function(event){Focus(event)}
@@ -2175,36 +2180,35 @@ document.getElementById('default_ops').onclick = function(){parent.location = lo
 document.getElementById('submit2').focus();
 //##### document.getElementById('THEME').onchange = function(){document.getElementById('options_form').submit();}
 
-
-/********************/ 
-Show_Location_Opts 	  		= document.getElementById('SHOW_LOCATION_OPTS');    //<button>
-Show_Location_Options 		= document.getElementById('SHOW_LOCATION_OPTIONS'); //<input hidden> = true/false
-Location_Options 	  		= document.getElementById('LOCATION_OPTIONS');	    //<div> to show/hide
-Show_Location_Opts.onclick  = function(){Show_Hide_Options(Location_Options, Show_Location_Options, "display", "block", "none")}
-/********************/
+document.getElementById('SHOW_RADAR').onclick = function() {Show_Hide_Maps("radar_div", "SHOW_RADAR");}
 
 
-/********************/ 
-Show_Weather_Opts 	 	  = document.getElementById('SHOW_WEATHER_OPTS');    //<button>
-Show_Weather_Options 	  = document.getElementById('SHOW_WEATHER_OPTIONS'); //<input hidden> = true/false
-Weather_Options 	 	  = document.getElementById('WEATHER_OPTIONS');	     //<div> to show/hide
-Show_Weather_Opts.onclick = function(){Show_Hide_Options(Weather_Options, Show_Weather_Options, "display", "block", "none")}
-/********************/ 
+/***************/
+Show_Location_Opts 	 	   = document.getElementById("SHOW_LOCATION_OPTS"); //<button>
+Show_Location_Opts.onclick = function() {Show_Hide("LOCATION_OPTIONS", "SHOW_LOCATION_OPTIONS", "display", "block", "none")}
 
 
+/***************/
+Show_Weather_Opts 	 	  = document.getElementById("SHOW_WEATHER_OPTS"); 	//<button>
+Show_Weather_Opts.onclick = function() {Show_Hide("WEATHER_OPTIONS", "SHOW_WEATHER_OPTIONS", "display", "block", "none")}
 
-/********************/ 
-Show_Display_Opts 	 	  = document.getElementById('SHOW_DISPLAY_OPTS');    //<button>
-Show_Display_Options 	  = document.getElementById('SHOW_DISPLAY_OPTIONS'); //<input hidden> = true/false
-Display_Options 	 	  = document.getElementById('DISPLAY_OPTIONS');	     //<div> to show/hide
-Show_Display_Opts.onclick = function(){Show_Hide_Options(Display_Options, Show_Display_Options, "display", "block", "none")}
-/********************/ 
+
+/***************/
+Show_Display_Opts 	 	  = document.getElementById("SHOW_DISPLAY_OPTS");   //<button>
+Show_Display_Opts.onclick = function() {Show_Hide("DISPLAY_OPTIONS", "SHOW_DISPLAY_OPTIONS", "display", "block", "none")}
+
+//************************************************************************
+
+
 
 
 
 //Element of, but Only if it's an <input> or <select>...
 var ACTIVE = document.activeElement;
 
+
+//If page is reloaded, make sure form options state match the page contents.
+window.onload = function(){Options_Form = document.getElementById('options_form');}
 </script>
 <?php
 //
