@@ -77,7 +77,7 @@ Rows:
 function Init() { //***********************************************************/
 	global $URL_BASE, $URL_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, 
 		   $DESIRED, $DISPLAY_ORDER, $DATA, $DEFAULT_ASPECTS, $SAMPLE_SET, 
-		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE;
+		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE, $RAIN_THRESHOLD;
 
 	//Make sure time zone is correct.
 	date_default_timezone_set("America/New_York");
@@ -232,7 +232,7 @@ function Init() { //***********************************************************/
 	$RAW_HTML_SAMPLES[2] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.2.html";
 	$RAW_HTML_SAMPLES[3] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.3.html";
 	$RAW_HTML_SAMPLES[4] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.4.html";
-	$RADAR_URL_BASE_SAMPLE =     "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
+	$RADAR_URL_BASE_SAMPLE =     "/Weather/weather.gov/samples/";
 
 	//##### ##################################################################################################
 	//##### For trouble-shooting...
@@ -245,7 +245,7 @@ function Init() { //***********************************************************/
 
 
 	//Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
-	//Used in Radar_Loop_scripts()
+	//Used in Radar_Loop_js_functions()
 	define('RADAR_SITE_DEF', "IWA"); //Default radar site (Central AZ)
 	define('RADAR_RANGE_STD', "N0R/"); // N<ZERO>R is base range.     "Views out to 124 nmi" (~143 miles).
 	define('RADAR_RANGE_EXT', "N0Z/"); // N<ZERO>Z is extended range. "Views out to 248 nmi" (~286 miles).
@@ -272,7 +272,7 @@ function Init() { //***********************************************************/
 	//Time between radar images (1000 = 1 second).
 	define('FRAME_RATE_MIN',  100);
 	define('FRAME_RATE_MAX', 1000);
-	define('FRAME_RATE_DEF',  200);
+	define('FRAME_RATE_DEF',  300);
 	define('FRAME_RATE_INC',  100);
 
 
@@ -288,6 +288,9 @@ function Init() { //***********************************************************/
 	define('ROTATE_LOOPS_MAX', 99);
 	define('ROTATE_LOOPS_DEF', 10);
 	define('ROTATE_LOOPS_INC',  1);
+	
+	//Default value to hightlight rain when chance of >= this amount.
+	$RAIN_THRESHOLD = 25;
 }//end Init() { //*************************************************************/
 
 
@@ -384,7 +387,7 @@ function Get_GET() {//*********************************************************/
 	global  $HOURS_TO_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES, $DISPLAY_ORDER, $RAIN_THRESHOLD, 
 			$DISPLAY_H, $SELECTED_ASPECTS, $DISPLAY_ORDER, $SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW, 
 			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, 
-			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE;
+			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLES;
 
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
 
@@ -399,12 +402,10 @@ function Get_GET() {//*********************************************************/
 	//if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
 	//if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
 	//$RAW_HTML_SAMPLES = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.p1.html";
-	//$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
 	//"SEARCH_FOR_LOCATION" ******************
 	if (isset($_GET["SEARCH_FOR_LOCATION"])) { $LOCATION_NAMES[0] = $_GET["SEARCH_FOR_LOCATION"]; }
-	else 									 { $LOCATION_NAMES[0] = "Somewhere Else"; }
 	//Only keep ascii printable char's
 	$LOCATION_NAMES[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $LOCATION_NAMES[0]);
 	//Get rid of some unlikely chars for location names that could cause problems
@@ -462,9 +463,9 @@ function Get_GET() {//*********************************************************/
 	else									 { $SHOW_RADAR = FALSE; }
 	
 
-	//"RAIN_THRESHOLD" Hightlight rain values when over this amount (%).
-	if (isset($_GET["RAIN_THRESHOLD"])) {$RT = trim($_GET["RAIN_THRESHOLD"]);} else {$RT = 25;}
-	if (!is_numeric($RT) || ($RT < 0) || ($RT > 99)) {$RT = 25;}
+	//"RAIN_THRESHOLD" Hightlight rain values when over this amount (%). The default value for $RAIN_THRESHOLD set in Init().
+	if (isset($_GET["RAIN_THRESHOLD"])) {$RT = trim($_GET["RAIN_THRESHOLD"]);} else {$RT = $RAIN_THRESHOLD;}
+	if (!is_numeric($RT) || ($RT < 0) || ($RT > 99)) {$RT = $RAIN_THRESHOLD;}
 	$RAIN_THRESHOLD = $RT;
 
 
@@ -711,28 +712,32 @@ function Display_Weather_V($location) {//**************************************/
 			if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) {
 				$day_of_week = date('D', strtotime(date("Y")."/".$DATA[$data_index][d1_DATE]));
 				echo "<tr class=newday><th colspan=".count($SELECTED_ASPECTS).">$day_of_week, ";
-				echo  hsc($DATA[$data_index][$DISPLAY_ORDER[0]])."</td></tr>";
+				echo  hsc($DATA[$data_index][$DISPLAY_ORDER[0]])."</th></tr>\n";
 			}
 			
 			//Show selected data...
-			echo "<tr>\n";
+			echo "<tr>";
 			for ($aspect=1; $aspect < $aspects; $aspect++) {
 				if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
-					
+				
 				if ($aspect < 2) {$td = "th";} else {$td = "td";} //header or data?
-					
+				
 				$aspect_class = ""; //used to adjust css for specific columns and/or weather data
 				
 				//Highlight rain% value if >= specified value.
-				if (($data_index > 0) && ($DISPLAY_ORDER[$aspect] == d1_RAIN) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) {
-					$aspect_class = " rain";
+				if (($DISPLAY_ORDER[$aspect] == d1_RAIN) && ($data_index > 0) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) {
+					$aspect_class = "rain";
 				}
-					
+				
 				//Adjust css for a couple of columns
-				if (($data_index >  0) && ($DISPLAY_ORDER[$aspect] == d1_WIND_DIR)) { $aspect_class = " wind_dir";}
+				if (($DISPLAY_ORDER[$aspect] == d1_WIND_DIR) && ($data_index >  0)) { $aspect_class = "wind_dir";}
 				if (($DISPLAY_ORDER[$aspect] == d1_FOG)) {$aspect_class = " fog";}
-					
-				echo "<$td class='$hdr$aspect_class'>".hsc($DATA[$data_index][$DISPLAY_ORDER[$aspect]])."</$td>\n";
+				
+				//If both are blank, don't bother adding class='' to output.
+				$classes = trim("$hdr $aspect_class"); //Trimming whitespace...
+				if (($hdr) || ($aspect_class)) {$classes = " class='$classes'";}
+				
+				echo "<$td$classes>".hsc($DATA[$data_index][$DISPLAY_ORDER[$aspect]])."</$td>";
 			}//end for($aspect)
 			echo "</tr>\n";
 		}//end for($data_index)
@@ -781,16 +786,18 @@ function Display_Weather_H($location) {//**************************************/
 				if ( ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD) && 
 					 ($DISPLAY_ORDER[$tr]		  == d1_RAIN) && 
 					 ($data_index				  > 0) )
-					{
-						$rain = " rain";
-					}
+				{ $rain = "rain"; }
 				
 				//Highlight start of a new day... (bolds line between day columns)
 				$newday = "";
-				if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) { $newday = " newday";}
+				if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) { $newday = "newday";}
+				
+				//If all are blank, don't bother adding class='' to output.
+				$classes = trim("$hdr $rain $newday"); //Trimming whitespace...
+				if ($hdr || $rain || $newday) {$classes = " class='$classes'";}
 				
 				//Finally, ouput the weather info.
-				echo "<$td class='$hdr$rain$newday'>".hsc($DATA[$data_index][$DISPLAY_ORDER[$tr]])."$day_of_week</$td>\n";
+				echo "<$td${classes}>".hsc($DATA[$data_index][$DISPLAY_ORDER[$tr]])."$day_of_week</$td>\n";
 			}//end for($data_index)
 			echo "</tr>\n";
 		}//end for($tr)
@@ -834,7 +841,7 @@ function User_Options() {//****************************************************/
 			//Search box
 			echo "<span class=location_search_option>\n";
 			echo "<input type=checkbox name=SHOW_LOCATIONS[0] value=0 tabindex=1$checked>\n"; 
-			$input_params = "type=text id=search_for_location name=SEARCH_FOR_LOCATION tabindex=1 onkeydown='validate_search(event)'";
+			$input_params = "type=text id=search_for_location name=SEARCH_FOR_LOCATION tabindex=1 onkeydown='Prevent_Some_Keys(event)'";
 			echo "<input $input_params value='".hsc($LOCATION_NAMES[0])."'>\n";
 			echo "</span>";
 			echo "\n";
@@ -953,26 +960,16 @@ function Show_Radar($i=1) { //**************************************************
 	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, 
 	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $LOCATION_FOUND, $TEST_MODE;
 
-	//Approximates width of total weather displayed (excluding radar)
-	if ($DISPLAY_H) { $weather_width = $HOURS_TO_SHOW ; }
-	else			{ $weather_width = (count($SELECTED_ASPECTS) + 2) * count($SHOW_LOCATIONS); }
+	//Approximates width of total weather displayed (excluding radar).
+	//This is not currently used, and I don't remember why I needed it...
+	//(See version 6 for first occurrence.)
+	//if ($DISPLAY_H) { $weather_width = $HOURS_TO_SHOW ; }
+	//else			{ $weather_width = (count($SELECTED_ASPECTS) + 2) * count($SHOW_LOCATIONS); }
 
-//#################################
-//	//Show radar for custom site...
-//	if ($LOCATION_FOUND) {
-//		//if custom location is only one selected...
-//		if (count($SHOW_LOCATIONS) === 1) {
-//			echo '<img src="'.RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE.'_0.png">';
-//			return; //skip default radar (AZ) if only a custom location selected.
-//		}
-//		//or only if custom radar is diff from default
-//		else if ($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) {
-//			echo '<img src="'.RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE.'_0.png">';
-//		}
-//	}
-//#################################
-	
-	$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_DEF."_0".RADAR_IMG_EXT;
+
+	if ($i == 2) {$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_0".RADAR_IMG_EXT;}
+	else 		 {$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_DEF."_0".RADAR_IMG_EXT;}
+
 
 	$frame_rate_options = "";
 	 for ($x=FRAME_RATE_MIN; $x <= FRAME_RATE_MAX; $x+=FRAME_RATE_INC) {
@@ -980,11 +977,13 @@ function Show_Radar($i=1) { //**************************************************
 		$frame_rate_options .= "<option value=$x$selected>$x</option>\n";
 	}
 
+
 	$rotate_pause_options = "";
 	for ($x=ROTATE_PAUSE_MIN; $x <= ROTATE_PAUSE_MAX; $x+=ROTATE_PAUSE_INC) {
 		if ($x == $ROTATE_PAUSE) { $selected = " selected"; }else{ $selected =""; }
 		$rotate_pause_options .= "<option value=$x$selected>$x</option>\n";
 	}
+
 
 	$rotate_loops_options = "";
 	for ($x=ROTATE_LOOPS_MIN; $x <= ROTATE_LOOPS_MAX; $x+=ROTATE_LOOPS_INC) {
@@ -992,37 +991,47 @@ function Show_Radar($i=1) { //**************************************************
 		$rotate_loops_options .= "<option value=$x$selected>$x</option>\n";
 	}
 
+
+	//##### $x=7,  the 7 should be an array length - 1
+	$imgbar_slots = "";
+	for($x = 7; $x >= 0; $x--) {$imgbar_slots .= "<td class=imgbar_slot id=slot{$x}_$i><a id=a_slot{$x}_$i>{$x}</a></td>\n";}
+
+
 	//show default radar & controls
 ?>
 	<div id=radar<?= $i ?> class="w_container radar_div">
-		<img src="<?= $default_img ?>" id="ROTATING_PIC_<?= $i ?>"><br>
 		
-		<button type=button id=STARTSTOP_<?= $i ?> class=start_stop>Play</button>
+		<img src="<?= $default_img ?>" id="ROTATING_PIC_<?= $i ?>"><br>
 		
 		<div class="radar_options_div">
 			<span class=radar_options>Frame Rate
-				<select name=FRAME_RATE_<?= $i ?> id=FRAME_RATE_<?= $i ?> Xtabindex=4> <?= $frame_rate_options ?></select>ms
+				<select name=FRAME_RATE_<?= $i ?> id=FRAME_RATE_<?= $i ?> class=radar_options_values Xtabindex=4> 
+					<?= $frame_rate_options ?>
+				</select>ms
 			</span>
 			
 			<span class=radar_options>Loop Pause
-				<select name=ROTATE_PAUSE_<?= $i ?> id=ROTATE_PAUSE_<?= $i ?> Xtabindex=4> <?= $rotate_pause_options ?></select>ms
+				<select name=ROTATE_PAUSE_<?= $i ?> id=ROTATE_PAUSE_<?= $i ?> class=radar_options_values Xtabindex=4>
+					<?= $rotate_pause_options ?>
+				</select>ms
 			</span>
 			
 			<span class=radar_options>Loops:
-			<select name=ROTATE_LOOPS_<?= $i ?> id=ROTATE_LOOPS_<?= $i ?> Xtabindex=4>
-				<?= $rotate_loops_options ?>
-			</select>
+				<select name=ROTATE_LOOPS_<?= $i ?> id=ROTATE_LOOPS_<?= $i ?> class=radar_options_values Xtabindex=4>
+					<?= $rotate_loops_options ?>
+				</select>
 			</span>
 			
 			<span id=LOOP_<?= $i ?> class="fine_print loops">( )</span>
 		</div>
 		
-		<table class=imgbar><tr>
-			<?php //##### $x=7,  the 7 should be an array length - 1
-			for($x = 7; $x >= 0; $x--) {echo "<td class=imgbar_slot id=slot{$x}_$i><a id=a_slot{$x}_$i>{$x}</a></td>\n";}
-			?>
-		</tr></table>
+
+			<button type=button id=STARTSTOP_<?= $i ?> class=start_stop>Play</button>
+			<table class=imgbar><tr><?= $imgbar_slots ?></tr></table>
+
 	</div>
+
+	<script>Radar[<?=$i ?>] = new Init_Radar("<?=$i ?>");</script>
 <?php
 }//end Show_Radar() //*********************************************************/
 
@@ -1030,30 +1039,27 @@ function Show_Radar($i=1) { //**************************************************
 
 
 
-function Radar_Loop_scripts() { //*********************************************/
-	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE;
+function Radar_Loop_js_functions() { //****************************************/
 ?>
 
 <script>
 function Start_Stop(Pics) { //********************************************
 
-	if (Pics.running) {
-		Pics.running = false;
+	Pics.running = !Pics.running;
+
+	if (!Pics.running) {
 		clearInterval(Pics.loop_timer);
-		Pics.start_stop_btn.innerHTML 			  = "Play";
-		Pics.start_stop_btn.style.backgroundImage = "url(play3.png)";		//#####
-		Pics.start_stop_btn.style.backgroundColor = "transparent";
-	} else {
-		Pics.running = true;
-		clearInterval(Pics.loop_timer); //Make sure not already running.
+		Pics.start_stop_btn.innerHTML = PLAY_BTN;
+	}
+	else {
+		clearInterval(Pics.loop_timer); //Make sure timer not already running.
 		
-		//If started while on last pic, and last loop (end of prior rotation), clear to start new set of rotations...
-		if ((Pics.current_pic == 0) && (Pics.current_loop == Pics.loops.value)) {
+		//If started while on last pic of last loop, start new set of rotations...
+		if ((Pics.current_pic == 0) && (Pics.current_loop >= Pics.loops.value)) {
 			Pics.current_loop = 0;
 		}
-		Pics.start_stop_btn.innerHTML 				= "Stop";
-		Pics.start_stop_btn.style.backgroundImage 	= "url(stop3.png)";		//#####
-		Pics.start_stop_btn.style.backgroundColor = "#FFd0d0"; //light red
+		
+		Pics.start_stop_btn.innerHTML = PAUS_BTN; //STOP_BTN;
 		Rotate_Pics(Pics);
 	}
 } //end Start_Stop() //***************************************************
@@ -1067,7 +1073,7 @@ function Rotate_Pics(Pics){ //********************************************
 	//Pic 7 (.length - 1) is the oldest pic.  Pic 0 is the newest pic.
 
 	//Stop if on last pic of last loop (remember, pic zero is the last pic in each rotation)...
-	if ( (Pics.current_pic == 0) && (Pics.current_loop == Pics.loops.value) ) {
+	if ( (Pics.current_pic == 0) && (Pics.current_loop >= Pics.loops.value) ) {
 		Start_Stop(Pics);
 		return;
 	}
@@ -1077,12 +1083,8 @@ function Rotate_Pics(Pics){ //********************************************
 
 	//Determine next image/Pics.current_pic.
 	//First, check if current (soon to be prior) pic was lastest pic (0).
-	if (Pics.current_pic <= 0) {
-		Pics.current_pic = oldest;
-	} else {
-		if (Pics.current_pic > oldest) {Pics.current_pic = oldest} //Should never be, but just in case.
-		Pics.current_pic--;
-	}
+	if (Pics.current_pic <= 0) {Pics.current_pic = oldest;}
+	else 					   {Pics.current_pic--;}
 
 	Change_Pic(Pics, prior_pic);
 
@@ -1105,13 +1107,13 @@ function Rotate_Pics(Pics){ //********************************************
 function Change_Pic(Pics, prior_pic){ //**********************************
 
 	//Display new image.
-	Pics.rotating_pic.src  = Pics.pic_list[Pics.current_pic];
+	Pics.rotating_pic.src = Pics.pic_list[Pics.current_pic];
 	
 	//Update imgbar.
 	Pics.imgbar[prior_pic].style.backgroundColor 		= "";       //clear     imgbar spot of prior_pic.
 	Pics.imgbar[Pics.current_pic].style.backgroundColor = "silver"; //highlight imgbar spot for current pic.
 
-	Pics.loop_displayed.innerHTML	 = "(" + Pics.current_loop + ")";
+	Pics.loop_displayed.innerHTML = "(" + Pics.current_loop + ")";
 
 }//end Change_Pic() //****************************************************
 
@@ -1145,38 +1147,47 @@ function Init_Radar(instance) { //****************************************
 	//Various radar element id's are suffixed with either _1 or _2.
 
 	var x; //general purpose...
-	var RadarX 			 = {};
-	RadarX.pic_list 	 = [];
-	RadarX.pic_list 	 = PIC_LIST[instance].slice();
-	RadarX.current_pic 	 = 0;    //Index to current pic in RadarX.pic_list
-	RadarX.running 		 = false;
-	RadarX.rotating_pic  = document.getElementById('ROTATING_PIC_' + instance + '');
+	var RadarX 			  = {};
+
+	RadarX.pic_list 	  = [];
+	RadarX.pic_list 	  = PIC_LIST[instance].slice(); //Make a copy of, not a reference to...
+	RadarX.current_pic 	  = 0;    //Index for .pic_list[current pic].
+	RadarX.current_loop   = 0;
+	RadarX.loop_timer 	  = setTimeout(";", 1); //Initialize for initial call to Start_Stop().
+	RadarX.running 		  = false;
+	RadarX.rotating_pic   = document.getElementById('ROTATING_PIC_' + instance + '');
 	RadarX.loop_displayed = document.getElementById('LOOP_' + instance + '');
-	RadarX.current_loop  = 0;
-	RadarX.frame_rate 	 = document.getElementById('FRAME_RATE_' + instance + '');   //Normal pause between each img.
-	RadarX.rotate_pause  = document.getElementById('ROTATE_PAUSE_' + instance + ''); //A longer pause on pic 0 (normally).
-	RadarX.loops		 = document.getElementById('ROTATE_LOOPS_' + instance + ''); //Number of times to loop, then stop.
-	RadarX.loop_timer 	 = setTimeout(";", 1); //Initialize for initial call to Start_Stop().
+	RadarX.frame_rate 	  = document.getElementById('FRAME_RATE_' + instance + '');   //Normal pause between each img.
+	RadarX.rotate_pause   = document.getElementById('ROTATE_PAUSE_' + instance + ''); //A longer pause on pic 0 (normally).
+	RadarX.loops		  = document.getElementById('ROTATE_LOOPS_' + instance + ''); //Number of times to loop, then stop.
 	RadarX.start_stop_btn = document.getElementById('STARTSTOP_' + instance + '');
-	RadarX.top_pic  	 = document.getElementById('ROTATING_PIC_' + instance + '');
+	RadarX.top_pic  	  = document.getElementById('ROTATING_PIC_' + instance + '');
 
-	RadarX.rotating_pic.src = RadarX.pic_list[0]; 			//Load initial/latest radar image
 
-	RadarX.start_stop_btn.onclick = function(){Start_Stop(RadarX)}
-	RadarX.top_pic.onclick 		  = function(){Start_Stop(RadarX)}
+
+
+	RadarX.rotating_pic.src = RadarX.pic_list[0];  //Load initial/(most recent) radar image
+	RadarX.start_stop_btn.innerHTML = PLAY_BTN;
+	RadarX.start_stop_btn.onclick 	= function(){Start_Stop(RadarX)}
+	RadarX.top_pic.onclick 			= function(){Start_Stop(RadarX)}
 
 	/******** Radar imgbar control ********/
 	RadarX.imgbar = []; //<td>'s
 	for (x=0; x < RadarX.pic_list.length; x++) {RadarX.imgbar[x] = document.getElementById("slot" + x + "_" + instance);}
 	RadarX.imgbar[RadarX.current_pic].style.backgroundColor = "silver";
 
+
+
+
 	RadarX.imgbar_a = []; //<a>'s in the <td>'s
+
 	for (x=0; x < RadarX.pic_list.length; x++) {RadarX.imgbar_a[x] = document.getElementById("a_slot" + x + "_" + instance);}
+
 
 	//Add onclick events for image bar control
 	for (x=0; x < RadarX.pic_list.length; x++) {
-		//Using a self-invoking anonymous function (SIAF): it is invoked with the "(x)" at the end of it's line. 
-		//The "x" (from our for-loop) in the "(x)" is passed to the SIAF's "xvalue" argument, 
+		//Must use a self-invoking anonymous function (SIAF): it is invoked with the "(x)" at the end of it's line. 
+		//The "x" from our for-loop is passed via the "(x)" argument list to the SIAF's "xvalue" argument, 
 		//which is then used as an arg for Img_Bar_Control(). If it is not done this way,
 		//only the final value of x from the for-loop (.pic_length) get's passed to the event handler functions.
 		//Because Javascript, that's why.
@@ -1184,59 +1195,91 @@ function Init_Radar(instance) { //****************************************
 		( function(xvalue) {RadarX.imgbar_a[xvalue].onclick = function() {Img_Bar_Control(RadarX, xvalue);}} )(x); 
 	}
 	
+
 	return RadarX;
 }//end Init_Radar() //****************************************************
+</script>
+<?php
+}//end Radar_Loop_js_functions() //********************************************/
 
 
 
 
 
+function Init_Radar_URLs_etc_js() { //*****************************************/
+	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE;
+?>
 
-//***************************************/
-//Load radar image URL's into PIC_LIST[site][x]
+<script>
+//************************************************************************/
+var PLAY_BTN  = '<svg height="100%" width="100%" style=" margin-top: -1px;">';
+    PLAY_BTN += '<polygon points="0,0  12.6,7.46 0,15.75" fill="#777" transform="translate(21,1.6)" />';
+	PLAY_BTN += '</svg>';
+
+
+var PAUS_BTN  = '<svg height="100%" width="100%" style=" margin-top: -1px;">';
+    PAUS_BTN += '<rect width="6" height="14" x="18" y="2.5" rx="2" ry="2" fill="#666" />';
+	PAUS_BTN += '<rect width="6" height="14" x="27" y="2.5" rx="2" ry="2" fill="#666" />';
+	PAUS_BTN += '</svg>';
+
+
+var STOP_BTN  = '<svg height="100%" width="100%" style=" margin-top: -1px;">';
+    STOP_BTN += '<rect width="14" height="14" x="18" y="3" rx="2" ry="2" fill="#777" />';
+	STOP_BTN += '</svg>';
+//************************************************************************/
+
+
+
+
+//************************************************************************/
+//URL's for the 8 most recent radar images available from weather.gov
+//Load URL's into PIC_LIST[site][x]
 //site = radar site (1=default, 2=user supplied),   x = image 0 thru 7
-//image 0 is most recent, 7 is the oldest. //(Last 8 radar images available from weather.gov)
+//image 0 is most recent, 7 is the oldest.
 
 <?php
-if ($TEST_MODE) { $radar_url_base_1 = $RADAR_URL_BASE_SAMPLE."1/SAMPLE_";
-				  $radar_url_base_2 = $RADAR_URL_BASE_SAMPLE."2/SAMPLE_";
+if ($TEST_MODE) { $radar_url_base_1 = $RADAR_URL_BASE_SAMPLE."/1/SAMPLE_";
+				  $radar_url_base_2 = $RADAR_URL_BASE_SAMPLE."/2/SAMPLE_";
 }
 else            { $radar_url_base_1 = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_DEF."_";
 				  $radar_url_base_2 = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_";
 }
+
+$img_cnt = 8;
 ?>
 
 var PIC_LIST	= [];
 	PIC_LIST[1] = []; //Default radar site
 	PIC_LIST[2] = []; //Radar site for user requested location.
 
-for (var x = 0; x < 8; x++) { PIC_LIST[1][x] = '<?= $radar_url_base_1 ?>' + x + '<?= RADAR_IMG_EXT ?>'; }
+for (var x = 0; x < <?= $img_cnt ?>; x++) { PIC_LIST[1][x] = '<?= $radar_url_base_1 ?>' + x + '<?= RADAR_IMG_EXT ?>'; }
 
 if ('<?= $CUSTOM_RADAR_SITE ?>' != "" ) {
-	for (var x = 0; x < 8; x++) { PIC_LIST[2][x] = '<?= $radar_url_base_2 ?>' + x + '<?= RADAR_IMG_EXT ?>';	}
+	for (var x = 0; x < <?= $img_cnt ?>; x++) { PIC_LIST[2][x] = '<?= $radar_url_base_2 ?>' + x + '<?= RADAR_IMG_EXT ?>';	}
 }
-//***************************************/
+//************************************************************************/
 
 
 
 
-
+//Radar objects instantiated at end of Show_Radar().
+//Radar[1] will be default (AZ), [2] will be user entered/custom site (if present).
 var Radar = [];
-Radar[1] = new Init_Radar("1");
-if ('<?= $CUSTOM_RADAR_SITE ?>' != "" ) { Radar[2] = new Init_Radar("2"); }
+
 </script>
 <?php
-}//end Radar_Loop_scripts() //*************************************************/
+}//end Init_Radar_URLs_etc_js() //*********************************************/
 
 
 
 
 
-function Validate_Search_Option_js() { //**************************************/
+function Prevent_Some_Keys_js() { //*******************************************/
 ?>
+
 <script>
 //Called via onkeydown(). onkeypress returns different keyCode's, particularlly 39 for right arrow & quotes keys.
-function validate_search(event) {
+function Prevent_Some_Keys(event) {
 	var key_code  = event.keyCode;
 
 	/*********************./
@@ -1259,10 +1302,10 @@ function validate_search(event) {
 		{
 		if(event.preventDefault) event.preventDefault();
 	}
-}//end validate_search()
+}//end Prevent_Some_Keys()
 </script>
 <?php
-}//end Validate_Search_Option_js() //******************************************/
+}//end Prevent_Some_Keys_js() //***********************************************/
 
 
 
@@ -1270,8 +1313,9 @@ function validate_search(event) {
 
 function Time_Stamp_js() {//***************************************************/
 ?>
+
 <script>
-function Time_Stamp(write_return){ //*********************************************/
+function Time_Stamp(write_return){ //************************************/
 	//returns Day, yyyy-mm-dd, hh:mm:ss am/pm
 
 	//older, simple timestamp:  m/d/yyy h:m:ssAM/PM
@@ -1307,7 +1351,7 @@ function Time_Stamp(write_return){ //*******************************************
 	}else{
 		return TIMESTAMP;
 	}
-}//end Time_Stamp() //***********************************************/
+}//end Time_Stamp() //****************************************************/
 </script>
 
 <?php
@@ -1320,6 +1364,7 @@ function Time_Stamp(write_return){ //*******************************************
 function Styles() {//**********************************************************/
 	global $HOURS_TO_SHOW, $DONT_WRAP_MAP, $DISPLAY_H;
 ?>
+
 <style>
 	*			{ font-family: arial; }
 	pre			{ font-family: courier; margin: 0; }
@@ -1329,9 +1374,9 @@ function Styles() {//**********************************************************/
 	label		{ white-space: nowrap; display: inline-block; }
 	img			{ vertical-align: top; }
 
-	th, td		{ border: 1px inset rgb(100,160,250); font-size: 9pt; text-align:center; vertical-align: top; padding: 0 .3em; }
-	th			{}
-	td			{ min-width: 2.5em; max-width: 2.9em; white-space: normal; } /*Default for V display.*/
+	.data th, .data td { border: 1px inset rgb(100,160,250); font-size: 9pt; text-align:center; vertical-align: top; padding: 0 .3em; }
+	.data th	{}
+	.data td	{ min-width: 2.5em; max-width: 2.9em; white-space: normal; } /*Default for V display.*/
 
 	.data		{ border: 2px solid rgb(10,80,200); border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
  
@@ -1347,7 +1392,7 @@ function Styles() {//**********************************************************/
 	.humidity	{}
 	.fog		{ max-width: 8em; padding: 0 .5em;}
 
-	.not_found	{ border: 1px solid rgb(63,131,245); font-weight: bold; text-align: center; }
+	.not_found	{ border: 2px solid rgb(10,80,200); font-weight: bold; text-align: center; } /*rgb(63,131,245)*/
 
 	.messages	{ border: 2px solid rgb(10,80,200); border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; width: 20em;}
 	.messages_H	{ border: 2px solid rgb(10,80,200); border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0;}
@@ -1368,28 +1413,31 @@ function Styles() {//**********************************************************/
 	#dont_wrap_map	  { margin-left: 0em; }
 	#radar_view		  { margin-left: 1em; }
 	#radar_view input { margin-left: .2em; margin-right: .1em; }
-	#STARTSTOP		  { border: 1px solid #333; border-radius: 4px; width: 10em;}
-	#radar_map		  { font-size: .8em; } //##### 
-	#radar_map_1	  { font-size: .8em; } //##### 
 
-	.img1				{ position: relative; }
-	.img2				{ position: absolute; top: 0; left: 0; }
-	.imgbar				{ margin: 3px 0 0 0 ; border-collapse: collapse; width: 100%; height: 1.5em; }
-	.imgbar td   		{ text-align: center; padding-top: 3px;}
+
+
+	.imgbar				{ margin: 3px 0 0 0 ; border-collapse: collapse; width: 100%; height: 1.3em; font-size: 9pt;}
+
+	.imgbar td   		{ text-align: center; padding-top: 2px; }
+
 	.imgbar td a		{ display: block; }
-	.imgbar td:hover 	{background-color: #DDD;}
-	.imgbar td a:hover 	{cursor: default}
-	.imgbar_slot 		{border: 1px solid #444; color: #444}
+	.imgbar td:hover 	{ background-color: #DDD; }
+	.imgbar td a:hover 	{ cursor: default }
+	.imgbar_slot 		{ border: 1px solid #444; color: #444 }
 
-	.radar_options_div {display: inline-block; text-align: right; margin-top: 1px; float: right; border: solid 0px red; padding-top: 2px;}
-	.radar_options 	{ margin: 0 0 0 1.1em; font-size: 80%;}
-	.loops		   	{ width: 2em; display: inline-block; margin-top: 2px; padding-right: 3px}
-	.radar_div	   	{ position: relative; top: 0; left: 0; display: inline-block; }
-	.start_stop    	{ border: 1px solid #333; border-radius: 4px; height: 21px; width: 7.5em; text-align: right; margin-top: 2px;}
-	.start_stop    	{ background: url(play3.png); background-repeat: no-repeat; }
+	.radar_div	   		{ position: relative; top: 0; left: 0; display: inline-block; }
+	.radar_options_div 	{ display: inline-block; text-align: right; margin-top: 1px; float: right; padding-top: 2px; }
 
-	#preloads	   	{ border: none; width: 0px; height: 0px; visibility: hidden ; float: left; }
-	#preloads	   	{ background: url(stop3.png); background-repeat: -9999px -9999px;}
+	.radar_options 		{ margin: 0 0 0 2em; font-size: 80%; color: #222; }
+	.radar_options_values:not(:checked) { color: #333; } 
+	
+	.loops		   		{ width: 2em; display: inline-block; margin-top: 2px; padding-right: 3px }
+	.start_stop 		{ width: 70px; height: 21px; border: 1px solid #333; border-radius: 5px; }
+	.start_stop 		{ margin-top: 2px; background-color: #FFF; text-align: right;  } 		/*//##### */
+
+
+	#preloads { border: none; width: 0px; height: 0px; visibility: hidden ; float: left; }
+	#preloads { background: url(stop3.png); background-repeat: -9999px -9999px;}
 
 	#timestamp	 	{ margin: .2em 0 .2em 0; padding: 1px .3em 0 .2em; display: inline-block; border: 1px solid teal; }
 	#timestamp_row  { margin-bottom: .3em; }
@@ -1433,7 +1481,7 @@ Get_GET(); //needed before Styles() & User_Options();
 Header_crap();
 Styles();
 Time_Stamp_js();
-Validate_Search_Option_js();
+Prevent_Some_Keys_js();
 
 
 echo "\n<form name=USER_OPTIONS method=get id=options_form>\n"; 
@@ -1498,39 +1546,20 @@ echo "\n<div class=w_container>\n";
 	}
 	echo "</div>\n"; //end w_container
 
+
 	if ($SHOW_RADAR) {
 		
-
-
-//#################################
-//	//Show radar for custom site...
-//	if ($LOCATION_FOUND) {
-//		//if custom location is only one selected...
-//		if (count($SHOW_LOCATIONS) === 1) {
-//			echo '<img src="'.RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE.'_0.png">';
-//			return; //skip default radar (AZ) if only a custom location selected.
-//		}
-//		//or only if custom radar is diff from default
-//		else if ($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) {
-//			echo '<img src="'.RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE.'_0.png">';
-//		}
-//	}
-//#################################
-
-		if ($LOCATION_FOUND) {Show_Radar(2);} //Custom site html....
+		Radar_Loop_js_functions(); //javascript functions...
+		Init_Radar_URLs_etc_js();
 		
-		if(RADAR_SITE_DEF != $CUSTOM_RADAR_SITE) {Show_Radar(1);} //Default site (AZ) html...
+		if ($LOCATION_FOUND) {Show_Radar(2);} //html for custom site...
 		
-
-		
-		//if ((count($SHOW_LOCATIONS) > 1) && $LOCATION_FOUND && (RADAR_SITE_DEF != $CUSTOM_RADAR_SITE) ) {
-		//	Show_Radar(1); //Default site (AZ) html...
-		//} else if ( !$LOCATION_FOUND || (RADAR_SITE_DEF != $CUSTOM_RADAR_SITE))  {
-		//	Show_Radar(1); //Default site (AZ) html...
-		//}
-
-
-		Radar_Loop_scripts(); //javascript...
+		if (
+			!$LOCATION_FOUND ||
+			(($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) && (count($SHOW_LOCATIONS) > 1))
+		   ) {
+			Show_Radar(1); //html for default site (AZ)...
+		}
 		
 		//US map...
 		if ($TEST_MODE){
@@ -1538,7 +1567,7 @@ echo "\n<div class=w_container>\n";
 			echo '<img id=radar_us src="/weather/weather.gov/ridge/Conus/RadarImg/latest_Small.gif"></a>';
 		}
 		else {
-			echo '<a href="'.RADAR_URL_US.'" target=_blank>';
+			echo '<hr><a href="'.RADAR_URL_US.'" target=_blank>';
 			echo '<img id=radar_us src="'.RADAR_URL_US_SMALL.'"></a>';
 		}
 	}
@@ -1577,5 +1606,5 @@ if ($TEST_MODE) {
 
 
 
-echo "<div id=preloads></div>";
+echo "<div id=preloads></div>"; //##### 
 echo "<div style='clear: both; border: 2px outset gray; height: .5em; '>&nbsp;</div>";
