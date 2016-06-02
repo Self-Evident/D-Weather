@@ -59,11 +59,11 @@ http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=p
 $BASE_URL_OPTIONS = "http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&site=all&unit=0&dd=&bw=&textField1=";
 
 $x = 0;
+#First location is a placeholder for the "Search For" location.
+$DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe, AZ";
+
 $DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe";
 $DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4150&textField2=-111.5496"	; $LOCATION_NAMES[$x++] = "Apache Junction";
-
-
-
 
 
 
@@ -214,7 +214,7 @@ function hsc($input) {//********************************************************
 
 
 
-function curl_get_contents($url) { //******************************************/
+function curl_get_contents($url, $headers_only = false) { //*******************/
     $ch = curl_init();
 
     curl_setopt($ch, CURLOPT_AUTOREFERER, true);
@@ -222,8 +222,8 @@ function curl_get_contents($url) { //******************************************/
 	curl_setopt($ch, CURLOPT_VERBOSE, true);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-
-
+	curl_setopt($ch, CURLOPT_HEADER, $headers_only); //if $true, return headers.
+	curl_setopt($ch, CURLOPT_NOBODY, $headers_only); //If $true, do not return the actual <html> page.
 	curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.12) Gecko/20101026 Firefox/3.6.12');
     curl_setopt($ch, CURLOPT_URL, $url);
 
@@ -253,8 +253,8 @@ function Get_GET() { //********************************************************/
 		elseif (($location < 0) || ($location > (LOCATIONS - 1)) ) { unset($SHOW_LOCATIONS[$key]); }
 		else   /* make 'em int's -----------------------> */	   { $SHOW_LOCATIONS[$key] *= 1;   }
 	}
-	sort($SHOW_LOCATIONS);
-	$SHOW_LOCATIONS = array_values($SHOW_LOCATIONS);
+	asort($SHOW_LOCATIONS); //Just in case they're not sent in order...  (asort - doesn't re-index the keys)
+
 
 	#Weather "ASPEPCTS" *********************
 	if (!isset($_GET["ASPECTS"])) {
@@ -345,7 +345,7 @@ function Get_Weather_Data($location){ //***************************************/
 	} else { #/*** LIVE DATA ****/
 		$TESTING_MSG = "";
 		$data_url = $DATA_URLS[$location];
-		$RAW_HTML = curl_get_contents($data_url);
+		$RAW_HTML = curl_get_contents($data_url, $headers_only);
 		#$RAW_HTML = file_get_contents($data_url);  //stopped working sometime 2015-03-31
 	}
 	
@@ -428,8 +428,8 @@ function Display_Weather_V($location) { //*************************************/
 				echo "<th>".hsc($DATA[w1_HOUR][$hour])."</th>\n";
 				
 				#Show data...
-				
-				for ($aspect=2; $aspect < count($DISPLAY_ORDER); $aspect++) {
+				$aspects = count($DISPLAY_ORDER);
+				for ($aspect=2; $aspect < $aspects; $aspect++) {
 					
 					#...but skip un-selected weather aspects (Temp, rain, wind, etc).
 					if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
@@ -518,21 +518,29 @@ function User_Options() {//****************************************************/
 			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DATA, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP;
 
 	#First row: Locations **********************************
-	echo "\n<p class=options_group>\n";
-	
+	echo "\n<div class=options_group>\n";
 	echo "Show weather for: &nbsp;\n";
-	$checked_location = 0;
-	for ($LOCATION = 0; $LOCATION < LOCATIONS; $LOCATION++) {
+
+	foreach ($LOCATION_NAMES as $key => $location_name) {
 		$checked = "";
-		if ($SHOW_LOCATIONS[$checked_location] == $LOCATION){
-			$checked = " checked";
-			$checked_location++;
+		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
+		
+		if ($key > 0) {
+			//Defined choices: Tempe, AJ, etc...
+			echo "<label class=option_label>";
+			echo "<input type=checkbox name=SHOW_LOCATIONS[$key] value=$key tabindex=1$checked>";
+			echo $location_name."</label>\n";
+		} else {
+			//Search box
+			echo "<span class=location_search_option>\n";
+			echo "<input type=checkbox name=SHOW_LOCATIONS[0]    value=0    tabindex=1$checked>\n";
+			echo "<input type=text id=search_for_location name=SEARCH_FOR_LOCATION tabindex=1 value='".$location_name."'>\n";
+			echo "</span>\n";
 		}
-		echo "<label class=option_label><input type=checkbox name=SHOW_LOCATIONS[$LOCATION] value=$LOCATION tabindex=1$checked>";
-		echo $LOCATION_NAMES[$LOCATION]."</label>\n";
-	}
-	#SUBMIT button
-	#echo "<button class=options autofocus>Submit</button>\n";
+		
+	}//end for $LOCATION
+	
+	echo "</div>";
 
 
 
@@ -547,9 +555,6 @@ function User_Options() {//****************************************************/
 		echo $DATA[$DISPLAY_ORDER[$aspect]][0]."</label>\n";
 	}
 	
-
-	//#####SUBMIT button
-	//#####echo "<button class=options>Submit</button>\n";
 
 
 
@@ -621,7 +626,7 @@ function Styles() {//**********************************************************/
 				border: 1px solid rgb(63,131,245); padding: 0 .3em 0 .3em; }
 	th			{ }
 	td 			{ min-width: 2.5em; max-width: 3em; white-space: normal; } /*Default for V display.*/
-	label		{ white-space: nowrap; }
+	label		{ white-space: nowrap; display: inline-block; }
 	img			{ vertical-align: top; }
  
 	.hdr		{ font-weight: bold; }
@@ -634,6 +639,8 @@ function Styles() {//**********************************************************/
 	.humidity	 { }
 
 	.w_container { display: inline-block; vertical-align: top; }  /* white-space: nowrap;*/
+	
+	.location_search_option	 { display: inline-block; margin-right: 1em} /*span around search_for_location*/
 
 	#submit		 { float: right; width: 9em; margin-right: 1.5em; }
 	#options_form{ display: inline-block; border: 0px solid gray; padding: 0 0 0 0; }
@@ -649,11 +656,11 @@ function Styles() {//**********************************************************/
 	#misc_submit_row  { margin-bottom: .3em; }
 	#radar_map		  { font-size: .8em; }
 
-	.options		 { margin: 0 1.5em 0 0; }
-	.options_group	 { border: 1px solid rgb(63,131,245); padding-left: .4em; line-height: 1.35em; margin: .3em 0 .4em 0; }
+	.options		  { margin: 0 1.5em 0 0; }
+	.options_group	  { border: 1px solid rgb(63,131,245); padding-left: .4em; line-height: 1.35em; margin: .3em 0 .4em 0; }
 
-	label			 { padding: 1px .3em 2px .1em; margin-right: .6em; border-left: 1px solid transparent; border-right: 1px solid transparent;}
-	label:hover		 { background-color: #ddd; border-left: 1px solid rgb(63,131,245); border-right: 1px solid rgb(63,131,245);}
+	.option_label	   { padding: 1px .3em 2px .1em; margin-right: .6em; border-left: 1px solid transparent; border-right: 1px solid transparent;}
+	.option_label:hover { background-color: #ddd; border-left: 1px solid rgb(63,131,245); border-right: 1px solid rgb(63,131,245);}
 
 	.location_name	 { text-align: left; margin-left: 4em; }
 	.fine_print  	 { font-size: 9pt; color: #555; }
@@ -909,15 +916,63 @@ echo "</div>\n";
 echo "\n<div class=w_container>\n";
 
 	echo "\n<div class=w_container>\n";
-	for ($SELECTED = 0; $SELECTED < COUNT($SHOW_LOCATIONS); $SELECTED++) {
+	foreach($SHOW_LOCATIONS as $key => $location) { 
 		
-		Get_Weather_Data($SHOW_LOCATIONS[$SELECTED]);
+
+
+		//######################################################################
+		if ($location == 0) { //First, "search for" user provided location (zip or city,ST)
+
+			echo "<hr>#################### Testing... Testing... <b>$LOCATION_NAMES[0]</b> ####################<br>";
+
+			$URL  = "http://forecast.weather.gov/zipcity.php?inputstring=".urlencode($_GET["SEARCH_FOR_LOCATION"]);
+			$HEADERS = trim(curl_get_contents($URL, 1))."\n"; //1 parameter => get headers only
+			$HEADERS = str_replace("\r\n", "\n", $HEADERS); //Normalize EOL
+			$HEADERS = str_replace("\r"  , "\n", $HEADERS); //Normalize EOL
+			
+			//Get Location: ... from the $HEADERS
+			$search_for = '/Location: .*$/m'; //"Location:" line in $HEADERS...
+			$LOCATION_found = preg_match($search_for, $HEADERS ,$found); // (should only find 1 "Location:")
+			
+			if (!$LOCATION_found) { continue;}
+
+			if ($LOCATION_found) {
+				$HEADERS_Location = substr($found[0], 10); //Drop the "Location: " prefix
+				$HEADERS_Location_query = parse_url(trim($HEADERS_Location), PHP_URL_QUERY);
+				parse_str($HEADERS_Location_query, $Query_values);
+
+				if (array_key_exists("lat", $Query_values)) {
+					$LAT = $Query_values["lat"];
+					$LON = $Query_values["lon"];
+				} elseif (array_key_exists("textField1", $Query_values)) {
+					$LAT = $Query_values["textField1"];
+					$LON = $Query_values["textField2"];
+				}
+				
+				$DATA_URLS[0] = $BASE_URL_OPTIONS.$LAT."&textField2=".$LON;
+				$LOCATION_NAMES[0] = $Query_values["CityName"].", ".$Query_values["state"]." (".$Query_values["site"].")";
+				
+			}//end if($LOCATION_found)
+
+			
+			echo "\$LOCATION_found: $LOCATION_found<hr><pre>".hsc($HEADERS)."</pre><hr>";
+			
+			//$DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe, AZ";
+			
+			//continue; 
+			
+		} //#end if ($location==0) (user provided location)
 		
+		Get_Weather_Data($location);
+		//######################################################################
+
+
+
 		Extract_Weather_Data();
 		
-		if ($DISPLAY_H) { Display_Weather_H($SHOW_LOCATIONS[$SELECTED]); }
-		else			{ Display_Weather_V($SHOW_LOCATIONS[$SELECTED]); }
-	}//end for($SELECTED)
+		if ($DISPLAY_H) { Display_Weather_H($location); }
+		else			{ Display_Weather_V($location); }
+	}
 	echo "</div>\n"; #end w_container
 
 	if ($SHOW_RADAR) {Show_Radar();}
@@ -944,7 +999,7 @@ if ($TEST_MODE) {
 	echo '<hr><pre style="clear: both;">$DEFAULT_ASPECTS: ' .hsc(print_r($DEFAULT_ASPECTS, true))."</pre>\n";
 	echo '<hr><pre style="clear: both;">$SELECTED_ASPECTS: '.hsc(print_r($SELECTED_ASPECTS, true))."</pre>\n";
 	echo '<hr><pre style="clear: both;">$DATA: '		    .hsc(print_r($DATA, true))."</pre>\n";
-	#echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
+	echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
 }
 ################################################################################
 
