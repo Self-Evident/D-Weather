@@ -68,7 +68,6 @@ $DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4150&textField2=-111.5496"	; $LOCATION_NA
 
 
 
-
 define('LOCATIONS', $x);
 define('DEFAULT_LOCATION', 2);
 
@@ -83,20 +82,20 @@ define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring="
 #define('RADAR_UNAVAILABLE_MD5',  "b7578f7110b249e61a3635d5b1226d87");
 
 
-define('RAW_HTML_SAMPLE', "D:/www/Weather/weather.gov/samples/weather.gov.html");
-
-
-
-
+#1 for actual sample radar images, 2 for simple graphics.
+# If change either $..._SAMPLE below, change cooresponding value in Get_GET();
+$SAMPLE_SET = 1;
+$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.html";
+$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
 #Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
 #Used in Radar_Loop_scripts()
 define('RADAR_SITE_DEF', "IWA_"); //Default radar site (Central AZ)
 define('RADAR_URL_BASE', "http://radar.weather.gov/lite/N0R/");
-define('RADAR_URL_BASE_DEF', "http://radar.weather.gov/lite/N0R/".RADAR_SITE_DEF);
-define('RADAR_URL_BASE_SAMPLE', "/Weather/weather.gov/samples/SAMPLE_");
+define('RADAR_URL_BASE_DEF', RADAR_URL_BASE.RADAR_SITE_DEF);
 define('RADAR_IMG_EXT', ".png");
+
 
 #The min, max, & default hours to display
 define('HOURS_MIN',  6);
@@ -144,7 +143,7 @@ define('WEATHER_TABLE', 7);
 # The following rows are determined by options in the URL.
 # weather.gov displays 48 hours at once, starting with current hour,
 # in two 24 hour sets.
-# The w1_ or w2_ prefix is for which set of rows of 24 hour data. 
+# The w1_ or w2_ prefix denotes which set of rows of 24 hour data. 
 # The (lower-case) "w" prefix just means "weather".
 define('w1_DATE',      1);
 define('w1_HOUR',      2);
@@ -276,7 +275,8 @@ function Get_GET() {//*********************************************************/
 	#Get & validate URL parameters
 	global  $HOURS_TO_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES, $DISPLAY_ORDER, $RAIN_THRESHOLD, 
 			$DISPLAY_H, $SELECTED_ASPECTS, $DISPLAY_ORDER, $SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP,
-			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, $TEST_MODE;
+			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, 
+			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLE, $RADAR_URL_BASE_SAMPLE;
 
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
 
@@ -285,6 +285,13 @@ function Get_GET() {//*********************************************************/
 	#LEAVE CHECK FOR TEST MODE HERE! It's result is used below.
 	if (isset($_GET["TEST"]) || isset($_GET["TEST_MODE"])) {$TEST_MODE = true; }
 	else 												   {$TEST_MODE = false;}
+
+
+	#Which sample set (1 or 2) of radar images to use
+	if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
+	if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
+	$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.html";
+	$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
 	#"SEARCH_FOR_LOCATION" ******************
@@ -430,11 +437,11 @@ Also, Check if custom rid == IWA (central AZ) and don't display custom radar img
 
 function Get_Weather_Page($location){//****************************************/
 	#get raw html page with weather data
-	global $DATA_URLS, $LOCATION_NAMES, $TESTING_MSG, $TEST_MODE, $CUSTOM_RADAR_SITE;
+	global $DATA_URLS, $LOCATION_NAMES, $TESTING_MSG, $TEST_MODE, $CUSTOM_RADAR_SITE, $RAW_HTML_SAMPLE;
 	
 	if ($TEST_MODE) {
 		$TESTING_MSG = "<span class=TESTING_MSG>SAMPLE DATA</span>\n";
-		$data_url = RAW_HTML_SAMPLE;
+		$data_url = $RAW_HTML_SAMPLE;
 		$raw_html = file_get_contents($data_url);
 	} else { #/*** LIVE DATA ****/
 		$TESTING_MSG = "";
@@ -467,12 +474,18 @@ function Get_Weather_Page($location){//****************************************/
 
 
 
-function Extract_Weather_Data($raw_html, &$DATA) {//***************************/
+function Extract_Weather_Data($raw_html) {//***************************/
 	//Extract desired data from table and save in $DATA array().
-	global $DESIRED;
+	global $DESIRED, $DATA;
 	
 	$DOM = new DOMDocument;		#$DOM -> preserveWhiteSpace = false;
-	$DOM -> loadHTML($raw_html);
+ 	@$DOM -> loadHTML($raw_html); 
+	#2016-02-17
+	#The @ suppresses errors loadHTML() returns while parsing the weather html file ($raw_html).
+	# The errors don't seem to matter, and only clog up Apache's error.log file.
+	# Alternate to using the @ error suppression:
+	# libxml_use_internal_errors(true); $DOM -> loadHTML($raw_html); $DOM_errors = libxml_get_errors(); libxml_clear_errors();
+
 	$WEATHER_TABLE = $DOM   -> getElementsByTagName('table') -> item(WEATHER_TABLE);
 
 	$ROWS  = $WEATHER_TABLE	-> getElementsByTagName('tr');
@@ -537,23 +550,27 @@ function Display_Weather_V($location) {//***************************************
 				
 				#Show data...
 				for ($aspect=0; $aspect < $aspects; $aspect++) {
-					if ($aspect > 1 ) {$td = "td";} else {$td = "th";}
-					if ($aspect > 0 ) {$day = "";}
 					
-					#...but skip un-selected weather aspects (Temp, rain, wind, etc).
+					#...but skip un-selected weather data (aspects)
 					if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
-						
+					
+					if ($aspect > 0 ) {$day = "";} //Only need for first data column (<td>)
+					if ($aspect <2 ) {$td = "th";} else {$td = "td";}
+					
+					#used to adjust css for specific columns and/or weather data
+					$aspect_class = "";
+					
 					#Highlight rain% value if >= specified value.
-					if (($hour > 0) && ($DISPLAY_ORDER[$aspect] == w1_RAIN) && ($DATA[w1_RAIN][$hour] >= $RAIN_THRESHOLD))
-						 { $rain = " rain"; }
-					else { $rain = ""; }
+					if (($hour > 0) && 
+						($DISPLAY_ORDER[$aspect] == w1_RAIN) && 
+						($DATA[w1_RAIN][$hour] >= $RAIN_THRESHOLD))
+						{ $aspect_class = " rain"; }
 					
-					#Adjust css for wind_dir
-					if ( ($hour > 0) && ($DISPLAY_ORDER[$aspect] == w1_WIND_DIR)) {
-						   $wind_dir = " wind_dir";}
-					else { $wind_dir = ""; }
+					#Adjust css for a couple of columns
+					if (($hour >  0) && ($DISPLAY_ORDER[$aspect] == w1_WIND_DIR)) { $aspect_class = " wind_dir";}
+					if (($DISPLAY_ORDER[$aspect] == w1_FOG)) {$aspect_class = " fog";}
 					
-					echo "<$td class='$hdr$rain$wind_dir'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."$day</$td>\n";
+					echo "<$td class='$hdr$aspect_class'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."$day</$td>\n";
 				}
 			echo "</tr>\n";
 			
@@ -695,7 +712,7 @@ function User_Options() {//****************************************************/
 
 	#Rain Threshold: highlight rain values at this point
 	echo "\n<span  class=options>Highlight rain at ";
-	echo "<input type=text id=rain_threshold name=RAIN_THRESHOLD maxlength=2 value=".$RAIN_THRESHOLD." tabindex=3>";
+	echo "<input type=text id=rain_threshold name=RAIN_THRESHOLD width=2 maxlength=2 value=".$RAIN_THRESHOLD." tabindex=3>";
 	echo "%</span>\n";
 
 
@@ -730,31 +747,33 @@ function User_Options() {//****************************************************/
 
 
 function Styles() {//**********************************************************/
-	global $HOURS_TO_SHOW, $DONT_WRAP_MAP;
+	global $HOURS_TO_SHOW, $DONT_WRAP_MAP, $DISPLAY_H;
 ?>
 <style>
 	*			{ font-family: arial; }
 	h2 			{ font-size: 1.5em; margin: 0; }
 
-	.data		{ border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; vertical-align:top; }
-	td, th		{ font-size: 9pt; text-align:center; vertical-align: top;
-				border: 1px solid rgb(63,131,245); padding: 0 .3em 0 .3em; }
+	td, th		{ font-size: 9pt; text-align:center; vertical-align: top; border: 1px solid rgb(63,131,245); padding: 0 .3em; }
 	th			{ }
-	td 			{ min-width: 2.5em; max-width: 3em; white-space: normal; } /*Default for V display.*/
-	.not_found	{ border: 1px solid rgb(63,131,245); font-weight: bold; text-align: center; }
+	td			{ min-width: 2.5em; max-width: 2.9em; white-space: normal; } /*Default for V display.*/
 
 	label		{ white-space: nowrap; display: inline-block; }
 	img			{ vertical-align: top; }
+
+	.data		{ border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; vertical-align:top; }
  
-	.hdr		{ font-weight: bold; }
+	.hdr		{ font-weight: bold; padding: 0 .3em;}
 	.time		{ }
 	.temp		{ }
 	.wind_mph	{ }
-	.wind_dir	{ text-align: left; padding: 0 0 0 .55em; }
-	.rain		{ color: blue; font-weight: bold }
+	.wind_dir	{ text-align: left; padding: 0 0 0 0.25em; }
+	.rain		{ color: blue; font-weight: bold; }
 	.clouds		{ }
 	.humidity	{ }
+	.fog		{ max-width: 8em; padding: 0 .5em;}
 
+	.not_found	{ border: 1px solid rgb(63,131,245); font-weight: bold; text-align: center; }
+	
 	.w_container { display: inline-block; vertical-align: top; }  /* white-space: nowrap;*/
 	
 	.location_search_option	 { display: inline-block; margin-right: 1em} /*span around search_for_location*/
@@ -764,7 +783,7 @@ function Styles() {//**********************************************************/
 	#default_ops 	{ float: right; }
 	#test_mode	 	{ float: right; }
 	#VH			 	{ }
-	#rain_threshold	{ width:1.2em; padding: 1px 0 0 2px; }
+	#rain_threshold	{ width:1.4em; padding: 1px 0 0 2px; }
 
 	#show_radar_label { margin-left: 3em; }
 	#wrap_map	 	  { white-space: nowrap; }
@@ -788,13 +807,11 @@ function Styles() {//**********************************************************/
 	.fine_print  	 { font-size: 9pt; color: #555; }
 	.TESTING_MSG 	 { color: red; }
 </style>
-
 <?php
-
 	if ($DONT_WRAP_MAP) {echo "<style>.w_container {white-space: nowrap;}</style>\n";}
 
 	#Adjust <td> widths for Horizontal display.
-	if ($DISPLAY_H) { echo "<style>td { min-width: 2.8em; max-width: 2.8em; }</style>\n"; }
+	if ($DISPLAY_H) { echo "<style>th { max-width: 6em; }</style>\n\n"; }
 
 	#Adjust left margin for location name if hours < HOURS_MIN, so it's not out of box (if it's a long name).
 	if ($HOURS_TO_SHOW < HOURS_MIN) { echo "<style>.location_name {margin-left: .2em;}</style>\n";}
@@ -893,7 +910,7 @@ function Show_Radar() { //******************************************************
 		
 		<div>
 			<span class=fine_print style="display: block; float: right; margin-right: 1.95em;">(<span id=CURRENT_LOOP class=fine_print> </span>)</span>
-			<span id=img_url class=fine_print></span><br>
+			<span id=IMG_URL class=fine_print></span><br>
 		</div>
 	</div>
 <?php
@@ -905,7 +922,7 @@ function Show_Radar() { //******************************************************
 
 
 function Radar_Loop_scripts() { //**********************************************/
-	global $TEST_MODE;
+	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE;
 ?>
 <script>
 function Start_Stop() { //*********************************************
@@ -915,84 +932,102 @@ function Start_Stop() { //*********************************************
 		RUNNING = false;
 		Start_Stop_button.innerHTML = "Start Radar Loop";
 		Start_Stop_button.style.backgroundColor = "transparent";
-		clearInterval(loop_timer); //Not actually running on init...
+		clearInterval(LOOP_TIMER); //Not actually running on init...
 	} else {
 		RUNNING = true;
 		Start_Stop_button.innerHTML = "Stop Radar Loop"; 
 		Start_Stop_button.style.backgroundColor = "#FFd0d0"; //light red
-		Rotate_Pic(0); //0 skips the PAUSE if (re)starting rotation on pic 0.
+		Rotate_Pic();
 	}
 } //end Start_Stop() //***********************************************
 
 
 
-function Rotate_Pic(pause){ //*****************************************
-	var rotate_delay = Frame_Rate_Options[Frame_Rate_Options.selectedIndex].value;
+function Rotate_Pic(){ //*********************************************
+	var frame_rate   = Frame_Rate_Options[Frame_Rate_Options.selectedIndex].value;
 	var rotate_pause = Rotate_Pause_Options[Rotate_Pause_Options.selectedIndex].value;
 	var rotate_loops = ROTATE_LOOPS_Options[ROTATE_LOOPS_Options.selectedIndex].value;
-	var MAX_ROTATIONS = (rotate_loops * pic_list[0].length) -1 ; //actually, the number of images to cycle thru.
+	var max_rotations = (rotate_loops * PIC_LIST[0].length) - 1 ; //actually, the number of images to cycle thru.
 
-	if (CURRENT_PIC == (pic_list[0].length - 1)) {document.getElementById('CURRENT_LOOP').innerHTML = CURRENT_LOOP++ ;}
+	//Determine new image/CURRENT_PIC.
+	//Pic 0 is the "last"(latest) pic. Pic 7 (.length - 1) is the "first"(oldest) pic.
+	//So, to rotate from oldest to newest, rotation order is: 7 6 5 4 3 2 1 0
+	// First check if prior pic was last pic in list.
+	if(CURRENT_PIC <= 0) {CURRENT_PIC = (PIC_LIST[0].length - 1);} else {CURRENT_PIC--;}
 
-	pause = typeof pause !== 'undefined' ? pause : rotate_pause;
+	//Display new image & image URL.
+	ROTATING_PIC.src  = PIC_LIST[0][CURRENT_PIC];
+	IMG_URL.innerHTML = "(" + PIC_LIST[0][CURRENT_PIC] + ")";
 
-	//Display new image url.
-	Img_URL.innerHTML = "(" + pic_list[0][CURRENT_PIC] + ")";
+	//Display/update current loop when on first(oldest) pic in list.
+	if (CURRENT_PIC == (PIC_LIST[0].length - 1)) {
+		document.getElementById('CURRENT_LOOP').innerHTML = CURRENT_LOOP;
+		CURRENT_LOOP++;
+	}
 
-	if (CURRENT_PIC == 0) {delay = pause;} else {delay = rotate_delay;}
+	//delay for setTimeout (time to next pic)
+	if (CURRENT_PIC == 0)	{ delay = rotate_pause; }  //A slightly longer pause on pic 0 (normally).
+	else					{ delay = frame_rate; }    //Normal pause between each img.
 
-	//Rotate / show new image.
-	document.getElementById('RotatingPic').src = pic_list[0][CURRENT_PIC--];
-
-	if(CURRENT_PIC < 0) {CURRENT_PIC = (pic_list[0].length - 1);}
-
-	loop_timer = setTimeout('Rotate_Pic(' + rotate_pause  + ')',delay);
-	if (FRAME_COUNT++ > MAX_ROTATIONS) {FRAME_COUNT = 0; CURRENT_PIC = 0;  CURRENT_LOOP = 1; Start_Stop();}
+	if (FRAME_COUNT < max_rotations) {
+		FRAME_COUNT++;
+		LOOP_TIMER = setTimeout('Rotate_Pic()',delay);
+	} else {
+		FRAME_COUNT  = 0;
+		CURRENT_PIC  = 0;
+		CURRENT_LOOP = 1;
+		Start_Stop();
+	}
+	
 }//end Rotate_Pic() //************************************************
 
 
 
-//Load radar image URL's into pic_list[site][x]
-//(Last 8 radar images available from weather.gov)
-//site = radar site (default or user supplied), x = image 0 thru 7
-var pic_list	= [];
-	pic_list[0] = []; //Default radar site
-	pic_list[1] = []; //Radar site for user requested location.
 
+//Load radar image URL's into PIC_LIST[site][x]
+//site = radar site (0=default, 1=user supplied),   x = image 0 thru 7
+//image 0 is most recent, 7 is the oldest. //(Last 8 radar images available from weather.gov)
+var PIC_LIST	= [];
+	PIC_LIST[0] = []; //Default radar site
+	PIC_LIST[1] = []; //Radar site for user requested location.
 <?php
-if ($TEST_MODE) { $radar_url_base = RADAR_URL_BASE_SAMPLE; }
+if ($TEST_MODE) { $radar_url_base = $RADAR_URL_BASE_SAMPLE; }
 else            { $radar_url_base = RADAR_URL_BASE_DEF; }
  ?>
-
-for (var x = 0; x < 8; x++) { pic_list[0][x] = '<?php echo $radar_url_base ?>' + x + '<?php echo RADAR_IMG_EXT ?>'; }
-
-
-//Show initial image url. Img_URL also used in Rotate_Pic()
-var Img_URL = document.getElementById('img_url');
-Img_URL.innerHTML = "(" + pic_list[0][0] + ")";
+for (var x = 0; x < 8; x++) {
+	PIC_LIST[0][x] = '<?php echo $radar_url_base ?>' + x + '<?php echo RADAR_IMG_EXT ?>';
+}
 
 
-//FRAME_RATE = ROTATE_DELAY = pause between each image,
-//set in Start_Stop() from the following user option (FRAME_RATE).
+//FRAME_RATE = pause between each image,
+//set in rotate_pic() from the following user option (FRAME_RATE).
 var Frame_Rate_Options	 = USER_OPTIONS.FRAME_RATE;
 
 //ROTATE_PAUSE = pause between loops.
 //Set in Start_Stop() from the following opton (ROTATE_PAUSE).
 var Rotate_Pause_Options = USER_OPTIONS.ROTATE_PAUSE;
 
-//ROTATE_LOOPS = number of times to cycle thru radar images, then stop.
-// Used to determine MAX_ROTATIONS in Rotate_Pic().
+//ROTATE_LOOPS = number of times to cycle thru radar image list, then stop.
+// Used to determine max_rotations in Rotate_Pic().
 var ROTATE_LOOPS_Options = USER_OPTIONS.ROTATE_LOOPS;
 var CURRENT_LOOP = 1;
 
+var FRAME_COUNT = 0;  //Current count of total pics rotated...
+var CURRENT_PIC = 0;  //index for PIC_LIST[0][CURRENT_PIC]
 
-//load initial radar image, then init the Start_Stop <button> as "Start...
-document.getElementById('RotatingPic').src = pic_list[0][0];
-var FRAME_COUNT  = 0; //Total pics rotated...
-var CURRENT_PIC = 0;  // index for pic_list[0][CURRENT_PIC]
-var RUNNING = true;	  //Will be flipped to false by initial call to  Start_Stop() below.
-var loop_timer   = setTimeout(";", 1); //just init for first call to Start_Stop().
+//Initialize the Start_Stop <button> as "Start...
+var RUNNING = true;	  //Will be flipped to false by initial call to Start_Stop().
+var LOOP_TIMER   = setTimeout(";", 1); //Needed for initial call to Start_Stop().
 Start_Stop();
+
+
+//Show initial image url. Changed with pic in Rotate_Pic()
+var IMG_URL			  = document.getElementById('IMG_URL');
+    IMG_URL.innerHTML = "(" + PIC_LIST[0][0] + ")";
+
+//Load initial/latest radar image
+var ROTATING_PIC     = document.getElementById('RotatingPic');
+    ROTATING_PIC.src = PIC_LIST[0][0];
 </script>
 
 <?php
@@ -1032,7 +1067,7 @@ echo '<div id=timestamp_row>';
 
 	#Data Source
 	echo " <span class=fine_print>(Weather data source: ";
-		if ($TEST_MODE) {echo "<span class=TESTING_MSG>".RAW_HTML_SAMPLE."</span>";}
+		if ($TEST_MODE) {echo "<span class=TESTING_MSG>".$RAW_HTML_SAMPLE."</span>";}
 		else			{echo "www.weather.gov";}
 	echo ")</span><br>\n";
 
@@ -1058,7 +1093,7 @@ echo "\n<div class=w_container>\n";
 		
 		$RAW_HTML = Get_Weather_Page($location);
 		
-		Extract_Weather_Data($RAW_HTML, $DATA);
+		Extract_Weather_Data($RAW_HTML);
 		
 		if ($DISPLAY_H) { Display_Weather_H($location); }
 		else			{ Display_Weather_V($location); }
