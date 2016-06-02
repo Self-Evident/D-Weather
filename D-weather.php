@@ -104,7 +104,7 @@ function Set_Theme($theme=0) { //**********************************************/
 	$COLOR['input-bg']			= "white";
 	$COLOR['input-font']		= "black";
 	$COLOR['input-border']		= "rgb(127,157,187)";
-	$COLOR['data-font-size']	= "1em";			//16px = 12pt = 1em
+	$COLOR['data-font-size']	= ".90em";			//16px = 12pt = 1em
 	$COLOR['data-grid']			= "rgb(100,160,250)";
 	$COLOR['options-border']	= "rgb(63,131,245)";
 	$COLOR['borders']			= "rgb(10,80,200)";
@@ -141,7 +141,7 @@ function Set_Theme($theme=0) { //**********************************************/
 		$COLOR['input-font']		= "#0F0";
 		$COLOR['input-border']		= "#0F0";
 		$COLOR['data-grid']			= "rgb(100,160,250)";
-		$COLOR['data-font-size']	= "1em";
+		$COLOR['data-font-size']	= ".90em";
 		$COLOR['options-border']	= "rgb(63,131,245)";
 		$COLOR['borders']			= "rgb(10,80,200)";
 		$COLOR['data-border'] 		= $COLOR['borders'];
@@ -175,7 +175,7 @@ function Set_Theme($theme=0) { //**********************************************/
 		$COLOR['input-bg']			= "black";
 		$COLOR['input-font']		= "#0F0";
 		$COLOR['input-border']		= "#0F0";
-		$COLOR['data-font-size']	= "1em";
+		$COLOR['data-font-size']	= ".90em";
 		$COLOR['data-grid']			= "rgb(100,160,250)";
 		$COLOR['options-border']	= "rgb(63,131,245)";
 		$COLOR['borders']			= "#FFbf00"; //rgb(10,80,200)
@@ -189,6 +189,41 @@ function Set_Theme($theme=0) { //**********************************************/
 		$COLOR['button-font']		= "#FFbf00";
 		$COLOR['svg-btn']			= "#FFbf00";
 		//End Dark 2 -------------------------------------
+	} 
+	if ($theme == 3) {
+		//--- Dark 3 -------------------------------------
+		$COLOR['body-bg']			= "black";
+		$COLOR['body']				= "#F00";
+		$COLOR['hover-bg']			= "#333";
+		$COLOR['hover-border']		= "yellow";
+		$COLOR['hover-font']		= "";
+		$COLOR['focus-bg']			= "#333";
+		$COLOR['focus-border']		= "yellow";
+		$COLOR['focus-font']		= "yellow";
+		$COLOR['active-bg']			= "#F00";
+		$COLOR['active-border']		= "yellow";
+		$COLOR['active-font']		= "black";
+		$COLOR['imgbar']			= "#444";
+		$COLOR['imgbar-font']		= "#777";
+		$COLOR['imgbar-slot']		= "#444";
+		$COLOR['fine-print']		= "#555";
+		$COLOR['input-bg']			= "black";
+		$COLOR['input-font']		= "#0FF";
+		$COLOR['input-border']		= "#0FF";
+		$COLOR['data-font-size']	= ".90em";
+		$COLOR['data-grid']			= "#FFbf00"; //rgb(100,160,250)
+		$COLOR['options-border']	= "rgb(63,131,245)";
+		$COLOR['borders']			= "#F00"; //rgb(10,80,200)
+		$COLOR['data-border'] 		= "#FFbf00";
+		$COLOR['msgs-border']		= $COLOR['borders'];
+		$COLOR['msgs-h-border']		= $COLOR['borders'];
+		$COLOR['not-found-border']	= $COLOR['borders'];
+		$COLOR['rain']				= "cyan";
+		$COLOR['button-bg']			= "black";
+		$COLOR['button-border']		= "#F00";
+		$COLOR['button-font']		= "#F00";
+		$COLOR['svg-btn']			= "#F00";
+		//End Dark 3 -------------------------------------
 	} 
 }//end Set_Theme() { //********************************************************/
 
@@ -223,7 +258,7 @@ function Init() { //***********************************************************/
 
 
 	define('LOCATIONS', $x);
-	define('DEFAULT_LOCATION', 2); 
+	define('DEFAULT_LOCATION', 1);
 
 	//Used to find user provided location
 	define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring=");
@@ -418,7 +453,7 @@ function Init() { //***********************************************************/
 	
 
 	//These must coorespond to the number & order of "if/then"'s in Set_Themes().
- 	$THEME_LIST = ["Default", "Dark", "Dark 2"];
+ 	$THEME_LIST = ["Default", "Dark", "Dark 2", "Dark 3"];
 	$THEME_COUNT = count($THEME_LIST);
 
 }//end Init() { //*************************************************************/
@@ -515,10 +550,12 @@ function curl_get_contents($url, $headers = false, $nobody = false) {//********/
 
 function Get_GET() {//*********************************************************/
 	//Get & validate URL parameters
-	global  $HOURS_TO_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES, $DISPLAY_ORDER, $RAIN_THRESHOLD, 
-			$DISPLAY_H, $SELECTED_ASPECTS, $DISPLAY_ORDER, $SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW, 
-			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, 
-			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLES, $SHOW_RADAR_OPTIONS, $THEME, $THEME_LIST, $THEME_COUNT;
+	global  $SHOW_LOCATIONS, $LOCATION_NAMES, $SELECTED_ASPECTS, $DEFAULT_ASPECTS, $DISPLAY_ORDER,
+			$HOURS_TO_SHOW, $DISPLAY_H,  $RAIN_THRESHOLD,
+			$SAMPLE_SET, $RAW_HTML_SAMPLES, $THEME, $THEME_LIST, $THEME_COUNT, $TEST_MODE,
+			$SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
+			$SHOW_RADAR_OPTIONS, $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS,
+			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS;
 
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
 
@@ -538,7 +575,7 @@ function Get_GET() {//*********************************************************/
 	//"LOCATION_SEARCH" **********************
 	if (isset($_GET["LOCATION_SEARCH"])) { $LOCATION_NAMES[0] = $_GET["LOCATION_SEARCH"]; }
 	//Only keep ascii printable char's
-	$LOCATION_NAMES[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', $LOCATION_NAMES[0]);
+	$LOCATION_NAMES[0] = preg_replace('/[\x00-\x1F\x80-\xFF]/', '', trim($LOCATION_NAMES[0]));
 	//Get rid of some unlikely chars for location names that could cause problems
 	$bad_chars = explode(' ', '! @ # $ % ^ & * ( ) _ < > ` ~  = + [ ] { } \\ | ; : \' " ? /');
 	$LOCATION_NAMES[0] = str_replace($bad_chars ,'' ,$LOCATION_NAMES[0]); 
@@ -588,11 +625,12 @@ function Get_GET() {//*********************************************************/
 
 
 	//SHOW_RADAR *****************************
-	if     (empty($_GET))					 { $SHOW_RADAR = TRUE;  } //Default
-	elseif ($TEST_MODE && count($_GET == 1)) { $SHOW_RADAR = TRUE;  } //Default also in TEST_MODE
-	elseif (isset($_GET["SHOW_RADAR"]))		 { $SHOW_RADAR = TRUE;  }
-	else									 { $SHOW_RADAR = FALSE; }
-	
+	if 	   (empty($_GET)) 					   { $SHOW_RADAR = TRUE; } //Default
+	elseif (isset($_GET["SHOW_RADAR"])) 	   { $SHOW_RADAR = TRUE; }
+	elseif ($TEST_MODE && (count($_GET) == 1)) { $SHOW_RADAR = TRUE; } //Default also in "manual"* test mode.
+	else									   { $SHOW_RADAR = FALSE;}
+	//*("manual" test mode: ?TEST_MODE added to URL, even if checkbox option not available)
+
 
 	//"RAIN_THRESHOLD" Hightlight rain values when over this amount (%). The default value for $RAIN_THRESHOLD set in Init().
 	if (isset($_GET["RAIN_THRESHOLD"])) {$RT = (int)trim($_GET["RAIN_THRESHOLD"]);} else {$RT = $RAIN_THRESHOLD;}
@@ -616,9 +654,27 @@ function Get_GET() {//*********************************************************/
 	if (($THEME < 0) || ($THEME > $THEME_COUNT)) {$THEME = 1;}
 
 
-	//Radar options. $i=1 for AZ radar. $i=2 for user selected/custom location.
+	//Show Location Options/Aspects? *********
+	if (isset($_GET["SHOW_LOCATION_OPTIONS"]) && ($_GET["SHOW_LOCATION_OPTIONS"] == "true"))
+		 {$SHOW_LOCATION_OPTIONS = "true";}
+	else {$SHOW_LOCATION_OPTIONS = "false";}  //Default to value set in style sheet for #LOCATION_OPTIONS
+
+
+	//Show Weather Options/Aspects? **********
+	if (isset($_GET["SHOW_WEATHER_OPTIONS"]) && ($_GET["SHOW_WEATHER_OPTIONS"] == "true"))
+		 {$SHOW_WEATHER_OPTIONS = "true";}
+	else {$SHOW_WEATHER_OPTIONS = "false";}  //Default to value set in style sheet for #WEATHER_OPTIONS
+
+
+	//Show Display  Options? *****************
+	if (isset($_GET["SHOW_DISPLAY_OPTIONS"]) && ($_GET["SHOW_DISPLAY_OPTIONS"] == "true"))
+		 {$SHOW_DISPLAY_OPTIONS = "true";}
+	else {$SHOW_DISPLAY_OPTIONS = "false";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
+
+
+	//Radar options: $i=1 for AZ radar, $i=2 for user selected/custom location.
 	for ($i = 1; $i < 3; $i++) {
-		//Show Radar Options?
+		//Show Radar Options? ********************
  		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "true"))
 			 {$SHOW_RADAR_OPTIONS[$i] = "true";}
 		else {$SHOW_RADAR_OPTIONS[$i] = "false";}
@@ -636,7 +692,6 @@ function Get_GET() {//*********************************************************/
 		if (!is_numeric($ROTATE_LOOPS[$i]) || ($ROTATE_LOOPS[$i] < ROTATE_LOOPS_MIN) || ($ROTATE_LOOPS[$i] > ROTATE_LOOPS_MAX)) {$ROTATE_LOOPS[$i] = ROTATE_LOOPS_DEF;}
 	}
 
-	
 }//end Get_GET() //************************************************************/
 
 
@@ -644,7 +699,7 @@ function Get_GET() {//*********************************************************/
 
 
 function Search_for_custom_location() {//**************************************/
-	global $URL_BASE, $URL_OPTIONS, $DATA_URLS, $LOCATION_NAMES, $CUSTOM_RADAR_SITE,  $TEST_MODE;
+	global $URL_BASE, $URL_OPTIONS, $DATA_URLS, $LOCATION_NAMES, $CUSTOM_RADAR_SITE;
 
 	$Search_URL = BASE_SEARCH_URL.rawurlencode($LOCATION_NAMES[0]);
 	$HEADERS = trim(curl_get_contents($Search_URL, 1, 1))."\n"; //The 1, 1 parameters returns headers only.
@@ -838,7 +893,7 @@ function Display_Weather_V($location) {//**************************************/
 	
 	echo "<table class=data>\n";
 		
-		echo "<tr>\n<td colspan=".$columns.">"; //##### 
+		echo "<tr>\n<td colspan=".$columns.">"; 
 		echo "<h2>".hsc($LOCATION_NAMES[$location])."<br>".$TESTING_MSG."</h2>";
 		echo "</td>\n</tr>\n";
 		
@@ -958,13 +1013,15 @@ function Display_Weather_H($location) {//**************************************/
 
 
 function User_Options() {//****************************************************/
-	global	$COLOR, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
-			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DATA, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW;
+	global	$COLOR, $DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
+			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
+			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS;
 
 	//First row: Locations **********************************
-	echo "\n<div class=options_group>\n";
-	echo "<span class=indent>Show weather for:</span>\n";
-
+?>
+		<div id=LOCATION_OPTIONS class=options_group>
+			<span class=indent>Show weather for:</span>
+<?php
 	foreach ($LOCATION_NAMES as $key => $location_name) {
 		$checked = "";
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
@@ -972,7 +1029,7 @@ function User_Options() {//****************************************************/
 		if ($key > 0) {
 			//Defined choices: Tempe, AJ, etc...
 			echo "<label>";
-			echo "<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
+			echo "	<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
 			echo hsc($location_name)."";
 			echo "</label>\n";
 		}
@@ -989,12 +1046,12 @@ function User_Options() {//****************************************************/
 		}
 	}//end foreach $LOCATION_NAMES
 
-	echo "</div>";
+	echo "</div>\n"; //end location_options
 
 
 
 	//Second row: Weather aspects - Temp, Wind, etc *********
-	echo "\n<div class=options_group>\n";
+	echo "\n<div id=WEATHER_OPTIONS class=options_group>\n";
 
 	echo "<span class=indent>Show:</span>\n";
 	for ($aspect=1; $aspect < WASPECTS; $aspect++) {
@@ -1005,13 +1062,12 @@ function User_Options() {//****************************************************/
 		echo "<span class=label>".hsc($DATA[0][$DISPLAY_ORDER[$aspect]])."</span>";
 		echo "</label>\n";
 	}
-	
 	echo "</div>";
 
 
 
 	//Third row: display options ****************************
-	echo "\n<div class=options_group>\n";
+	echo "\n<div id=DISPLAY_OPTIONS class=options_group>\n";
 
 
 	//Hours to display (12, 24, 36, 48, etc...)
@@ -1073,7 +1129,7 @@ function User_Options() {//****************************************************/
 	}
 
 
-	/*** TEST MODE option ****/
+	/*** TEST MODE option ****./
 	$checked = "";
 	if ($TEST_MODE) {$checked = " checked";}
 	echo "\n<label id=test_mode>";
@@ -1091,8 +1147,7 @@ function User_Options() {//****************************************************/
 function Show_Radar($i=1) { //***************************************************/
 	// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
 	global $COLOR, $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
-	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND, 
-		   $TEST_MODE;
+	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND;
 
 
 	if ($i == 2) {$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_0".RADAR_IMG_EXT;}
@@ -1116,10 +1171,10 @@ function Show_Radar($i=1) { //**************************************************
 		$rotate_loops_options .= "<option value=$x$selected>$x</option>\n";
 	}
 
-	$imgbar_slots = "";
+	$imgbar_slots = "\n";
 	$tabindex = -1;
 	for($x = ($IMG_CNT - 1); $x >= 0; $x--) {
-		$imgbar_slots .= "\n<td id=slot_{$x}_{$i}>$x</td>";
+		$imgbar_slots .= "<td id=slot_{$x}_{$i}>$x</td>\n";
 	}
 
 
@@ -1134,12 +1189,11 @@ function Show_Radar($i=1) { //**************************************************
 			
 			<table id=IMGBAR_<?= $i ?> class=imgbar><tr><?= $imgbar_slots ?></tr></table>
 			
-			<button type=button id=BTN_SHOW_RAD_OPTS_<?= $i ?> class=show_radar_opts>Opt</button>
-			<!-- //##### NEED BETTER UNIQUE ID!!! //##### -->
-			<input type=hidden id=RADAR_OPTIONS_VISIBLE_<?= $i ?> name=SHOW_RADAR_OPTIONS[<?= $i ?>] value=<?= $SHOW_RADAR_OPTIONS[$i] ?>>
+			<button type=button id=SHOW_RADAR_OPTS_<?= $i ?> class=radar_opts_btn>Opt</button>
+			<input type=hidden id=SHOW_RADAR_OPTIONS_<?= $i ?> name=SHOW_RADAR_OPTIONS[<?= $i ?>] value=<?= $SHOW_RADAR_OPTIONS[$i] ?>>
 		</div>
 		
-		<div id=RADAR_OPTIONS_<?= $i ?> class=radar_options_div>
+		<div id=RADAR_OPTIONS_<?= $i ?> class=radar_opts_div>
 			
 			<label>Frame Rate
 				<select name=FRAME_RATE[<?= $i ?>] id=FRAME_RATE_<?= $i ?> class=radar_option_values>
@@ -1323,17 +1377,17 @@ function Init_Radar(pic_list, instance) { //******************************
 	Pix.current_loop 	= 0;
 	Pix.loop_timer 		= setTimeout(";", 1);
 	Pix.running 		= false;
-	Pix.rotating_pic 	= document.getElementById('ROTATING_PIC_' 	   + instance);
-	Pix.loop_displayed 	= document.getElementById('LOOP_' 			   + instance);
+	Pix.rotating_pic 	= document.getElementById('ROTATING_PIC_' 	   + instance); //<img>
+	Pix.loop_displayed 	= document.getElementById('LOOP_' 			   + instance); //<span>
 	Pix.frame_rate 		= document.getElementById('FRAME_RATE_' 	   + instance); //Normal pause between each img.
 	Pix.rotate_pause 	= document.getElementById('ROTATE_PAUSE_' 	   + instance); //A longer pause on pic 0 (normally).
 	Pix.loops			= document.getElementById('ROTATE_LOOPS_' 	   + instance); //Number of times to loop, then stop.
-	Pix.start_stop 		= document.getElementById('START_STOP_' 	   + instance);
+	Pix.start_stop 		= document.getElementById('START_STOP_' 	   + instance); //<button>
 	Pix.top_pic  		= document.getElementById('ROTATING_PIC_' 	   + instance); //Currently, same as .rotating_pic
-	Pix.radar_options 	= document.getElementById('RADAR_OPTIONS_' 	   + instance);
-	Pix.radar_opt_vis	= document.getElementById('RADAR_OPTIONS_VISIBLE_' + instance); //hidden input = true/false
+	Pix.show_radar_opts = document.getElementById('SHOW_RADAR_OPTS_'   + instance); //<button> to show/hide radar options
+	Pix.radar_options 	= document.getElementById('RADAR_OPTIONS_' 	   + instance); //<div> container for radar options
+	Pix.show_radar_options	= document.getElementById('SHOW_RADAR_OPTIONS_'+ instance); //<input hidden> status of radar optons.  true/false
 	Pix.imgbar			= document.getElementById('IMGBAR_' 		   + instance); //Not currently used, but maybe someday...
-	Pix.show_radar_opts = document.getElementById('BTN_SHOW_RAD_OPTS_' + instance);
 
 	Pix.rotating_pic.src 		  = Pix.pic_list[0];  //Load initial image
 	Pix.start_stop.innerHTML      = PLAY_BTN;
@@ -1343,7 +1397,7 @@ function Init_Radar(pic_list, instance) { //******************************
 	Pix.top_pic.onclick 		= function(     ){Start_Stop(Pix); document.getElementById('START_STOP_' + instance).focus();}
 	Pix.start_stop.onclick 		= function(     ){Start_Stop(Pix); Stop_Propagation(event)}
 	Pix.start_stop.onkeydown 	= function(event){Imgbar_Control(event, Pix); Stop_Propagation(event)}
-	Pix.show_radar_opts.onclick = function(     ){Show_Hide_Options(Pix)}
+	Pix.show_radar_opts.onclick = function(     ){Show_Hide_Options(Pix.radar_options, Pix.show_radar_options, "visibility", "visible", "hidden")}
 
 	Pix.imgbar_slots = []; //<td>'s
 	for (var x=0; x < Pix.pic_list.length; x++) {Pix.imgbar_slots[x] = document.getElementById("slot_" + x  + "_" + instance);}
@@ -1361,7 +1415,7 @@ function Init_Radar(pic_list, instance) { //******************************
 			Pix.imgbar_slots[xvalue].onclick = 
 				function(event) {
 					Imgbar_Click(Pix, xvalue);
-					Stop_Propagation(event); //##### 
+					Stop_Propagation(event);
 				}
 			}
 		)(x);
@@ -1414,15 +1468,12 @@ var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="<?= $C
 	CTRL_ICO += '</svg>\n';
 
 
-//##### 
-//if (!Supports_SVG()) {   //#####
-	PLAY_BTN = "Play &nbsp; >";
-	PAUS_BTN = "Pause | |";
+//##### if (!Supports_SVG()) {
+	PLAY_BTN = "Play &nbsp; &#x25Ba;";  //# >  &#x25B7; &#x25ba;
+	PAUS_BTN = "Pause  <b>| |</b>";     //# <b>| |</b> &#9616;&#9616;  &#10073;&#10073; &#9612;&#9612;   &#9015;&#9015;
 	STOP_BTN = "STOP";
 	CTRL_ICO = "Opt";
-//} //#####
-
-
+//##### }
 //************************************************************************/
 
 
@@ -1576,13 +1627,15 @@ function Header_crap() {//*****************************************************/
 
 
 function Styles() {//**********************************************************/
-	global $COLOR, $HOURS_TO_SHOW, $DONT_WRAP_MAP, $DISPLAY_H, $SHOW_RADAR_OPTIONS;
+	global $COLOR, $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP,
+		   $SHOW_RADAR_OPTIONS, $SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS; 
 ?>
 
 <style>
-	body { background-color: <?= $COLOR['body-bg'] ?>; color: <?= $COLOR['body'] ?>}
+	body { background-color: <?= $COLOR['body-bg'] ?>; color: <?= $COLOR['body'] ?>; }
 	
-	*	{ font-family: arial; box-sizing: border-box; } /* //#####  box-sizing: border-box; ########################*/
+	*	{ font-family: arial; box-sizing: border-box; }
+	div {padding: 0; margin: 0}
 	pre	{ font-family: courier; margin: 0; }
 	h2 	{ font-size: 1.5em; margin: 0; }
 	img	{ vertical-align: top; }
@@ -1600,10 +1653,9 @@ function Styles() {//**********************************************************/
 
 	select { background-color: <?= $COLOR['input-bg'] ?>; color: <?= $COLOR['input-font'] ?>; border-color: <?= $COLOR['input-border'] ?>; }
 
-
 	#location_search_ckbox_label { margin: 0; width: 194px; }
 	#location_search_label { margin: 0 -160px 0 0; padding-left: 4px; padding-right: .5em; position: relative; left: -172px; }
-	#location_search  { width: 160px; } 							/*** //##### border: 1px solid rgb(127,157,187);***/
+	#location_search  { width: 160px; }
 	#rain_threshold	  { width:1.4em; padding: 1px 0 0 2px; }
 	#show_radar_label { margin-left: 1em; }
 	#test_mode 		  { float: right; margin-right: 0 }
@@ -1614,6 +1666,27 @@ function Styles() {//**********************************************************/
 	button:focus	 	{ color: <?= $COLOR['focus-font'] ?>;   background-color: <?= $COLOR['focus-bg'] ?>;  border-color: <?= $COLOR['focus-border'] ?>;  }
 	button:active	 	{ color: <?= $COLOR['active-font'] ?>;  background-color: <?= $COLOR['active-bg'] ?>; border-color: <?= $COLOR['active-border'] ?>; }
 	button::-moz-focus-inner { border: 0; }
+
+	#top 	  { display: table; border-collapse: collapse; width: 100%; margin-bottom: .4em; border: 1px solid rgb(63,131,245); }
+	#top div  { display:table-cell; }
+	#top_left { }
+
+	/*class for various, but not all, show/hide buttons*/
+	/* //##### .show_hide { display: inline-block; padding: 0; margin: 0; height: 18px; position: relative; top: -4px;}*/
+	.show_hide {  padding: 0; margin: 0; height: 18px; font-size: 12px; }
+
+	#SHOW_LOCATION_OPTS { }
+	#SHOW_WEATHER_OPTS { XXXXXfloat: left;  } /** <button> **/
+
+	#LOCATION_OPTIONS { display: none; } /** //##### {display: none/block} **/
+
+	#WEATHER_OPTIONS  { display: none; }
+	
+	#DISPLAY_OPTIONS  { display: none; }
+
+	.w_container { display: inline-block; vertical-align: top; }
+
+	.options_group { border: 1px solid <?= $COLOR['options-border'] ?>; padding: 0; margin: 0 0 .4em 0; }
 
 	.data		{ border: 1px solid <?= $COLOR['data-border'] ?>; border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
 	.data th, .data td {  border: 1px inset <?= $COLOR['data-grid'] ?>; font-size: <?= $COLOR['data-font-size'] ?>; text-align: center; vertical-align: top; padding: 0 .2em; }
@@ -1636,36 +1709,35 @@ function Styles() {//**********************************************************/
 
 	.messages	{ border: 2px solid <?= $COLOR['borders'] ?>; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
 	.messages_H	{ border: 2px solid <?= $COLOR['borders'] ?>; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; }
-
-	.w_container { display: inline-block; vertical-align: top; }
-
-	.options_group { border: 1px solid <?= $COLOR['options-border'] ?>; padding: 0; margin: .3em 0 .4em 0; }
 	
 	.indent		{ margin: 0 .5em }
 	
 	#wrap_map	 	  { white-space: nowrap; }
 
-	#submit			{ width: 9em; margin: 0 0 0 1.5em; }
+	.submit			{ width: 9em; margin: 0 0 0 0; }
+	#default_ops 	{ font-size: 70% }
+	#reset			{ font-size: 70% }
+	
 	
 	.submit_default { float: right; }
 
 	#radar_view		  { margin-left: 1em; }
 	#radar_view input { margin-left: .2em; margin-right: .1em; }
 
-	.radar_div	   		{ position: relative; display: inline-block; border: solid 0px #444; text-align: right; margin-bottom: .5em; white-space: normal;}
+	.radar_div	   	 { position: relative; display: inline-block; border: solid 0px #444; text-align: right; margin-bottom: .5em; white-space: normal;}
 	
-	.radar_controls		{ padding: 3px 0 3px 0; border: 0px solid #444; margin: 0;}
+	.radar_controls	 { padding: 3px 0 3px 0; border: 0px solid #444; margin: 0;}
 
-	.start_stop 		{ width: 70px; padding: 0; margin: 0; float: left;  }
-	.show_radar_opts	{ width: 36px; display: inline-block; float: right; }
+	.start_stop 	 { width: 70px; padding: 0; margin: 0; float: left;  }
+	.radar_opts_btn	 { width: 36px; display: inline-block; float: right; }
 
-	.imgbar				{ display: inline-block; margin: 0 5px 0 0; font-size: 9pt;
-						  width: 472px; height: 23px; border-collapse: collapse; }
-	.imgbar td			{ width: 59px;  height: 23px; border: 1px solid #444; color: #777; text-align: center;  padding: 0; cursor: default}
-	.imgbar td:hover	{ background-color: <?= $COLOR['hover-bg'] ?> }
+	.imgbar			 { display: inline-block; margin: 0 5px 0 0; font-size: 75%;
+					   width: 472px; height: 23px; border-collapse: collapse; }
+	.imgbar td		 { width: 59px;  height: 23px; border: 1px solid #444; color: #777; text-align: center;  padding: 0; cursor: default}
+	.imgbar td:hover { background-color: <?= $COLOR['hover-bg'] ?> }
 
-	.radar_options_div  { display: inline-block; visibility: hidden; white-space: nowrap; font-size: 92%;}
-	.radar_options_div  { width: 513px;  padding: 0; margin: 0; border: solid 1px #444; text-align: left; }
+	.radar_opts_div  { display: inline-block; visibility: hidden; white-space: nowrap; font-size: 92%;}
+	.radar_opts_div  { width: 513px;  padding: 0; margin: 0; border: solid 1px #444; text-align: left; }
 
 	.loops	{ margin-right: 0; padding: 0; white-space: nowrap}
 
@@ -1677,8 +1749,11 @@ function Styles() {//**********************************************************/
 	.TESTING_MSG 	{ color: red; }
 
 <?php
-	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "#RADAR_OPTIONS_1  {visibility: visible}";}
-	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "#RADAR_OPTIONS_2  {visibility: visible}";}
+	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "#RADAR_OPTIONS_1 {visibility: visible}\n";}
+	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "#RADAR_OPTIONS_2 {visibility: visible}\n";}
+	if ($SHOW_LOCATION_OPTIONS == "true") { echo "#LOCATION_OPTIONS {display: block}\n";}
+	if ($SHOW_WEATHER_OPTIONS  == "true") { echo "#WEATHER_OPTIONS  {display: block}\n";}
+	if ($SHOW_DISPLAY_OPTIONS  == "true") { echo "#DISPLAY_OPTIONS  {display: block}\n";}
 
 	if ($DONT_WRAP_MAP) {echo ".w_container {white-space: nowrap;}\n";}
 
@@ -1707,15 +1782,22 @@ Styles();
 Time_Stamp_js();
 Prevent_Some_Keys_js();
 
+
+?>
+
+
+
+
+<?php
+
+
+
+
+
+
+if ($TEST_MODE) {echo "<script>document.write(window.innerWidth);</script>";} //##### 
+
 echo "\n<form name=USER_OPTIONS method=get id=options_form>\n";
-
-User_Options();
-
-
-//Time Stamp, Data Source, Theme Options, Default, Reset, & Submit buttons
-if ($TEST_MODE) {$data_source =  "<span class=TESTING_MSG>".hsc($RAW_HTML_SAMPLES[1])."</span>";}
-else			{$data_source =  "www.weather.gov";}
-
 
 $theme_options = "";
 foreach ($THEME_LIST as $key => $theme_name) {
@@ -1723,24 +1805,49 @@ foreach ($THEME_LIST as $key => $theme_name) {
 	$theme_options .= "<option value={$key}{$selected}>{$theme_name}</option>\n";
 }
 
+?>
+	<div id=top>
+		<div id=top_left>									<!--up &#9650;  down &#9660; right  &#9658;   up/down &#8661;-->
+			<button type=button id=SHOW_LOCATION_OPTS class=show_hide>&#9660;&#9650;Locations</button>
+			<button type=button id=SHOW_WEATHER_OPTS  class=show_hide>&#9660;&#9650;Weather Options</button>
+			<button type=button id=SHOW_DISPLAY_OPTS  class=show_hide>&#9660;&#9650;Display Options</button>
+			
+			<input type=hidden  id=SHOW_LOCATION_OPTIONS name=SHOW_LOCATION_OPTIONS value=<?= $SHOW_LOCATION_OPTIONS ?>>
+			<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value=<?= $SHOW_WEATHER_OPTIONS ?>>
+			<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value=<?= $SHOW_DISPLAY_OPTIONS ?>>
+			
+			<label>Choose Theme: <select id=THEME name=THEME><?= $theme_options ?></select></label>
+			
+			<button type=submit id=submit1 class=submit style="float: right">Submit</button>
+		</div>
+	</div>
+<?php
+
+
+User_Options();
+
+
+//Time Stamp, Data Source, Theme Options, Default, Reset, & Submit buttons
+
+
+//##### if ($TEST_MODE) {$data_source =  "<span class=fine_print>(Weather data source:<span class=TESTING_MSG>".hsc($RAW_HTML_SAMPLES[1])."</span>)</span>";}
+//##### else			{$data_source =  "";} //##### "<span class=fine_print>(Weather data source:www.weather.gov)</span>";}
+$data_source = ""; //##### 
 
 ?>
 <div id=timestamp_row>
 	<span id=timestamp><script>Time_Stamp('write');</script></span>
-	<span class=fine_print>(Weather data source:<?= $data_source ?>)</span>
-
-	<label>Choose Theme: <select id=THEME name=THEME id=theme_options><?= $theme_options ?></select></label>
+	<?= $data_source ?>
 
 	<span class=submit_default>
-		<button type=button id=default_ops>Load Defaults</button>
-		<button type=reset>Reset Current Options</button>
-		<button id=submit>Submit</button>
+		<button type=button id=default_ops>Defaults Options</button>
+		<button type=reset  id=reset      >Reset Current Options</button>
+		<button type=submit id=submit2 class=submit>Submit</button>
 	</span>
 </div><!-- End timestamp_row -->
-
-
-
 <?php
+
+
 //Get & display weather for selected locations
 echo "\n<div class=w_container id=weather_div>\n";
 	echo "\n<div class=w_container id=locations>\n";
@@ -1804,6 +1911,7 @@ echo "</div>\n"; //end w_container
 echo "</form>\n\n";
 
 
+
 ?>
 <script>
 function Stop_Propagation(event) { //*************************************
@@ -1814,22 +1922,31 @@ function Stop_Propagation(event) { //*************************************
 
 
 
-function Show_Hide_Options(Pics) {  //*********************************
+function Show_Hide_Options(element, state, d_or_v, show, hide) {  //******
+	//element: element to show/hide
+	//state  : <input hidden>  Preserves state via form/URL value 
+	//d_or_v : "display:" or "visibility:"   style property.
+	//show   : either ""        or "visible"       property value.
+	//hide   : either "visible" or "hidden"           "       "
 
-	if ((typeof Pics.radar_options.currentStyle)  !== 'undefined') { //IE
-		var visibility = Pics.radar_options.currentStyle.visibility;
+	//##### document.getElementById('TRACE_OUT').innerHTML += "in[" + element.style[d_or_v]  + ", " + state.value + ", " + show + ", " + hide  + "] "; 
+
+	if ((typeof element.currentStyle)  !== 'undefined') { //IE
+		var visibility = element.currentStyle[d_or_v];
 	} else {
-		var visibility = window.getComputedStyle(Pics.radar_options).getPropertyValue('visibility');
+		var visibility = window.getComputedStyle(element).getPropertyValue(d_or_v);
 	}
 
-	if (visibility == "hidden") {
-		Pics.radar_options.style.visibility = "visible";									  //<div>
-		PicS.radar_opt_vis.value = "true";  //<input hidden>
+	if (state.value == "false") {
+		element.style[d_or_v] = show;     //<div>
+		state.value           = "true";	  //<input hidden>
 	}
 	else {
-		Pics.radar_options.style.visibility = "hidden";										   //<div>
-		PicS.radar_opt_vis.value = "false";  //<input hidden>
+		element.style[d_or_v] = hide;     //<div>
+		state.value 		  = "false";  //<input hidden>
 	}
+
+	//##### document.getElementById('TRACE_OUT').innerHTML += "out[" + element.style[d_or_v]  + ", " + state.value + "] :: ";
 
 }//end Show_Hide_Options() //*********************************************
 
@@ -1837,6 +1954,7 @@ function Show_Hide_Options(Pics) {  //*********************************
 
 
 function Focus(event) { //************************************************
+	//Simulate "hover" of various inputs when using keyboard/tabbing
 
 	//Only process tab and mouse clicks. (For radio button  options, arrow keys also fire onclick events.)
 	if ((event.keyCode != 9) && (event.type != "click")) {return}
@@ -1914,8 +2032,36 @@ document.onkeydown = function(event){Focus(event)}
 document.onkeyup   = function(event){Focus(event)}
 document.onclick   = function(event){Focus(event)}
 document.getElementById('location_search').onkeydown = function(event){Prevent_Some_Keys(event)}
-document.getElementById('submit').focus();
+document.getElementById('submit2').focus();
 document.getElementById('default_ops').onclick = function(){parent.location = location.pathname};
+
+
+
+/********************/ 
+Show_Location_Opts 	  		= document.getElementById('SHOW_LOCATION_OPTS');    //<button>
+Show_Location_Options 		= document.getElementById('SHOW_LOCATION_OPTIONS'); //<input hidden> = true/false
+Location_Options 	  		= document.getElementById('LOCATION_OPTIONS');	    //<div> to show/hide
+Show_Location_Opts.onclick  = function(){Show_Hide_Options(Location_Options, Show_Location_Options, "display", "block", "none")}
+/********************/
+
+
+/********************/ 
+Show_Weather_Opts 	 	  = document.getElementById('SHOW_WEATHER_OPTS');    //<button>
+Show_Weather_Options 	  = document.getElementById('SHOW_WEATHER_OPTIONS'); //<input hidden> = true/false
+Weather_Options 	 	  = document.getElementById('WEATHER_OPTIONS');	     //<div> to show/hide
+Show_Weather_Opts.onclick = function(){Show_Hide_Options(Weather_Options, Show_Weather_Options, "display", "block", "none")}
+/********************/ 
+
+
+
+/********************/ 
+Show_Display_Opts 	 	  = document.getElementById('SHOW_DISPLAY_OPTS');    //<button>
+Show_Display_Options 	  = document.getElementById('SHOW_DISPLAY_OPTIONS'); //<input hidden> = true/false
+Display_Options 	 	  = document.getElementById('DISPLAY_OPTIONS');	     //<div> to show/hide
+Show_Display_Opts.onclick = function(){Show_Hide_Options(Display_Options, Show_Display_Options, "display", "block", "none")}
+/********************/ 
+
+
 
 //Element of, but Only if it's an <input> or <select>...
 var ACTIVE = document.activeElement;
