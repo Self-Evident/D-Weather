@@ -1,7 +1,14 @@
 ﻿<?php
 /*******************************************************************************
 #Common URL  (w/Tempe lat & lon)
-http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
+
+&textField1=33.4148&textField2=-111.9093
+
+
+http://forecast.weather.gov/MapClick.php?lat=33.4148&lon=-111.9093&unit=0&lg=english&FcstType=digital
+http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
+http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
+http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=48             &FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=&AheadDay.x=76&AheadDay.y=8
 
 #URL Breakdown:
 http://forecast.weather.gov/MapClick.php
@@ -25,8 +32,8 @@ http://forecast.weather.gov/MapClick.php
 &AheadHour=0			Offset from current hour to first hour.
 &Submit=Submit
 &FcstType=digital
-&textField1=33.4148			textField1 may also be named lat
-&textField2=-111.9093		textField2 may also be named lon
+&textField1=33.4148		Latitude
+&textField2=-111.9093	Longitude
 &site=all
 &unit=0
 &dd=
@@ -34,11 +41,11 @@ http://forecast.weather.gov/MapClick.php
 
 
 
-/*******************************************************************************
-# The following based on the weather table from the options in the URL above. 
+/******************************************************************************.
+# The following describes the weather table returned from options in the URL above. 
 # The table consists of 36 rows (<tr>'s) and 25 columns (<td>'s)
 # Column 0: labels. Columns 1 thru 24: each column contains one hour of data,
-# starting with the current hour, unless a later hour is selected.
+# starting with the current hour, unless a later hour (&AheadHour) is selected.
 Rows:
  0: <td>colspan=25><hr></td>
  1: Date
@@ -58,145 +65,39 @@ Rows:
 15: Freezing Rain
 16: Sleet
 17: Fog
-18: ...
+18: <td>colspan=25><hr></td>
  |: ... rows 18-35 rows repeat rows 0-17...
 35: ...
 
 /******************************************************************************/
 
 
-#Make sure time zone is correct.
-date_default_timezone_set("America/New_York");
 
 
 
-#Weather url's
-$BASE_URL_OPTIONS = "http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&site=all&unit=0&dd=&bw=&textField1=";
+function Init() { //***********************************************************/
+	global $BASE_URL, $BASE_OPTIONS, $BASE_URL_OPTIONS, $DATA_URLS, $LOCATION_NAMES, 
+		   $DESIRED, $DISPLAY_ORDER, $DATA, $DEFAULT_ASPECTS, 
+		   $SAMPLE_SET, $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE; 
 
-$x = 0;
-#The first, zero, location is a placeholder for the "Search For" location option.
-$DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe, AZ";
-
-$DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe";
-$DATA_URLS[$x] = $BASE_URL_OPTIONS."33.4150&textField2=-111.5496"	; $LOCATION_NAMES[$x++] = "Apache Junction";
+	#Make sure time zone is correct.
+	date_default_timezone_set("America/New_York");
 
 
 
-define('LOCATIONS', $x);
-define('DEFAULT_LOCATION', 2);
-
-#Used to find lat & lon of user provided location
-define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring=");
-
+	#Weather url's *****************************************************************
+	$BASE_URL = "http://forecast.weather.gov/MapClick.php?";
+	$BASE_OPTIONS = "&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=";
+	$BASE_URL_OPTIONS = $BASE_URL.$BASE_OPTIONS;
 
 
-#Weather data is the 8th <table> in the source html (as of 2015-03-29).
-#(8th counting from 1, but computer programmers like to count from 0...)
-define('WEATHER_TABLE', 7);
-
-
-# Rows (<tr>) of data in source html table.
-# The following rows are determined by options in the URL.
-# weather.gov displays 48 hours at once, starting with current hour,
-# in two 24 hour sets.
-# The d1_ or w2_ prefix denotes which set of rows of 24 hour data. 
-# The (lower-case) "w" prefix just means "weather".
-
-define('d1_DATE',       1);
-define('d1_HOUR',       2);
-define('d1_TEMP',       3);
-define('d1_DEWPOINT',   4);
-define('d1_WIND_CHILL', 5);
-define('d1_WIND',       6);
-define('d1_WIND_DIR',   7);
-define('d1_GUST',       8);
-define('d1_CLOUDS',     9);
-define('d1_RAIN',      10);
-define('d1_HUMIDITY',  11);
-define('d1_RAIN_CHNC', 12);
-define('d1_THUNDER',   13);
-define('d1_SNOW',      14);
-define('d1_FRZ_RAIN',  15);
-define('d1_SLEET',     16);
-define('d1_FOG',       17);
-
-define('ASPECTS_TOTAL', 17); //Total number of weather aspects available.
-define('w2_OFFSET',     18); //offset to first row of next set of rows of weather.
-							 //Currently there is one blank/divider row between the sets.
-define('FIRST_ROW', w2_OFFSET - ASPECTS_TOTAL);
-
-define('w2_DATE',      19);
-define('w2_HOUR',      20);
-define('w2_TEMP',      21);
-define('w2_DEWPOINT',  22);
-define('w2_WIND_CHILL',23);
-define('w2_WIND',      24);
-define('w2_WIND_DIR',  25);
-define('w2_GUST',      26);
-define('w2_CLOUDS',    27);
-define('w2_RAIN',      28);
-define('w2_HUMIDITY',  29);
-define('w2_RAIN_CHNC', 30);
-define('w2_THUNDER',   31);
-define('w2_SNOW',      32);
-define('w2_FRZ_RAIN',  33);
-define('w2_SLEET',     34);
-define('w2_FOG',       35);
-
-
-# Used as headers of displayed data ($DATA[x][0]).
-$data_labels[d1_DATE]		= "Date";
-$data_labels[d1_HOUR]		= "Hour";
-$data_labels[d1_TEMP]		= "Temp °f";
-$data_labels[d1_DEWPOINT]	= "Dew Point";
-$data_labels[d1_WIND_CHILL]	= 'Wind Chill';
-$data_labels[d1_WIND]		= "Wind mph";
-$data_labels[d1_WIND_DIR]	= "Wind dir";
-$data_labels[d1_GUST]		= "Gusts mph";
-$data_labels[d1_CLOUDS]		= "Clouds %";
-$data_labels[d1_RAIN]		= "Prcip %";
-$data_labels[d1_HUMIDITY]	= "Humid %";
-$data_labels[d1_RAIN_CHNC]	= "Rain";			#Rain, Thunder, Snow, Freezing Rain, Sleet, & Fog
-$data_labels[d1_THUNDER]	= "Thndr";			#values are "Lkly", "Schc", etc...
-$data_labels[d1_SNOW]		= "Snow";
-$data_labels[d1_FRZ_RAIN]	= "Frzng Rain";
-$data_labels[d1_SLEET]		= "Sleet";
-$data_labels[d1_FOG]		= "Fog";
-
-
-#Desired rows of data to extract from source html table. Currently all rows.
-$DESIRED = array(
-	d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_CLOUDS, d1_RAIN, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW, 
-	w2_DATE, w2_HOUR, w2_TEMP, w2_WIND, w2_WIND_DIR, w2_GUST, w2_CLOUDS, w2_RAIN, w2_HUMIDITY, w2_FOG, w2_RAIN_CHNC, w2_THUNDER, w2_FRZ_RAIN, w2_SLEET, w2_SNOW, 
-);//
-
-
-#Order to subsequently re-display data (not neccessarily all of, or same order as, the source)
-#$DISPLAY_ORDER is also used in Get_GET() to validate values in $_GET["ASPECTS"] (selected aspects).
-$DISPLAY_ORDER = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
-
-
-#Number of weather aspects displayed (TIME, FORCAST, TEMP, etc...)
-define('WASPECTS', count($DISPLAY_ORDER));
-
-
-#For the extracted Data. $DATA[n][0] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
-#The two set of rows (from original source html), of 24 hour data columns, will be concatenated to a single 48 hour data set.
-$x = 0;
-$DATA = array();
-for ($x = 0; $x < WASPECTS; $x++) {
-	$DATA[$DISPLAY_ORDER[$x]] 	 = array();
-	$DATA[$DISPLAY_ORDER[$x]][0] = $data_labels[$DISPLAY_ORDER[$x]];
-}
-
-
-
-#Default aspects to display
-#Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed *by default*.
-#The option box will be available, but unchecked.
-#$DEFAULT_ASPECTS = $DISPLAY_ORDER; #All aspects
-#$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
-$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG);
+	#A few pre-defined locations...
+	$x = 0;
+	#The first, zero, location is a placeholder for the "Search For" location option.
+	$DATA_URLS[$x] = $BASE_URL_OPTIONS."&textField1=33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe, AZ";
+	
+	$DATA_URLS[$x] = $BASE_URL_OPTIONS."&textField1=33.4148&textField2=-111.9093"	; $LOCATION_NAMES[$x++] = "Tempe";
+	$DATA_URLS[$x] = $BASE_URL_OPTIONS."&textField1=33.4150&textField2=-111.5496"	; $LOCATION_NAMES[$x++] = "Apache Junction";
 
 
 
@@ -204,60 +105,183 @@ $DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUS
 
 
 
-#Occasionally, a "Radar data are unavailable" image is served.
-#May add check for this at some point so it can be ignored.
-#Maybe. Possibly. Sometime. But no promises.
-#MD5 hash of the "...unavailable" image.
-#define('RADAR_UNAVAILABLE_MD5',  "b7578f7110b249e61a3635d5b1226d87");
+	define('LOCATIONS', $x);
+	define('DEFAULT_LOCATION', 2);
+
+	#Used to find lat & lon of user provided location
+	define('BASE_SEARCH_URL', "http://forecast.weather.gov/zipcity.php?inputstring=");
 
 
-#1 for actual sample radar images, 2 for simple graphics.
-# If change either $..._SAMPLE below, change cooresponding value in Get_GET();
-$SAMPLE_SET = 1;
-$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.1.html";
-$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
+
+	#Weather data is the 8th <table> in the source html (as of 2015-03-29).
+	#(8th counting from 1, but computer programmers like to count from 0...)
+	define('WEATHER_TABLE', 7);
 
 
-#Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
-#Used in Radar_Loop_scripts()
-define('RADAR_SITE_DEF', "IWA_"); //Default radar site (Central AZ)
-define('RADAR_URL_BASE', "http://radar.weather.gov/lite/N0R/");
-define('RADAR_URL_BASE_DEF', RADAR_URL_BASE.RADAR_SITE_DEF);
-define('RADAR_IMG_EXT', ".png");
+	# Rows (<tr>) of data in source html table.
+	# The following rows are determined by options in the URL. (all weather options selected)
+	# weather.gov displays 48 hours at once, starting with current hour,
+	# in two 24 hour sets.
+	# The d1_ or d2_ prefix denotes which set of rows of 24 hour data. 
+	# The "d" prefix just means "day". I don't know, you got a better idea?
+
+	define('d1_DATE',       1);
+	define('d1_HOUR',       2);
+	define('d1_TEMP',       3);
+	define('d1_DEWPOINT',   4);
+	define('d1_WIND_CHILL', 5);
+	define('d1_WIND',       6);
+	define('d1_WIND_DIR',   7);
+	define('d1_GUST',       8);
+	define('d1_CLOUDS',     9);
+	define('d1_RAIN',      10);
+	define('d1_HUMIDITY',  11);
+	define('d1_RAIN_CHNC', 12);
+	define('d1_THUNDER',   13);
+	define('d1_SNOW',      14);
+	define('d1_FRZ_RAIN',  15);
+	define('d1_SLEET',     16);
+	define('d1_FOG',       17);
+
+	define('ASPECTS_TOTAL', 17); //Total number of weather aspects available.
+	define('d2_OFFSET',     18); //offset to first row of next set of rows of weather.
+								 //Currently there is one blank/divider row between the sets.
+	define('FIRST_ROW', d2_OFFSET - ASPECTS_TOTAL);  //Currenlty 1, as of 2016-02-26
+
+	define('d2_DATE',      19);
+	define('d2_HOUR',      20);
+	define('d2_TEMP',      21);
+	define('d2_DEWPOINT',  22);
+	define('d2_WIND_CHILL',23);
+	define('d2_WIND',      24);
+	define('d2_WIND_DIR',  25);
+	define('d2_GUST',      26);
+	define('d2_CLOUDS',    27);
+	define('d2_RAIN',      28);
+	define('d2_HUMIDITY',  29);
+	define('d2_RAIN_CHNC', 30);
+	define('d2_THUNDER',   31);
+	define('d2_SNOW',      32);
+	define('d2_FRZ_RAIN',  33);
+	define('d2_SLEET',     34);
+	define('d2_FOG',       35);
 
 
-#The min, max, & default hours to display
-define('HOURS_MIN',  6);
-define('HOURS_MAX', 48);
-define('HOURS_DEF', 30);
+
+	#Desired rows of data to extract from source html table. Currently all rows.
+	$DESIRED = array(
+		d1_DATE, d1_HOUR, d1_TEMP, d1_DEWPOINT, d1_WIND_CHILL, d1_WIND, d1_WIND_DIR, d1_GUST, d1_CLOUDS, d1_RAIN, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW, 
+		d2_DATE, d2_HOUR, d2_TEMP, d2_DEWPOINT, d2_WIND_CHILL, d2_WIND, d2_WIND_DIR, d2_GUST, d2_CLOUDS, d2_RAIN, d2_HUMIDITY, d2_FOG, d2_RAIN_CHNC, d2_THUNDER, d2_FRZ_RAIN, d2_SLEET, d2_SNOW, 
+	);//
 
 
-#For the "Dispaly [x] hours" drop list option
-define('HOURS_OPT_MIN', 12);
-define('HOURS_OPT_MAX', 48);
-define('HOURS_OPT_INC',  6); //INCrement from _MIN to _MAX
+	#Order to subsequently re-display data (not neccessarily all of, or same order as, the source)
+	#$DISPLAY_ORDER is also used in Get_GET() to validate values in $_GET["ASPECTS"] (selected aspects).
+	$DISPLAY_ORDER = array(d1_DATE, d1_HOUR, d1_TEMP, d1_DEWPOINT , d1_WIND_CHILL, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
 
 
-#Time between radar images (1000 = 1 second).
-define('FRAME_RATE_MIN',  100);
-define('FRAME_RATE_MAX', 1000);
-define('FRAME_RATE_DEF',  200);
-define('FRAME_RATE_INC',  100);
+	#Number of weather aspects displayed (TIME, FORCAST, TEMP, etc...)
+	define('WASPECTS', count($DISPLAY_ORDER));
 
 
-#Time to pause between radar loops (1000 = 1 second).
-define('ROTATE_PAUSE_MIN',  500);
-define('ROTATE_PAUSE_MAX', 4000);
-define('ROTATE_PAUSE_DEF', 1000);
-define('ROTATE_PAUSE_INC',  500);
+
+	#Default aspects to display
+	#Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed *by default*.
+	#The option box will be available, but unchecked.
+	#$DEFAULT_ASPECTS = $DISPLAY_ORDER; #All aspects
+	#$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
+	$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG);
 
 
-#Number of times to loop, then stop.
-define('ROTATE_LOOPS_MIN',  1);
-define('ROTATE_LOOPS_MAX', 99);
-define('ROTATE_LOOPS_DEF', 10);
-define('ROTATE_LOOPS_INC',  1);
 
+	#For the extracted Data. $DATA[0][n] values are headers/labels, and should correlate to $DISPLAY_ORDER above.
+	#The two set of rows (from original source html), of 24 hour data columns, will be concatenated to a single 48 hour data set.
+	$x = 0;
+	$DATA    = array();
+	$DATA[0] = array();
+
+	$DATA[0][d1_DATE]		= "Date";
+	$DATA[0][d1_HOUR]		= "Hour";
+	$DATA[0][d1_TEMP]		= "Temp °f";
+	$DATA[0][d1_DEWPOINT]	= "Dew Point";
+	$DATA[0][d1_WIND_CHILL]	= 'Wind Chill';
+	$DATA[0][d1_WIND]		= "Wind mph";
+	$DATA[0][d1_WIND_DIR]	= "Wind dir";
+	$DATA[0][d1_GUST]		= "Gusts mph";
+	$DATA[0][d1_CLOUDS]		= "Clouds %";
+	$DATA[0][d1_RAIN]		= "Prcip %";
+	$DATA[0][d1_HUMIDITY]	= "Humid %";
+	$DATA[0][d1_RAIN_CHNC]	= "Rain";			#Rain, Thunder, Snow, Freezing Rain, Sleet, & Fog
+	$DATA[0][d1_THUNDER]	= "Thndr";			#values are "Lkly", "Schc", etc...
+	$DATA[0][d1_SNOW]		= "Snow";
+	$DATA[0][d1_FRZ_RAIN]	= "Frzng Rain";
+	$DATA[0][d1_SLEET]		= "Sleet";
+	$DATA[0][d1_FOG]		= "Fog";
+
+	ksort($DATA[0]); //key sort (maintains key=>value paring) (only matters on array dumps or if use foreach)
+	#dump_array($DATA); die(); //##### 
+
+
+
+
+	#Occasionally, a "Radar data are unavailable" image is served.
+	#May add check for this at some point so it can be ignored.
+	#Maybe. Possibly. Sometime. But no promises.
+	#MD5 hash of the "...unavailable" image.
+	#define('RADAR_UNAVAILABLE_MD5',  "b7578f7110b249e61a3635d5b1226d87");
+
+
+	#1 for actual sample radar images, 2 for simple graphics.
+	# If change either $..._SAMPLE below, change cooresponding value in Get_GET();
+	$SAMPLE_SET = 1;
+	$RAW_HTML_SAMPLES[1] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.1.html";
+	$RAW_HTML_SAMPLES[2] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.2.html";
+	$RAW_HTML_SAMPLES[3] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.3.html";
+	$RAW_HTML_SAMPLES[4] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.4.html";
+	$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
+
+	//##### ##################################################################################################
+	//##### i1 can = a, b, c, d, or e.
+	//##### 
+	$RAW_HTML_SAMPLES[1] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.1".$_GET['i1'].".html";
+	//##### ##################################################################################################
+
+
+	#Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
+	#Used in Radar_Loop_scripts()
+	define('RADAR_SITE_DEF', "IWA_"); //Default radar site (Central AZ)
+	define('RADAR_URL_BASE', "http://radar.weather.gov/lite/N0R/");
+	define('RADAR_URL_BASE_DEF', RADAR_URL_BASE.RADAR_SITE_DEF);
+	define('RADAR_IMG_EXT', ".png");
+
+
+	#For the "Dispaly [x] hours" drop list option
+	define('HOURS_MIN',  12);
+	define('HOURS_MAX', 155);
+	define('HOURS_DEF',  24);
+	define('HOURS_INC',  12); //INCrement from _MIN to _MAX
+
+
+	#Time between radar images (1000 = 1 second).
+	define('FRAME_RATE_MIN',  100);
+	define('FRAME_RATE_MAX', 1000);
+	define('FRAME_RATE_DEF',  200);
+	define('FRAME_RATE_INC',  100);
+
+
+	#Time to pause between radar loops (1000 = 1 second).
+	define('ROTATE_PAUSE_MIN',  500);
+	define('ROTATE_PAUSE_MAX', 4000);
+	define('ROTATE_PAUSE_DEF', 1000);
+	define('ROTATE_PAUSE_INC',  500);
+
+
+	#Number of times to loop, then stop.
+	define('ROTATE_LOOPS_MIN',  1);
+	define('ROTATE_LOOPS_MAX', 99);
+	define('ROTATE_LOOPS_DEF', 10);
+	define('ROTATE_LOOPS_INC',  1);
+}//end Init() { //*************************************************************/
 
 
 
@@ -267,6 +291,54 @@ function hsc($input) {//*******************************************************/
 	if ($enc == 'ASCII') {$enc = 'UTF-8';} //htmlspecialchars() doesn't recognize "ASCII"
 	return htmlspecialchars($input, ENT_QUOTES, $enc);
 }//end hsc() //****************************************************************/
+
+
+
+
+
+//******************************************************************************
+function dump_array($var, $name="", $ECHO = 1, $PRE=1, $BRDR=1, $DSPLY=1, $VD=0, $LVL=0) { //**
+	//If $VD == 1 (or true), use var_dump on each non-array value.
+	$dump   = "";
+	$pad    = '';
+	$indent = '   ';
+
+	if (($LVL == 0) && $PRE) { //used only on outer most level
+		if     ($DSPLY == 1) {$DSPLY='display: inline-block; ';} //default
+		elseif ($DSPLY == 2) {$DSPLY='float: left;'; }
+		elseif ($DSPLY == 3) {$DSPLY='float: right;';}
+		else   {$DSPLY='';}
+		$dump .= '<pre style="'.$DSPLY.' font-family: monospace; border: '.$BRDR.'px solid gray; margin:0; padding: 2px 4px 2px 2px">';
+	}
+
+	if (!is_array($var)) {
+		if ( $name != "" ) {$dump .= $name." = ";}
+		if ($VD) {ob_start(); var_dump($var); $dump .= str_replace("\n",'',ob_get_clean());}
+		else     {$dump .= $var;}
+	}
+	else {
+		for ($x=0; $x < $LVL; $x++) {$pad .= $indent;}
+		
+		if ( $name != "" ) {
+			if ($VD) {$desc=" => Array(".count($var).")";} else {$desc = '';}
+			$dump .= $pad.$name.$desc."\n";
+		}
+		
+		foreach ($var as $key => $value) {
+			if (is_array($value)) {
+				$dump .= dump_array($value,'['.$key.']',0,0,0,0,$VD,$LVL+1);
+			}
+			else if ($VD) {
+				$dump .= $pad.$indent.'['.hsc($key).'] => ';
+				ob_start(); var_dump(hsc($value)); $dump .= ob_get_clean();
+			}
+			else {$dump .= $pad.$indent.'['.hsc($key).'] = '.hsc($value)."\n";}
+		}
+	}
+
+	if (($LVL == 0) && $PRE ) {$dump .= "</pre>";}
+	if ($ECHO) {echo $dump;} else {return $dump;}
+}//dump_array() //**************************************************************
 
 
 
@@ -304,7 +376,7 @@ function Get_GET() {//*********************************************************/
 	global  $HOURS_TO_SHOW, $SHOW_LOCATIONS, $LOCATION_NAMES, $DISPLAY_ORDER, $RAIN_THRESHOLD, 
 			$DISPLAY_H, $SELECTED_ASPECTS, $DISPLAY_ORDER, $SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP,
 			$FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $DEFAULT_ASPECTS, 
-			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLE, $RADAR_URL_BASE_SAMPLE;
+			$TEST_MODE, $SAMPLE_SET, $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE;
 
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
 
@@ -316,9 +388,9 @@ function Get_GET() {//*********************************************************/
 
 
 	#Which sample set (1 or 2) of radar images to use
-	if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
-	if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
-	#$RAW_HTML_SAMPLE = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.html";
+	#if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
+	#if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
+	#$RAW_HTML_SAMPLES = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.p1.html";
 	#$RADAR_URL_BASE_SAMPLE = "/Weather/weather.gov/samples/$SAMPLE_SET/SAMPLE_";
 
 
@@ -353,7 +425,7 @@ function Get_GET() {//*********************************************************/
 
 
 	#"HOURS_TO_SHOW" ************************
-	#Needed before Styles() & User_Options() are called
+	#Needed before Styles() or User_Options() are called
 	if (!isset($_GET["HOURS_TO_SHOW"])) {
 		//default if not selected
 		$HOURS_TO_SHOW = HOURS_DEF;
@@ -410,15 +482,15 @@ function Search_for_custom_location() {//**************************************/
 	global $BASE_URL_OPTIONS, $DATA_URLS, $LOCATION_NAMES, $TEST_MODE;
 
 
-#####################################################################
-/********************************************************************
-Searches for some locations, such as in Alaska, do not return URLs/Headers with
-lat & lon (or textField1 & 2) ?query values.
-However, like with the radar id (rid), a link on the returned page does.
+	#####################################################################
+	/********************************************************************
+	Searches for some locations, such as in Alaska, do not return URLs/Headers with
+	lat & lon (or textField1 & 2) ?query values.
+	However, like with the radar id (rid), a link on the returned page does.
 
-Also, Check if custom rid == IWA (central AZ) and don't display custom radar img if so.
-/********************************************************************/
-#####################################################################
+	Also, Check if custom rid == IWA (central AZ) and don't display custom radar img if so.
+	/********************************************************************/
+	#####################################################################
 
 
 	$Search_URL  = BASE_SEARCH_URL.rawurlencode($_GET["SEARCH_FOR_LOCATION"]);
@@ -439,7 +511,7 @@ Also, Check if custom rid == IWA (central AZ) and don't display custom radar img
 		if (isset($Query_values["lat"])) { $lat = $Query_values["lat"];		   $lon = $Query_values["lon"]; }
 		else 							 { $lat = $Query_values["textField1"]; $lon = $Query_values["textField2"]; }
 		
-		$DATA_URLS[0] = $BASE_URL_OPTIONS.$lat."&textField2=".$lon;
+		$DATA_URLS[0] = $BASE_URL_OPTIONS."&textField1=".$lat."&textField2=".$lon;
 		
 		#Some searches only return lat & lon, no city, state, etc...
 		if (isset($Query_values["CityName"]) && isset($Query_values["state"])) {
@@ -463,86 +535,124 @@ Also, Check if custom rid == IWA (central AZ) and don't display custom radar img
 
 
 
-function Get_Weather_Page($location){//****************************************/
+function Get_Weather_Pages($location){//***************************************/
 	#get raw html page with weather data
-	global $DATA_URLS, $LOCATION_NAMES, $TESTING_MSG, $TEST_MODE, $CUSTOM_RADAR_SITE, $RAW_HTML_SAMPLE;
+	global $DATA_URLS, $LOCATION_NAMES, $TESTING_MSG, $TEST_MODE, $CUSTOM_RADAR_SITE, $RAW_HTML_SAMPLES, $HOURS_TO_SHOW;
+
+	# AheadHour can be 0 thru 107.    If > 107, weather.gov assumes 0.
+	# Since each page has 48 hours of data, use AheadHour = 0, 48, 96, or 107.
+	# The "4th" page can start no later than AheadHour 107, as only the last 11 hours are new,
+	# relative to "3rd" page (&AheadHour=96). If AheadHour is > 107, data returned starts 
+	# same as AheadHour = 0.
+	$AheadHour[1] =   0;
+	$AheadHour[2] =  48;
+	$AheadHour[3] =  96;
+	$AheadHour[4] = 107;
 	
-	if ($TEST_MODE) {
-		$TESTING_MSG = "<span class=TESTING_MSG>SAMPLE DATA</span>\n";
-		$data_url = $RAW_HTML_SAMPLE;
-		$raw_html = file_get_contents($data_url);
-	} else { #/*** LIVE DATA ****/
-		$TESTING_MSG = "";
-		$data_url = $DATA_URLS[$location];
+	# $pages_to_get = 1 to 4, depending on...
+	if 		($HOURS_TO_SHOW > 144)	{$pages_to_get = 4;}
+	else if	($HOURS_TO_SHOW >  96)	{$pages_to_get = 3;}
+	else if ($HOURS_TO_SHOW >  48)	{$pages_to_get = 2;}
+	else    						{$pages_to_get = 1;}
+
+	$raw_html = array(1=>"");
+	
+	for ($page = 1; $page <= $pages_to_get; $page++) {
+		if ($TEST_MODE) {
+			$TESTING_MSG = "<span class=TESTING_MSG>SAMPLE DATA</span>\n";
+			$raw_html[$page] = file_get_contents($RAW_HTML_SAMPLES[$page]);
+		}
+		else { #*** LIVE DATA ****#
+			$TESTING_MSG = "";
+			
+			if ($location == 0) { $headers_too = true; }
+			else 				{ $headers_too = false; }
+			
+			$data_url = $DATA_URLS[$location]."&AheadHour=".$AheadHour[$page];
+			$raw_html[$page] = curl_get_contents($data_url, $headers_too);
+			#$raw_html = file_get_contents($data_url);  //stopped working sometime 2015-03-31
+			
+			# Find the radar id for user provided $location
+			# (as ?rid=abc in the query portion of the href of an <a> in the $raw_html)
+			# preg_match returns an array, but there should be only one...
+			if ($location == 0) {
+				$rid_found = preg_match("/rid=.../", $raw_html[$page], $RIDS); 
+				$CUSTOM_RADAR_SITE = strtoupper(substr($RIDS[0],4)); //drop the "rid=" prefix
+				//##### echo " *".$CUSTOM_RADAR_SITE."* <pre>".($raw_html)."</pre>"; //#####
+			}
+		}
 		
-		if ($location == 0) { $headers_too = true; }
-		else 				{ $headers_too = false; }
-		
-		$raw_html = curl_get_contents($data_url, $headers_too);
-		#$raw_html = file_get_contents($data_url);  //stopped working sometime 2015-03-31
-		
-		//Find the radar id for user provided $location
-		//(as ?rid=abc in the query portion of the href of an <a> in $raw_html)
-		//preg_match returns an array, but there should be only one...
-		if ($location == 0) {
-			$rid_found = preg_match("/rid=.../", $raw_html, $RIDS); 
-			$CUSTOM_RADAR_SITE = strtoupper(substr($RIDS[0],4)); //drop the "rid=" prefix
-			//##### echo " *".$CUSTOM_RADAR_SITE."* <pre>".($raw_html)."</pre>"; //#####
+		if ($raw_html[$page] === false) { 
+			echo "<hr>No data returned from (".hsc($LOCATION_NAMES[$location])."): ".hsc($data_url)."<br>";
+		} else {
+			//echo "<hr>Data recieved from (".hsc($LOCATION_NAMES[$location])."): ".hsc($data_url)."<br>";
 		}
 	}
 	
-	if ($raw_html === false) { 
-		echo "<hr>No data returned for ".hsc($LOCATION_NAMES[$location]).":<br>".$data_url."<br>";
-	}
-	
-	return $raw_html;
-}//end  Get_Weather_Page() //**************************************************/
+	return $raw_html;  //##### 
+}//end  Get_Weather_Pages() //*************************************************/
 
 
 
 
 
 function Extract_Weather_Data($raw_html) {//***********************************/
-	//Extract desired data from table and save in $DATA array().
-	global $DESIRED, $DATA;
+	//Extract desired data from table(s) and save in $DATA array().
+	global $DESIRED, $DATA, $HOURS_TO_SHOW;
 	
 	$DOM = new DOMDocument;		#$DOM -> preserveWhiteSpace = false;
- 	@$DOM -> loadHTML($raw_html); 
-	#2016-02-17
-	#The @ suppresses errors loadHTML() returns while parsing the weather html file ($raw_html).
+
+	# 2016-02-17
+	# Notes for @$DOM -> loadHTML($raw_html[$page]); line, in loop below.
+	# The @ suppresses errors that loadHTML() returns while parsing the $raw_html file(s).
 	# The errors don't seem to matter, and only clog up Apache's error.log file.
 	# Alternate to using the @ error suppression:
 	# libxml_use_internal_errors(true); $DOM -> loadHTML($raw_html); $DOM_errors = libxml_get_errors(); libxml_clear_errors();
 
-	$WEATHER_TABLE = $DOM   -> getElementsByTagName('table') -> item(WEATHER_TABLE);
+ 	$pages = count($raw_html); 
 
-	$ROWS  = $WEATHER_TABLE	-> getElementsByTagName('tr');
-
-	$nextset = 0; //For first 24 hour data set.
-	for ($rowset=0; $rowset <= w2_OFFSET; $rowset += w2_OFFSET) { //*$rowset should only = 0 or w2_OFFSET
-		
-		$first_row = FIRST_ROW	   + $rowset;
-		$last_row  = ASPECTS_TOTAL + $rowset;
-		for ($row = $first_row; $row <= $last_row; $row++) {
-			
-			//only extract desired rows
-			if (!in_array($row, $DESIRED)) {continue;}
-			
-			//get data cells
-			$cells   = $ROWS->item($row) -> getElementsByTagName('td');
-			
-			$first_hour =  1 + $nextset; //hour 0 is data header (Temp, Wind, etc...)
-			$last_hour  = 24 + $nextset;
-			
-			#Get data from cells
-			for ($hour = $first_hour; $hour <= $last_hour; $hour++) {
-				$DATA[$row-$rowset][$hour] = trim($cells->item($hour-$nextset)->textContent); //.$deg;
-			}
-		}// end for($row)
-		
-		$nextset = 24; //append next 24 hour data set to end of first set.
-	}//end for ($rowset)
+	$hour_offset = 0; //from the current hour
 	
+	#cycle thru the WEATHER_TABLE in each html page.
+	for ($page = 1; $page <= $pages; $page++) {
+		
+		$pageset = ($page - 1) * 48;
+		
+		#Get <tr>'s of data from the weather <table>
+		@$DOM -> loadHTML($raw_html[$page]);
+		$WEATHER_TABLE = $DOM -> getElementsByTagName('table') -> item(WEATHER_TABLE);
+		$ROWS  = $WEATHER_TABLE	-> getElementsByTagName('tr');
+		
+		#cycle thru each set of rows (2 sets of ASPECTS_TOTAL rows)
+		#On 4th page, only last 11 hours of data in the 2nd rowset are new/a continuation of page 3.
+		if ($page < 4) {$rs = 0;} else {$rs = d2_OFFSET;}
+		for ($rowset = $rs; $rowset <= d2_OFFSET; $rowset += d2_OFFSET) {
+			
+			#cycling thru each row in the rowset
+			$first_row = FIRST_ROW	   + $rowset;
+			$last_row  = ASPECTS_TOTAL + $rowset;
+			for ($row = $first_row; $row <= $last_row; $row++) {
+				
+				//only extract desired rows
+				if (!in_array($row, $DESIRED)) {continue;}
+				
+				//get row of data[hour][aspect]: date, hour, temp, etc...
+				$cells = $ROWS -> item($row) -> getElementsByTagName('td');
+				
+				#On 4th page, only last 11 hours of data are new/a continuation of page 3.
+				if ($page < 4) {$h = 1;} else {$h = 14;}
+				
+				#Get $DATA from $cells
+				for ($hour = $h; $hour <= 24; $hour++) {
+					$DATA[$hour + $hour_offset][$row - $rowset] = trim($cells -> item($hour) -> textContent);
+				}
+			}// end for($row)
+			
+			$hour_offset += 24; #24 hours in each $rowset (except for page 4...).
+		}//end for ($rowset)
+	}
+
+	$DATA = array_values($DATA);
 }//end Extract_Weather_Data() //***********************************************/
 
 
@@ -559,51 +669,62 @@ function Display_Weather_V($location) {//***************************************
 		echo "<h2>".hsc($LOCATION_NAMES[$location])."<br>".$TESTING_MSG."</h2>";
 		echo "</td>\n</tr>\n";
 		
-		for ($hour = 0; $hour <= $HOURS_TO_SHOW; $hour++) { 
+		#$data_index is from 0 (current/first hour of data) to $HOURS_TO_SHOW
+		for ($data_index = 0; $data_index <= $HOURS_TO_SHOW; $data_index++) {
 			
 			#Highlight Header Row (labels)
-			if ($hour == 0) {$hdr = "hdr";} else {$hdr = "";}
+			if ($data_index == 0) {$hdr = "hdr";} else {$hdr = "";}
 			
-			#Show day of week after new date.  (skip $hour 0 now as it is only a header)
-			$day = "";
-			if (($hour > 1) && ($DATA[d1_DATE][$hour - 1] != "") && ($DATA[d1_DATE][$hour] == "")) {
-				   $day = date('D', strtotime(date("Y")."/".$DATA[d1_DATE][$hour - 1]));
+			#After the first date, remove redundant dates when the hour of the current $data_index is not 0 (midnight).
+			if ( ($DATA[$data_index][d1_DATE] != "") && ($DATA[$data_index][d1_HOUR] > 0) && ($data_index > 1) ) {
+				$DATA[$data_index][d1_DATE] = "";
 			}
 			
-			#Display row of weather data for the current $hour
-			echo "<tr>\n";
-				
-				#get number of weather aspects selected to display
-				$aspects = count($DISPLAY_ORDER);
-				
-				#Show data...
-				for ($aspect=0; $aspect < $aspects; $aspect++) {
-					
-					#...but skip un-selected weather data (aspects)
-					if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
-					
-					if ($aspect > 0 ) {$day = "";} //Only need for first data column (<td>)
-					if ($aspect <2 ) {$td = "th";} else {$td = "td";}
-					
-					#used to adjust css for specific columns and/or weather data
-					$aspect_class = "";
-					
-					#Highlight rain% value if >= specified value.
-					if (($hour > 0) && 
-						($DISPLAY_ORDER[$aspect] == d1_RAIN) && 
-						($DATA[d1_RAIN][$hour] >= $RAIN_THRESHOLD))
-						{ $aspect_class = " rain"; }
-					
-					#Adjust css for a couple of columns
-					if (($hour >  0) && ($DISPLAY_ORDER[$aspect] == d1_WIND_DIR)) { $aspect_class = " wind_dir";}
-					if (($DISPLAY_ORDER[$aspect] == d1_FOG)) {$aspect_class = " fog";}
-					
-					echo "<$td class='$hdr$aspect_class'>".hsc($DATA[$DISPLAY_ORDER[$aspect]][$hour])."$day</$td>\n";
+			#Show day of week in date column, if prior row's date column was a new date.
+			#Considerations:
+			#	$data_index = 0: Ignore - this is the column header. 
+			#	$data_index = 1: Ignore - this must always have the date (not the day of week). 
+			#	$data_index = 2: Ignore if it is also a new day (leave the date).
+			$day = "";
+			if ($data_index > 1) {
+				if ( (($data_index == 2) && ($DATA[2][d1_HOUR] >  0)) || (($data_index >  2) && ($DATA[$data_index][d1_HOUR] == 1)) )
+				{ 
+					$day = date('D', strtotime(date("Y")."/".$DATA[$data_index - 1][d1_DATE]));
 				}
-			echo "</tr>\n";
+			}
 			
-		}//end for($hour)
+			#get number of weather aspects selected to display
+			$aspects = count($DISPLAY_ORDER);
+			
+			#Highlight midnight of a new day...
+			$newday = "";
+			if (($DATA[$data_index][d1_HOUR] == 23) || ($data_index == 0)) { $newday = "newday";}
+			#if (($DATA[$data_index][d1_HOUR] == 0) || ($data_index == 1)) { $newday = "newday";}
+			
+			#Show selected data...
+			echo "<tr class='$newday'>\n";
+			for ($aspect=0; $aspect < $aspects; $aspect++) {
+				if (!in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
+					
+				if ($aspect < 2) {$td = "th";} else {$td = "td";} #header or data?
+					
+				$aspect_class = ""; #used to adjust css for specific columns and/or weather data
+				#Highlight rain% value if >= specified value.
+				if (($data_index > 0) && ($DISPLAY_ORDER[$aspect] == d1_RAIN) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) {
+					$aspect_class = " rain";
+				}
+					
+				#Adjust css for a couple of columns
+				if (($data_index >  0) && ($DISPLAY_ORDER[$aspect] == d1_WIND_DIR)) { $aspect_class = " wind_dir";}
+				if (($DISPLAY_ORDER[$aspect] == d1_FOG)) {$aspect_class = " fog";}
+					
+				echo "<$td class='$hdr$aspect_class'>".$day.hsc($DATA[$data_index][$DISPLAY_ORDER[$aspect]])."</$td>\n";
+				$day = ""; #only needed for first column (at most).
+			}//end for($aspect)
+			echo "</tr>\n";
+		}//end for($data_index)
 	echo "</table>\n";	
+	echo $FINISH." | ".$START."<hr>"; //##### 
 }//end Display_Weather_V() //**************************************************/
 
 
@@ -627,12 +748,12 @@ function Display_Weather_H($location) {//***************************************
 			if (!(($tr < 2) || in_array($DISPLAY_ORDER[$tr], $SELECTED_ASPECTS))) {continue;}
 			
 			echo "<tr>\n";
-			for ($hour = 0; $hour <= $HOURS_TO_SHOW; $hour++) {
+			for ($data_index = 0; $data_index <= $HOURS_TO_SHOW; $data_index++) {
 				
 				#Add day of week after new date (if there's room).
 				$day = "";
-				if (($tr == 0) && ($hour > 1) && ($DATA[d1_DATE][$hour - 1] != "") && ($DATA[d1_DATE][$hour] == "")) {
-					$day = date('D', strtotime(date("Y")."/".$DATA[d1_DATE][$hour - 1]));
+				if (($tr == 0) && ($data_index > 1) && ($DATA[$data_index - 1][d1_DATE] != "") && ($DATA[$data_index][d1_DATE] == "")) {
+					$day = date('D', strtotime(date("Y")."/".$DATA[$data_index - 1][d1_DATE]));
 				}
 				
 				#Highlight header/date & time rows. ***********************/
@@ -640,14 +761,14 @@ function Display_Weather_H($location) {//***************************************
 				
 				#Highlight rain% value if over specified value.
 				$rain = "";
-				if (($DISPLAY_ORDER[$tr] == d1_RAIN) && ($DATA[d1_RAIN][$hour] >= $RAIN_THRESHOLD)) { $rain = "rain"; }
+				if (($DISPLAY_ORDER[$tr] == d1_RAIN) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) { $rain = "rain"; }
 				
 				#Finally, ouput the weather info. hour 0 is the header/label.
-				if ($hour == 0) 
-					{ echo "<th>".($DATA[$DISPLAY_ORDER[$tr]][$hour])."</th>\n"; }
+				if ($data_index == 0) 
+					{ echo "<th>".($DATA[$data_index][$DISPLAY_ORDER[$tr]])."</th>\n"; }
 				else
-					{ echo "<td class='".$hdr." ".$rain."'>".hsc($DATA[$DISPLAY_ORDER[$tr]][$hour])."$day $HEHE</td>\n"; }
-			}//end for($hour)
+					{ echo "<td class='".$hdr." ".$rain."'>".hsc($DATA[$data_index][$DISPLAY_ORDER[$tr]])."$day</td>\n"; }
+			}//end for($data_index)
 			echo "</tr>\n";
 		}//end for($tr)
 		
@@ -684,7 +805,7 @@ function User_Options() {//****************************************************/
 		if ($key > 0) {
 			#Defined choices: Tempe, AJ, etc...
 			echo "<label class='option_label location_label'>";
-			echo "<input type=checkbox name=SHOW_LOCATIONS[$key] value=$key tabindex=1$checked>";
+			echo "<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." tabindex=1$checked>";
 			echo hsc($location_name)."</label>\n";
 		} else {
 			#Search box
@@ -710,8 +831,8 @@ function User_Options() {//****************************************************/
 		$checked = "";
 		if (in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
 		echo "<label class=option_label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] ";
-		echo "value=$DISPLAY_ORDER[$aspect] tabindex=2$checked>";
-		echo $DATA[$DISPLAY_ORDER[$aspect]][0]."</label>\n";
+		echo "value=".hsc($DISPLAY_ORDER[$aspect])." tabindex=2$checked>";
+		echo hsc($DATA[0][$DISPLAY_ORDER[$aspect]])."</label>\n";
 	}
 	
 
@@ -719,14 +840,23 @@ function User_Options() {//****************************************************/
 
 	#Third row: display options ****************************
 	echo "\n<p class=options_group>\n";
-
-	#Hours to display (12, 24, 36, 48)
+	
+	#Hours to display options (12, 24, 36, 48, etc...)
 	echo "<span class=options>Display &nbsp;<select name=HOURS_TO_SHOW tabindex=3>\n";
-	for ($option = HOURS_OPT_MIN; $option <= HOURS_OPT_MAX; $option += HOURS_OPT_INC) {
+	
+	for ($option = HOURS_MIN; $option <= HOURS_MAX; $option += HOURS_INC) {
 		if ($HOURS_TO_SHOW == $option){ $selected = " selected"; } else {$selected = "";}
 		echo "<option value=$option$selected>".$option."</option>\n";
 	}//end for($options)
+
+	#in case HOURS_MIN + HOURS_INC... is not an even multiple of HOURS_MAX
+	$option -= HOURS_INC; // revert to last good value
+	if ($option < HOURS_MAX) {
+		if ($HOURS_TO_SHOW == HOURS_MAX){ $selected = " selected"; } else {$selected = "";}
+		echo "<option value=".HOURS_MAX."$selected>".HOURS_MAX."</option>\n";
+	}
 	echo"</select> hours</span>\n";
+
 
 
 	#Select data display mode: Vertical or Horizontal
@@ -738,10 +868,12 @@ function User_Options() {//****************************************************/
 	echo"</select>\n";
 
 
+
 	#Rain Threshold: highlight rain values at this point
 	echo "\n<span  class=options>Highlight rain at ";
 	echo "<input type=text id=rain_threshold name=RAIN_THRESHOLD width=2 maxlength=2 value=".$RAIN_THRESHOLD." tabindex=3>";
 	echo "%</span>\n";
+
 
 
 	#Show Radar option
@@ -750,6 +882,7 @@ function User_Options() {//****************************************************/
 	echo "<label id=show_radar_label class=option_label>";
 	echo "<input type=checkbox name=SHOW_RADAR value=true  tabindex=2$checked>";
 	echo "Radar Map</label>";
+
 
 
 	#Don't wrap map even if normally it would due to browser window width
@@ -761,6 +894,7 @@ function User_Options() {//****************************************************/
 	echo "</label>";
 	
 	
+
 	/*#TEST MODE option  *****/
 	$checked = "";
 	if ($TEST_MODE) {$checked = " checked";}
@@ -779,6 +913,8 @@ function Styles() {//**********************************************************/
 ?>
 <style>
 	*			{ font-family: arial; }
+	pre			{ font-family: courier; margin: 0; }
+	
 	h2 			{ font-size: 1.5em; margin: 0; }
 
 	td, th		{ font-size: 9pt; text-align:center; vertical-align: top; border: 1px solid rgb(63,131,245); padding: 0 .3em; }
@@ -805,6 +941,8 @@ function Styles() {//**********************************************************/
 	.w_container { display: inline-block; vertical-align: top; }  /* white-space: nowrap;*/
 	
 	.location_search_option	 { display: inline-block; margin-right: 1em} /*span around search_for_location*/
+	
+	.newday		{background-color: #EEE;}
 
 	#submit			{ float: right; width: 9em; margin-right: 1.5em; }
 	#options_form	{ display: inline-block; border: 0px solid gray; padding: 0 0 0 0; }
@@ -819,7 +957,7 @@ function Styles() {//**********************************************************/
 	#STARTSTOP		  { border: 1px solid #333; border-radius: 4px; width: 10em;}
 	#radar_map		  { font-size: .8em; }
 
-	#timestamp	 	{ margin: .2em 0 .2em 0; padding: 0 .3em 1px .2em; display: inline-block; border: 1px solid teal; }
+	#timestamp	 	{ margin: .2em 0 .2em 0; padding: 1px .3em 0 .2em; display: inline-block; border: 1px solid teal; }
 	#timestamp_row  { margin-bottom: .3em; }
 
 	.options		  { margin: 0 1.5em 0 0; }
@@ -1067,6 +1205,10 @@ var ROTATING_PIC     = document.getElementById('RotatingPic');
 # "Main" //********************************************************************/
 #
 
+
+Init();
+
+
 Get_GET(); //needed before Styles() & User_Options();
 
 Header_crap();
@@ -1095,7 +1237,7 @@ echo '<div id=timestamp_row>';
 
 	#Data Source
 	echo " <span class=fine_print>(Weather data source: ";
-		if ($TEST_MODE) {echo "<span class=TESTING_MSG>".$RAW_HTML_SAMPLE."</span>";}
+		if ($TEST_MODE) {echo "<span class=TESTING_MSG>".hsc($RAW_HTML_SAMPLES[1])."</span>";}
 		else			{echo "www.weather.gov";}
 	echo ")</span><br>\n";
 
@@ -1119,7 +1261,7 @@ echo "\n<div class=w_container>\n";
 			
 		}//#end if ($location==0)
 		
-		$RAW_HTML = Get_Weather_Page($location);
+		$RAW_HTML = Get_Weather_Pages($location);
 		
 		Extract_Weather_Data($RAW_HTML);
 		
@@ -1145,14 +1287,28 @@ echo "</form>\n\n";
 
 ################################################################################
 if ($TEST_MODE) {
-	echo "\n<style> body {background-color: #eee}</style>\n";
-	echo '<hr><pre style="clear: both;">$_GET: '		    .hsc(print_r($_GET, true))."</pre>\n";
-	echo '<hr><pre style="clear: both;">$SHOW_LOCATIONS: '  .hsc(print_r($SHOW_LOCATIONS, true))."</pre>\n";
-	echo '<hr><pre style="clear: both;">$DEFAULT_ASPECTS: ' .hsc(print_r($DEFAULT_ASPECTS, true))."</pre>\n";
-	echo '<hr><pre style="clear: both;">$SELECTED_ASPECTS: '.hsc(print_r($SELECTED_ASPECTS, true))."</pre>\n";
-	echo '<hr><pre style="clear: both;">$LOCATION_NAMES: '  .hsc(print_r($LOCATION_NAMES, true))."</pre>\n";
-	echo '<hr><pre style="clear: both;">$DATA: '		    .hsc(print_r($DATA, true))."</pre>\n";
-	#echo '<hr><pre style="clear: both; font-family: courier">$RAW_HTML: <br>'.hsc($RAW_HTML)."</pre>";  //#####
+	#dump_array($var, $name="", $ECHO = 1, $PRE=1, $BRDR=1, $DSPLY=1, $VD=0, $LVL=0)
+	
+	dump_array($_GET			 ,'$_GET'			  ,1,1,1,2);
+	dump_array($SHOW_LOCATIONS   ,'$SHOW_LOCATIONS'   ,1,1,1,2);
+	dump_array($DEFAULT_ASPECTS  ,'$DEFAULT_$ASPECTS' ,1,1,1,2);
+	dump_array($SELECTED_ASPECTS ,'$SELECTED_$ASPECTS',1,1,1,2);
+	dump_array($LOCATION_NAMES   ,'$LOCATION_NAMES'   ,1,1,1,2);
+	dump_array($DATA			 ,'$DATA'			  ,1,1,1,2);
+	
+	echo '<div style="clear: both;"></div>';
+	echo "\n<style> body {background-color: #ccf}</style>\n";
+	#echo '<hr><pre style="clear: both;">$_GET: '		    .hsc(print_r($_GET, true))."</pre>\n";
+	#echo '<hr><pre style="clear: both;">$SHOW_LOCATIONS: '  .hsc(print_r($SHOW_LOCATIONS, true))."</pre>\n";
+	#echo '<hr><pre style="clear: both;">$DEFAULT_ASPECTS: ' .hsc(print_r($DEFAULT_ASPECTS, true))."</pre>\n";
+	#echo '<hr><pre style="clear: both;">$SELECTED_ASPECTS: '.hsc(print_r($SELECTED_ASPECTS, true))."</pre>\n";
+	#echo '<hr><pre style="clear: both;">$LOCATION_NAMES: '  .hsc(print_r($LOCATION_NAMES, true))."</pre>\n";
+	#echo '<hr><pre style="clear: both;">$DATA: '			 .hsc(print_r($DATA, true))."</pre>\n";
+
+	#echo '<hr><pre>$RAW_HTML[1]: <br>'.hsc($RAW_HTML[1])."</pre>";  //#####
+	#echo '<hr><pre>$RAW_HTML[2]: <br>'.hsc($RAW_HTML[2])."</pre>";  //#####
+	#echo '<hr><pre>$RAW_HTML[3]: <br>'.hsc($RAW_HTML[3])."</pre>";  //#####
+	#echo '<hr><pre>$RAW_HTML[4]: <br>'.hsc($RAW_HTML[4])."</pre>";  //#####
 }
 ################################################################################
 
