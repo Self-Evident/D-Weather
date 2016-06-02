@@ -543,7 +543,7 @@ function Search_for_custom_location() {//**************************************/
 			
 			//Search for final url...
 			if (($node->nodeValue) === "Tabular Forecast") {
-				//there is only one such link, and in starts after the domain (http:. . .weather.gov/)
+				//there is only one such link, and it starts after the domain (http:. . .weather.gov/)
 				$DATA_URLS[0] = $URL_BASE.$node->getAttribute('href').$URL_OPTIONS;
 				$tab_forecast_found = true;
 			}
@@ -845,15 +845,15 @@ function User_Options() {//****************************************************/
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
 		
 		if ($key > 0) {
-			//Defined choices: Tempe, AZ, etc...
+			//Defined choices: Tempe, AJ, etc...
 			echo "<label class='option_label'>";
-			echo "<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." X_tabindex=1$checked>";
+			echo "<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
 			echo hsc($location_name)."</label>\n";
 		} else if ($key == 0) {
 			//Search box
 			echo "<span id=location_search_option>\n";
-			echo "<input type=checkbox name=SHOW_LOCATIONS[0] value=0 X_tabindex=1$checked>\n"; 
-			$input_params = "type=text id=location_search name=LOCATION_SEARCH X_tabindex=1 onkeydown='Prevent_Some_Keys(event)'";
+			echo "<input type=checkbox name=SHOW_LOCATIONS[0] value=0 $checked>\n"; 
+			$input_params = "type=text id=location_search name=LOCATION_SEARCH onkeydown='Prevent_Some_Keys(event)'";
 			echo "<input $input_params value='".hsc($location_name)."'>\n";
 			echo "</span>";
 			echo "\n";
@@ -875,7 +875,7 @@ function User_Options() {//****************************************************/
 		$checked = "";
 		if (in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
 		echo "<label class=option_label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] ";
-		echo "value=".hsc($DISPLAY_ORDER[$aspect])." X_tabindex=2$checked>";
+		echo "value=".hsc($DISPLAY_ORDER[$aspect])."$checked>";
 		echo hsc($DATA[0][$DISPLAY_ORDER[$aspect]])."</label>\n";
 	}
 	
@@ -886,7 +886,7 @@ function User_Options() {//****************************************************/
 	echo "\n<p class=options_group>\n";
 	
 	//Hours to display (12, 24, 36, 48, etc...)
-	echo "<span class=options>Display &nbsp;<select name=HOURS_TO_SHOW X_tabindex=3>\n";
+	echo "<span class=options>Display &nbsp;<select name=HOURS_TO_SHOW>\n";
 	
 	for ($option = HOURS_MIN; $option <= HOURS_MAX; $option += HOURS_INC) {
 		if ($HOURS_TO_SHOW == $option){ $selected = " selected"; } else {$selected = "";}
@@ -906,7 +906,7 @@ function User_Options() {//****************************************************/
 	//Display mode: Vertical or Horizontal
 	$selected = "";
 	if ($DISPLAY_H) { $selected = " selected"; }
-	echo "\n<select name=VH id=VH class=options X_tabindex=3>\n";
+	echo "\n<select name=VH id=VH class=options>\n";
 		echo "<option value=V>Vertically</option>\n";  //default selection
 		echo "<option value=H$selected>Horizontally</option>\n";
 	echo"</select>\n";
@@ -915,7 +915,7 @@ function User_Options() {//****************************************************/
 
 	//Rain Threshold: highlight rain values at this point
 	echo "\n<span  class=options>Highlight rain at ";
-	echo "<input type=text id=rain_threshold name=RAIN_THRESHOLD width=2 maxlength=2 value=".$RAIN_THRESHOLD." X_tabindex=3>";
+	echo "<input type=text id=rain_threshold name=RAIN_THRESHOLD width=2 maxlength=2 value=".$RAIN_THRESHOLD.">";
 	echo "%</span>\n";
 
 
@@ -924,7 +924,7 @@ function User_Options() {//****************************************************/
 	$checked = "";
 	if ($SHOW_RADAR) { $checked = " checked"; }
 	echo "<label id=show_radar_label class=option_label>";
-	echo "<input type=checkbox name=SHOW_RADAR value=true  X_tabindex=3$checked>";
+	echo "<input type=checkbox name=SHOW_RADAR value=true$checked>";
 	echo "Radar Map</label>\n\n";
 
 
@@ -933,7 +933,7 @@ function User_Options() {//****************************************************/
 	$checked = "";
 	if ($DONT_WRAP_MAP) { $checked = " checked"; }
 	echo "<label id=dont_wrap_map class=option_label>";
-	echo "<input type=checkbox name=DONT_WRAP_MAP value=true  X_tabindex=3$checked>";
+	echo "<input type=checkbox name=DONT_WRAP_MAP value=true$checked>";
 	echo "Don't wrap map";
 	echo "</label>\n\n";
 	
@@ -944,10 +944,10 @@ function User_Options() {//****************************************************/
 	if ($RADAR_VIEW == "N0Z") {$N0Z_checked = " checked"; } else {$N0R_checked = " checked";}
 	echo "<span id=radar_view>Radar Range (radius):";
 	echo 	"<label class=option_label>\n";
-	echo 		"<input type=radio name=RADAR_VIEW value=N0R X_tabindex=3 $N0R_checked>143 miles\n";
+	echo 		"<input type=radio name=RADAR_VIEW value=N0R $N0R_checked>143 miles\n";
 	echo 	"</label>\n";
 	echo 	"<label class=option_label>\n";
-	echo 		"<input type=radio name=RADAR_VIEW value=N0Z X_tabindex=3 $N0Z_checked>286 miles\n";
+	echo 		"<input type=radio name=RADAR_VIEW value=N0Z $N0Z_checked>286 miles\n";
 	echo 	"</label>";
 	echo "</span>\n";
 
@@ -957,7 +957,7 @@ function User_Options() {//****************************************************/
 	$checked = "";
 	if ($TEST_MODE) {$checked = " checked";}
 	echo "\n<span id=test_mode><label class=option_label>";
-	echo "<input type=checkbox name=TEST_MODE value=true X_tabindex=3$checked>";
+	echo "<input type=checkbox name=TEST_MODE value=true$checked>";
 	echo"Test Mode</label></span>\n";
 	/*************************/
 
@@ -968,8 +968,8 @@ function User_Options() {//****************************************************/
 
 
 function Show_Radar($i=1) { //***************************************************/
-		// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
-	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, 
+	// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
+	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
 	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $LOCATION_FOUND, $TEST_MODE;
 
 
@@ -998,21 +998,8 @@ function Show_Radar($i=1) { //**************************************************
 	}
 
 
-	//##### $x=7,  the 7 should be abstracted out somehow/way.
 	$imgbar_slots = "";
-	//The tabindex of imgbar a_slots are set/cleared in Change_Pic(), so that tabbing 
-	//goes from [Play/Pause] to slot for current pic, then out of imgbar, and vice-versa.
-	$tabindex = -1;
-	for($x = 7; $x >= 0; $x--) {
-		
-		if ($x == 0) {$tabindex = 0;}
-
-		//##### Simplify? Instead of inline, Use <object>.on<event> or addEventListener? //##### 
-
-		$imgbar_slots .= "\n<td id=slot{$x}_{$i}><a id=a_slot{$x}_{$i} tabindex={$tabindex} ";
-		$imgbar_slots .= " onkeydown='Imgbar_events(event, $i)' ";
-		$imgbar_slots .=">{$x}</a></td>";
-	}
+	for($x = ($IMG_CNT - 1); $x >= 0; $x--) {$imgbar_slots .= "\n<td id=slot{$x}_{$i}>{$x}</td>";}
 
 
 	//show default radar & controls
@@ -1022,12 +1009,12 @@ function Show_Radar($i=1) { //**************************************************
 		<img src="<?= $default_img ?>" id="ROTATING_PIC_<?= $i ?>"><br>
 		
 		<div class=radar_controls>
-			<button type=button id=START_STOP_<?= $i ?> class=start_stop X_tabindex=<?= $i ?>000>Play/Pause</button>&nbsp;
+			<button type=button id=START_STOP_<?= $i ?> class=start_stop>Play/Pause</button>&nbsp;
 			
 			<table class=imgbar><tr><?= $imgbar_slots ?></tr></table>
 			
 			<button type=button id=SHOW_RADAR_OPTIONS_<?= $i ?> class=show_radar_options>
-				<svg class=options_icons width="22px" height="20px" Xstyle="border: solid 1px red" fill="#555">
+				<svg class=options_icons width="22px" height="20px" fill="#555">
 					<g transform="translate(1.5,2)">
 						<rect width="2.5" height="18" x="0"  y="0" rx="1" ry="1" />
 						<rect width="2.5" height="18" x="8"  y="0" rx="1" ry="1" />
@@ -1035,10 +1022,10 @@ function Show_Radar($i=1) { //**************************************************
 						<circle cx="1.25"  cy="15.5" r="3" stroke="white"/>
 						<circle cx="9.25"  cy="2.75" r="3" stroke="white"/>
 						<circle cx="17.25" cy="11"   r="3" stroke="white"/>
-						<!-- rect width="22" height="20" x="0" y="0" rx="3" ry="3" fill="transparent" fill-opacity="0.25" stroke="#444" class="icon_bg"/ -->
 					</g>
 				</svg>
 			</button>
+
 		</div>
 		
 		<div id=RADAR_OPTIONS_<?= $i ?> class=radar_options_div>
@@ -1076,38 +1063,38 @@ function Radar_Loop_js_functions() { //****************************************/
 ?>
 
 <script>
-function Imgbar_events(event, i) { //*************************************
+function Img_Bar_Click(Pics, newpic) { //*********************************
+
+	Pics.start_stop.focus();
+
+	//Stop rotation if running...
+	if (Pics.running) {Start_Stop(Pics);}
+	
+	//...and Change_Pic to clicked/selected value (newpic).
+	var prior_pic = Pics.current_pic;
+	Pics.current_pic = newpic;
+	Change_Pic(Pics, prior_pic);
+
+}//end Img_Bar_Click() //*************************************************
+
+
+
+
+function Imgbar_Control(event, i) { //*************************************
 
 	var Pics = Radar[i];
-	var keycode = event.keyCode;
-	var tab = 9, enter = 13, spacebar = 32, arrow_left = 37, arrow_right = 39;
+	var arrow_left = 37, arrow_right = 39;
 
-	if (event.shiftKey && (keycode == tab)) {
-		//Pics.current_pic.style.backgroundColor = "red";  //##### 
-		//##### document.getElementById('START_STOP_' + i).focus();
-		//##### event.preventDefault();
-	}
-	else if (keycode == tab) {
-		//Pics.current_pic.style.backgroundColor = "red";  //##### 
-		//##### document.getElementById('SHOW_RADAR_OPTIONS_' + i).focus();
-		//##### event.preventDefault();
-	}
-	else if ((keycode == enter) || (keycode == spacebar)) {
-		//##### Start_Stop(Pics);
-		//##### event.preventDefault();
-	}
-	else if (keycode == arrow_left)  {
-		event.preventDefault();
+	if (event.keyCode == arrow_left)  {
 		Rotate_Pics(Pics, 1, "reverse");
-		Pics.imgbar_a[Pics.current_pic].focus();
-	}
-	else if (keycode == arrow_right) {
 		event.preventDefault();
+	}
+	else if (event.keyCode == arrow_right) {
 		Rotate_Pics(Pics, 1);
-		Pics.imgbar_a[Pics.current_pic].focus();
+		event.preventDefault();
 	}
 
-}//end Imgbar_events() //*************************************************
+}//end Imgbar_Control() //*************************************************
 
 
 
@@ -1132,7 +1119,7 @@ function Start_Stop(Pics) { //********************************************
 
 	if (!Pics.running) {  /** Stop **/
 		clearInterval(Pics.loop_timer);
-		Pics.start_stop_btn.innerHTML = PLAY_BTN;
+		Pics.start_stop.innerHTML = PLAY_BTN;
 	}
 	else {				  /** Start **/
 		clearInterval(Pics.loop_timer); //Make sure timer not already running.
@@ -1142,13 +1129,9 @@ function Start_Stop(Pics) { //********************************************
 			Pics.current_loop = 0;
 		}
 		
-		Pics.start_stop_btn.innerHTML = PAUS_BTN; //STOP_BTN;
+		Pics.start_stop.innerHTML = PAUS_BTN; //STOP_BTN;
 		Rotate_Pics(Pics);
 	}
-
-//##### needed instance: 				   _1 or _2
-//##### document.getElementById('START_STOP_' + 1).focus();
-
 } //end Start_Stop() //***************************************************
 
 
@@ -1198,7 +1181,6 @@ function Rotate_Pics(Pics, once, direction){ //***************************
 
 
 
-
 function Change_Pic(Pics, prior_pic){ //**********************************
 
 	//Display new image.
@@ -1208,30 +1190,9 @@ function Change_Pic(Pics, prior_pic){ //**********************************
 	Pics.imgbar[prior_pic].style.backgroundColor 		= "";      //clear     imgbar spot of prior_pic.
 	Pics.imgbar[Pics.current_pic].style.backgroundColor = "#ddd";  //highlight imgbar spot for current pic.
 
-	//Clear/Set tabIndex so can tab into/out of imgbar via curren_pic.
-	Pics.imgbar_a[prior_pic].tabIndex 		 = -1;
-	Pics.imgbar_a[Pics.current_pic].tabIndex =  0;
-
 	Pics.loop_displayed.innerHTML = "(" + Pics.current_loop + ")";
 
 }//end Change_Pic() //****************************************************
-
-
-
-
-
-function Img_Bar_Click(Pics, newpic) { //*********************************
-
-	//Stop rotation if running...
-	if (Pics.running) {Start_Stop(Pics);}
-	
-	//...and Change_Pic to clicked/selected value (newpic).
-	var prior_pic = Pics.current_pic;
-	Pics.current_pic = newpic;
-	Change_Pic(Pics, prior_pic);
-
-}//end Img_Bar_Click() //*************************************************
-
 
 
 
@@ -1253,27 +1214,27 @@ function Init_Radar(instance) { //****************************************
 	RadarX.frame_rate 	  = document.getElementById('FRAME_RATE_' + instance + '');   //Normal pause between each img.
 	RadarX.rotate_pause   = document.getElementById('ROTATE_PAUSE_' + instance + ''); //A longer pause on pic 0 (normally).
 	RadarX.loops		  = document.getElementById('ROTATE_LOOPS_' + instance + ''); //Number of times to loop, then stop.
-	RadarX.start_stop_btn = document.getElementById('START_STOP_' + instance + '');
+	RadarX.start_stop 	  = document.getElementById('START_STOP_' + instance + '');
 	RadarX.top_pic  	  = document.getElementById('ROTATING_PIC_' + instance + '');
 	RadarX.radar_options  = document.getElementById('RADAR_OPTIONS_' + instance + '');
 	RadarX.show_radar_options = document.getElementById('SHOW_RADAR_OPTIONS_' + instance + '');
 
 	RadarX.rotating_pic.src = RadarX.pic_list[0];  //Load initial/(most recent) radar image
 
-	RadarX.start_stop_btn.innerHTML   = PLAY_BTN;
-	RadarX.start_stop_btn.onclick 	  = function(){Start_Stop(RadarX)}
+	RadarX.start_stop.innerHTML   = PLAY_BTN;
+
 	RadarX.top_pic.onclick 			  = function(){Start_Stop(RadarX)}
 	RadarX.show_radar_options.onclick = function(){Show_Hide_Options(RadarX)}
 
 	/******** Radar imgbar control ********/
+	RadarX.start_stop.onclick 	= function(){Start_Stop(RadarX)}
+	RadarX.start_stop.onkeydown = function(event){Imgbar_Control(event, instance)}
+
 	RadarX.imgbar = []; //<td>'s
 	for (x=0; x < RadarX.pic_list.length; x++) {RadarX.imgbar[x] = document.getElementById("slot" + x + "_" + instance);}
 	RadarX.imgbar[RadarX.current_pic].style.backgroundColor = "#ddd";
 
-	RadarX.imgbar_a = []; //<a>'s in the <td>'s
-	for (x=0; x < RadarX.pic_list.length; x++) {RadarX.imgbar_a[x] = document.getElementById("a_slot" + x + "_" + instance);}
-
-	//Add onclick events for image bar control
+	//Add events for image bar control
 	for (x=0; x < RadarX.pic_list.length; x++) {
 		//Must use a self-invoking anonymous function (SIAF): it is invoked with the "(x)" at the end of it's line. 
 		//The "x" from our for-loop is passed via the "(x)" argument list to the SIAF's "xvalue" argument, 
@@ -1281,7 +1242,7 @@ function Init_Radar(instance) { //****************************************
 		//only the final value of x from the for-loop (.pic_length) get's passed to the event handler functions.
 		//Because Javascript, that's why.
 		
-		( function(xvalue) {RadarX.imgbar_a[xvalue].onclick = function() {Img_Bar_Click(RadarX, xvalue);}} )(x); 
+		( function(xvalue) {RadarX.imgbar[xvalue  ].onclick   = function() {Img_Bar_Click(RadarX, xvalue);}} )(x);
 	}
 	/****** End Radar imgbar control ******/
 	
@@ -1296,15 +1257,16 @@ function Init_Radar(instance) { //****************************************
 
 
 function Init_Radar_URLs_etc_js() { //*****************************************/
-	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE;
+	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
 ?>
 
 <script>
 //************************************************************************/
-var PLAY_BTN  = '<svg><polygon points="0,0  12.6,7.46  0,15.75" fill="#555" transform="translate(22,3)" /></svg>\n';
+var PLAY_BTN  = '<svg width="50px" height="21px">';
+	PLAY_BTN += '<polygon points="0,0  12.6,7.46  0,15.75" fill="#555" transform="translate(22,3)" /></svg>\n';
 
 
-var PAUS_BTN  = '<svg>\n';
+var PAUS_BTN  = '<svg width="50px" height="21px">\n';
 	PAUS_BTN += '	<g transform="translate(18,3.5)">\n';
     PAUS_BTN += '		<rect width="6" height="14" x="0"    y="0" rx="2" ry="2" fill="#555" />\n';
 	PAUS_BTN += '		<rect width="6" height="14" x="9.25" y="0" rx="2" ry="2" fill="#555" />\n';
@@ -1342,6 +1304,7 @@ var CTRL_ICO  = '<svg class=options_icon height="24px" width="38px">\n';
 //image 0 is most recent, 7 is the oldest.
 
 <?php
+//*****************/
 if ($TEST_MODE) { $radar_url_base_1 = $RADAR_URL_BASE_SAMPLE."/1/SAMPLE_";
 				  $radar_url_base_2 = $RADAR_URL_BASE_SAMPLE."/2/SAMPLE_";
 }
@@ -1349,17 +1312,18 @@ else            { $radar_url_base_1 = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_
 				  $radar_url_base_2 = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_";
 }
 
-$img_cnt = 8;
+$IMG_CNT = 8;
+//*****************/
 ?>
 
 var PIC_LIST	= [];
 	PIC_LIST[1] = []; //Default radar site
 	PIC_LIST[2] = []; //Radar site for user requested location.
 
-for (var x = 0; x < <?= $img_cnt ?>; x++) { PIC_LIST[1][x] = '<?= $radar_url_base_1 ?>' + x + '<?= RADAR_IMG_EXT ?>'; }
+for (var x = 0; x < <?= $IMG_CNT ?>; x++) { PIC_LIST[1][x] = '<?= $radar_url_base_1 ?>' + x + '<?= RADAR_IMG_EXT ?>'; }
 
 if ('<?= $CUSTOM_RADAR_SITE ?>' != "" ) {
-	for (var x = 0; x < <?= $img_cnt ?>; x++) { PIC_LIST[2][x] = '<?= $radar_url_base_2 ?>' + x + '<?= RADAR_IMG_EXT ?>';	}
+	for (var x = 0; x < <?= $IMG_CNT ?>; x++) { PIC_LIST[2][x] = '<?= $radar_url_base_2 ?>' + x + '<?= RADAR_IMG_EXT ?>';	}
 }
 //************************************************************************/
 
@@ -1490,7 +1454,7 @@ function Styles() {//**********************************************************/
 
 	.data		{ border: 1px solid rgb(10,80,200); border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
  
-	.newday		{Xbackground-color: #EEE; border-top: 1px solid rgb(10,80,200)} /*rgb(63,131,245)*/
+	.newday		{border-top: 1px solid rgb(10,80,200)} /*rgb(63,131,245)*/
 
 	.hdr		{ font-weight: bold; padding: 0 .3em;}
 	.time		{}
@@ -1518,8 +1482,7 @@ function Styles() {//**********************************************************/
 	#dont_wrap_map	  { margin-left: 0em; }
 
 	#test_mode	 	{ float: right; }
-	#submit			{ X_float: right; width: 9em; margin: 0 1.5em 0 1em; }
-	#default_ops 	{ X_float: right; }
+	#submit			{ right; width: 9em; margin: 0 1.5em 0 1em; }
 	
 	.submit_default { float: right; border: 0px solid red; }
 
@@ -1530,19 +1493,16 @@ function Styles() {//**********************************************************/
 	
 	.radar_controls		{ padding: 3px 0 3px 0; border: 0px solid #444; margin: 0;}
 
-	.show_radar_options	{ width: 36px; margin-right: 2px; }
-	.start_stop 		{ width: 70px; float: left; }
+	.start_stop 		{ width: 70px; padding: 0; margin: 0; float: left;  }
+	.show_radar_options	{ width: 36px; display: inline-block; float: right; }
 
-	.imgbar				{ display: inline-block; margin: 0; font-size: 9pt;
-						  width: 464px; height: 22px; border-collapse: collapse; }
-	.imgbar td			{ width: 58px;  height: 22px; border: 1px solid #444; color: #444; text-align: center;  padding: 0;}
+	.imgbar				{ display: inline-block; margin: 0 5px 0 0; font-size: 9pt;
+						  width: 472px; height: 22px; border-collapse: collapse; }
+	.imgbar td			{ width: 59px;  height: 22px; border: 1px solid #444; color: #777; text-align: center;  padding: 0;}
 	.imgbar td:hover 	{ background-color: #eee; }
-	.imgbar td a		{ display: block; padding: 3px 0 4px 0; outline: none; }   /*//##### outline*/
-	.imgbar td a:hover 	{ cursor: default }
-	.imgbar td a:focus 	{ background-color: #bbb; }
 
 	.radar_options_div  { display: inline-block; visibility: hidden; }
-	.radar_options_div  { width: 504px;  padding: 2px 0 3px 0; margin: 0; border: solid 1px #444; text-align: left;}
+	.radar_options_div  { width: 511px;  padding: 2px 0 3px 0; margin: 0; border: solid 1px #444; text-align: left;}
 	
 	.radar_option_left 	{ font-size: 80%; color: #222; }
 	.radar_options 		{ font-size: 80%; color: #222; padding: 0 1em 0 .5em; }
@@ -1558,7 +1518,7 @@ function Styles() {//**********************************************************/
 	#preloads { background: url(stop3.png); background-repeat: -9999px -9999px;}
 
 	.options		{ margin: 0 1.5em 0 0; }
-	.options_group	{ border: 1px solid rgb(63,131,245); padding: 0 0 0px .4em; Xline-height: 1.35em; margin: .3em 0 .4em 0; }
+	.options_group	{ border: 1px solid rgb(63,131,245); padding: 0 0 0px .4em; margin: .3em 0 .4em 0; }
 
 	.option_label 		{ padding: 1px .3em 2px 0; margin-right: .4em; border-left: 1px solid transparent; border-right: 1px solid transparent; }
 	.option_label:hover { background-color: #eee; border-left: 1px solid rgb(63,131,245); border-right: 1px solid rgb(63,131,245); }
@@ -1571,8 +1531,8 @@ function Styles() {//**********************************************************/
 	if ($DONT_WRAP_MAP) {echo ".w_container {white-space: nowrap;}\n";}
 
 	if ($DISPLAY_H) {
-		echo "	th		{ min-width: 5.5em; }\n";
-		echo "	.newday	{Xbackground-color: #EEE; border: 1px solid rgb(63,131,245); border-left: 2px solid rgb(10,80,200);} \n";
+		echo "	th		{min-width: 5.5em;}\n";
+		echo "	.newday	{border: 1px solid rgb(63,131,245); border-left: 2px solid rgb(10,80,200);} \n";
 	}
 
 	//Adjust left margin for location name if hours < HOURS_MIN, so it's not out of box (if it's a long name).
@@ -1595,7 +1555,6 @@ Styles();
 Time_Stamp_js();
 Prevent_Some_Keys_js();
 
-
 echo "\n<form name=USER_OPTIONS method=get id=options_form>\n"; 
 
 User_Options();
@@ -1611,8 +1570,8 @@ echo '<div id=timestamp_row>';
 	echo ")</span>\n";
 
 	echo "<span class=submit_default>";
-	echo "\n<button id=submit class=button X_tabindex=98 autofocus>Submit</button>\n";
-	echo "\n<button type=button id=default_ops class=button onclick='parent.location=location.pathname' X_tabindex=99>Default Options</button>\n";
+	echo "	  \n<button id=submit class=button autofocus>Submit</button>\n";
+	echo "	  \n<button type=button id=default_ops class=button onclick='parent.location=location.pathname'>Default Options</button>\n";
 	echo "</span>";
 
 echo "</div>\n";
@@ -1662,13 +1621,13 @@ echo "\n<div class=w_container>\n";
 		Radar_Loop_js_functions(); 
 		Init_Radar_URLs_etc_js();
 		
-		if ($LOCATION_FOUND) {Show_Radar(2);} //html for custom site...
+		if ($LOCATION_FOUND) {Show_Radar(2);} //custom site...
 		
 		if (
 			!$LOCATION_FOUND ||
 			(($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) && (count($SHOW_LOCATIONS) > 1))
 		   ) {
-			Show_Radar(1); //html for default site (AZ)...
+			Show_Radar(1); //default site (AZ)...
 		}
 		
 		//US map...
