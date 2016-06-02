@@ -206,7 +206,7 @@ function Get_Weather_Data($location){ //***************************************/
 
 
 
-function Extract_Weather_Data($rowset) { //************************************/
+function Extract_Weather_Data() { //*******************************************/
 	global $RAW_HTML, $DATA, $DESIRED;
 
 	$DOM = new DOMDocument;		#$DOM -> preserveWhiteSpace = false;
@@ -216,31 +216,31 @@ function Extract_Weather_Data($rowset) { //************************************/
 	$ROWS  = $WEATHER_TABLE	-> getElementsByTagName('tr');
 
 	//Extract desired data from table and save in $DATA array().
-	$first_row =  1 + $rowset;
-	$last_row  = 12 + $rowset;
-	for ($row = $first_row; $row <= $last_row; $row++) {
+	$nextset = 0; //For first 24 hour data set.
+
+	for ($rowset=0; $rowset < 14; $rowset += 13) { //$rowset should only = 0 or 13
 		
-		//only extract desired rows
-		if (!in_array($row, $DESIRED)) {continue;}
+		$first_row =  1 + $rowset;
+		$last_row  = 12 + $rowset;
+		for ($row = $first_row; $row <= $last_row; $row++) {
+			
+			//only extract desired rows
+			if (!in_array($row, $DESIRED)) {continue;}
+			
+			//get data cells
+			$cells   = $ROWS->item($row) -> getElementsByTagName('td');
+			
+			$first_hour =  1 + $nextset;
+			$last_hour  = 24 + $nextset;
+			
+			#Get data from cells
+			for ($hour = $first_hour; $hour <= $last_hour; $hour++) {
+				$DATA[$row-$rowset][$hour] = trim($cells->item($hour-$nextset)->textContent).$deg;
+			}
+		}// end for($row)
 		
-		//get data cells
-		$cells   = $ROWS->item($row) -> getElementsByTagName('td');
-		
-		#Determine if getting first or second 24 hour data set
-		if ($rowset == 0){  //$rowset should only = 0 or 13 
-			$nextset = 0;   //First 24 hours of data
-		}else {
-			$nextset = 24; //append next 24 hour data set to end of first set.
-		}
-		
-		$first_hour =  1 + $nextset;
-		$last_hour  = 24 + $nextset;
-		
-		#Get data from cells
-		for ($hour = $first_hour; $hour <= $last_hour; $hour++) {
-			$DATA[$row-$rowset][$hour] = trim($cells->item($hour-$nextset)->textContent).$deg;
-		}
-	}// end for($row)
+		$nextset = 24; //append next 24 hour data set to end of first set.
+	}//end for ($rowset)
 	
 }//end Extract_Weather_Data() //***********************************************/
 
@@ -545,9 +545,9 @@ echo "<div id=container>\n";
 for ($SELECTED = 0; $SELECTED < COUNT($_GET["SHOW_LOCATIONS"]); $SELECTED++) {
 	Get_Weather_Data($_GET["SHOW_LOCATIONS"][$SELECTED]);
 
-	Extract_Weather_Data(0);  //First  24 hour data set.
-	Extract_Weather_Data(13); //Second 24 hour data set.
-	
+	Extract_Weather_Data();
+
+
 	if ($_GET["V_or_H"] == "H") { Display_Weather_H($_GET["SHOW_LOCATIONS"][$SELECTED]); }
 	else 						{ Display_Weather_V($_GET["SHOW_LOCATIONS"][$SELECTED]); }
 }//end for $SELECTED
