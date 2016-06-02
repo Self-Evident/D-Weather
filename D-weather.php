@@ -68,7 +68,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
 /*******************************************************************************
-Common URL  (w/Tempe lat & lon)
+#Common URL sample
 http://forecast.weather.gov/MapClick.php?lat=33.4148&lon=-111.9093&unit=0&lg=english&FcstType=digital
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet        &w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
 http://forecast.weather.gov/MapClick.php?w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&AheadHour=0&Submit=Submit&FcstType=digital&textField1=33.4148&textField2=-111.9093&site=all&unit=0&dd=&bw=
@@ -142,145 +142,227 @@ Rows:
 
 
 
-function Set_Theme($theme=0) { //**********************************************/
+function Set_Theme() { //******************************************************/
+	global $THEME_LIST, $THEME;
 
-	//##### The number of theme sets, order & names must coorespond to $THEME_COUNT & $THEME_LIST near end of Init();
+	//Default is 0, and is defined at the end of the main style sheet.
+	$THEME_LIST[0] = "Default";
 
-	if ($theme == 1) {
-		?>
-		/***** Dark 1 Theme  ******************************/
-		html 				{ font-size 	  : 100% }
-		body 				{ color			  : #0F0 }
-		body 				{ background-color: black }
-		label:hover 		{ color			  : black }
-		label:hover 		{ background-color: #0F0 }
-		.active				{ color			  : black }
-		.active				{ background-color: #0F0 }
-		input[type="text"]  { color 		  : #0F0 }
-		input[type="text"]  { border-color    : #0F0 }
-		input[type="text"]  { background-color: black }
-		select 				{ color			  : #0F0 }
-		select 				{ background-color: black }
-		select 				{ border-color 	  : #0F0 }
-		button				{ color 		  : #0F0 }
-		button 				{ background-color: black }
-		button 				{ border-color	  : #0F0 }
-		button:hover	 	{ color 		  : black }
-		button:hover 		{ background-color: #0F0 }
-		button:hover 		{ border-color 	  : #aFa !important}
-		button:focus	 	{ color 		  : black }
-		button:focus 		{ background-color: #0F0 }
-		button:focus 		{ border-color 	  : #0F0 }
-		button:active	 	{ color 		  : black }
-		button:active 		{ background-color: #0F0 }
-		button:active 		{ border-color 	  : #444 }
-		.options_group 		{ border-color 	  : rgb( 63, 131, 245) }
-		.data				{ border-color 	  : rgb( 10,  80, 200) }
-		.data th, .data td  { border-color    : rgb(  0, 70,   0) }
-		.data th, .data td  { font-size 	  : .90em }
-		tr.newday			{ border-top-color: rgb( 10, 80, 200)}
-		.rain				{ color 		  : blue }
-		.not_found			{ border-color 	  : rgb( 10, 80, 200) } 
-		.messages			{ border-color    : rgb( 10, 80, 200) }
-		.messages_H			{ border-color    : rgb( 10, 80, 200) }
-		.imgbar td:hover 	{ background-color: #0F0 }
-		.imgbar_current_pic { background-color: #444 }
-		#timestamp 			{ border-color    : rgb( 10, 80, 200) }
-		.fine_print 		{ color			  : #0F0 }
-		.TESTING_MSG 		{ color 		  : red; }
-		/**end Dark 1 Theme  ******************************/
-		<?php
-	} 
-	if ($theme == 2) {
-		?>
-		/***** Dark 2 Theme  ******************************/
-		html 				{ font-size 	  : 100% }
-		body 				{ color			  : #0F0 }
-		body 				{ background-color: black }
-		label:hover 		{ color			  : yellow }
-		label:hover 		{ background-color: blue }
-		.active				{ color			  : yellow }
-		.active				{ background-color: blue }
-		input[type="text"]  { color 		  : #0F0 }
-		input[type="text"]  { border-color    : #0F0 }
-		input[type="text"]  { background-color: black }
-		select 				{ color			  : #0F0 }
-		select 				{ background-color: black }
-		select 				{ border-color 	  : #0F0 }
-		button				{ color 		  : #0F0 }
-		button 				{ background-color: black }
-		button 				{ border-color	  : #0F0 }
-		button:hover	 	{ color 		  : yellow }
-		button:hover 		{ background-color: blue }
-		button:hover 		{ border-color 	  : yellow }
-		button:focus	 	{ color 		  : yellow }
-		button:focus 		{ background-color: blue }
-		button:focus 		{ border-color 	  : yellow }
-		button:active	 	{ color 		  : yellow }
-		button:active 		{ background-color: blue }
-		button:active 		{ border-color 	  : #444 }
-		.options_group 		{ border-color 	  : rgb(63,131,245) }
-		.data				{ border-color 	  : rgb(10,80,200)  }
-		.data th, .data td  { border-color    : rgb(100,160,250)}
-		.data th, .data td  { font-size 	  : .90em }
-		tr.newday			{ border-top-color: rgb(10,80,200)}
-		.rain				{ color 		  : blue }
-		.not_found			{ border-color 	  : rgb(10,80,200) } 
-		.messages			{ border-color    : rgb(10,80,200) }
-		.messages_H			{ border-color    : rgb(10,80,200) }
-		.imgbar td:hover 	{ background-color: #444 }
-		.imgbar_current_pic { background-color: #333 }
-		#timestamp 			{ border-color    : rgb(10,80,200) }
-		.fine_print 		{ color			  : #0F0 }
-		.TESTING_MSG 		{ color 		  : red; }
-		/**end Dark 2 Theme  ******************************/
-		<?php
-	} 
-	if ($theme == 3) {
-		?>
-		/***** Dark 3 Theme  ******************************/
-		html 				{ font-size 	  : 100% }
-		body 				{ color			  : #FFbf00 }
-		body 				{ background-color: black }
-		label:hover 		{ color			  : black }
-		label:hover 		{ background-color: #FFbf00 }
-		.active				{ color			  : black }
-		.active				{ background-color: #FFbf00 }
-		input[type="text"]  { color 		  : #FFbf00 }
-		input[type="text"]  { border-color    : #FFbf00 }
-		input[type="text"]  { background-color: black }
-		select 				{ color			  : #FFbf00 }
-		select 				{ background-color: black }
-		select 				{ border-color 	  : #FFbf00 }
-		button				{ color 		  : #FFbf00 }
-		button 				{ background-color: black }
-		button 				{ border-color	  : #FFbf00 }
-		button:hover	 	{ color 		  : black }
-		button:hover 		{ background-color: #FFbf00 }
-		button:hover 		{ border-color 	  : yellow }
-		button:focus	 	{ color 		  : black }
-		button:focus 		{ background-color: #FFbf00 }
-		button:focus 		{ border-color 	  : yellow }
-		button:active	 	{ color 		  : black }
-		button:active 		{ background-color: #FFbf00 }
-		button:active 		{ border-color 	  : #444 }
-		.options_group 		{ border-color 	  : rgb(63,131,245) }
-		.data				{ border-color 	  : rgb(10,80,200)  }
-		.data th, .data td  { border-color    : rgb(110,80,0)}
-		.data th, .data td  { font-size 	  : .90em }
-		tr.newday			{ border-top-color: rgb(10,80,200)}
-		.rain				{ color 		  : blue }
-		.not_found			{ border-color 	  : rgb(10,80,200) } 
-		.messages			{ border-color    : rgb(10,80,200) }
-		.messages_H			{ border-color    : rgb(10,80,200) }
-		.imgbar td:hover 	{ background-color: #444 }
-		.imgbar_current_pic { background-color: #333 }
-		#timestamp 			{ border-color    : rgb(10,80,200) }
-		.fine_print 		{ color			  : #FFbf00 }
-		.TESTING_MSG 		{ color 		  : red; }
-		/**end Dark 3 Theme  ******************************/
-		<?php
-	} 
+	//Must equal number of themes (if ($THEME == $x)...) listed below.
+	$THEME_COUNT = 4;  
+
+	//Get user request "THEME" option ************************
+	if (isset($_GET["THEME"])) {$THEME = (int)$_GET['THEME'];}
+	if (($THEME < 0) || ($THEME > $THEME_COUNT)) {$THEME = 1;}
+
+
+
+	$x = 1;
+	$THEME_LIST[$x] = "Plain";
+
+	if ($THEME == $x) {
+?>
+	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
+	* {border-color: black}
+	html 				{ font-size 	  : 100%  }
+	body 				{ color			  : black }
+	body 				{ background-color: white }
+	label:hover 		{ background-color: #CCC  }
+	.active				{ background-color: #ccc  }
+	input[type="text"]  { color 		  : black }
+	input[type="text"]  { border-color    : black }
+	input[type="text"]  { background-color: white }
+	select 				{ color			  : black }
+	select 				{ background-color: white }
+	select 				{ border-color 	  : black }
+	button				{ color 		  : black }
+	button 				{ background-color: #ccc  }
+	button 				{ border-color	  : gray  }
+	button:hover	 	{ color 		  : }
+	button:hover 		{ background-color: #aaa  }
+	button:hover 		{ border-color 	  : #444  }
+	button:focus	 	{ color 		  : }
+	button:focus 		{ background-color: #aaa  }
+	button:focus 		{ border-color 	  : black }
+	button:active	 	{ color 		  : }
+	button:active 		{ background-color: #999 }
+	button:active 		{ border-color 	  : #333 }
+	.options_group 		{ border-color 	  : black }
+	.data				{ border-color 	  : black }
+	.data th, .data td  { border-color    : black }
+	.data th, .data td  { font-size 	  : .90em }
+	.newday				{ border-top-color: silver }
+	.data td.newday_h 	{border-color	  : silver }
+	.data td.newday_h 	{border-left	  : silver }
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : black } 
+	.imgbar td:hover 	{ background-color: #ccc }
+	.imgbar_current_pic { background-color: #aaa }
+	#timestamp 			{ border-color    : black }
+	.fine_print 		{ color			  : #555 }
+	.messages			{ border-color    : black }
+	.messages_H			{ border-color    : black }
+	.TESTING_MSG 		{ color 		  : red; }
+	/***********************************************************/
+<?php
+	}//end if
+
+
+	$x++; 
+ 	$THEME_LIST[$x] = "Dark Green 1";
+
+	if ($THEME == $x) {
+?>
+	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
+	html 				{ font-size 	  : 100% }
+	body 				{ color			  : #0F0 }
+	body 				{ background-color: black }
+	label:hover 		{ color			  : black }
+	label:hover 		{ background-color: #0F0 }
+	.active				{ color			  : black }
+	.active				{ background-color: #0F0 }
+	input[type="text"]  { color 		  : #0F0 }
+	input[type="text"]  { border-color    : #0F0 }
+	input[type="text"]  { background-color: black }
+	select 				{ color			  : #0F0 }
+	select 				{ background-color: black }
+	select 				{ border-color 	  : #0F0 }
+	button				{ color 		  : #0F0 }
+	button 				{ background-color: black }
+	button 				{ border-color	  : #0F0 }
+	button:hover	 	{ color 		  : black }
+	button:hover 		{ background-color: #0F0 }
+	button:hover 		{ border-color 	  : green !important}
+	button:focus	 	{ color 		  : black }
+	button:focus 		{ background-color: #0F0 }
+	button:focus 		{ border-color 	  : #0F0 }
+	button:active	 	{ color 		  : black }
+	button:active 		{ background-color: #0F0 }
+	button:active 		{ border-color 	  : #444 }
+	.options_group 		{ border-color 	  : rgb( 63, 131, 245) }
+	.data				{ border-color 	  : rgb( 10,  80, 200) }
+	.data th, .data td  { border-color    : rgb(  0,  70,   0) }
+	.data th, .data td  { font-size 	  : .90em }
+	.newday				{ border-top-color: rgb( 10,  80, 200) }
+	.data td.newday_h 	{ border-color	  : rgb(  0,  70,   0) }
+	.data td.newday_h 	{ border-left	  : 1px solid rgb(10,80,200) }
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : rgb( 10,  80, 200) } 
+	.imgbar td:hover 	{ background-color: #0F0 }
+	.imgbar_current_pic { background-color: #444 }
+	#timestamp 			{ border-color    : rgb( 10,  80, 200) }
+	.fine_print 		{ color			  : #0F0 }
+	.messages			{ border-color    : rgb( 10,  80, 200) }
+	.messages_H			{ border-color    : rgb( 10,  80, 200) }
+	.TESTING_MSG 		{ color 		  : red; }
+	/***********************************************************/
+<?php
+	}//end if
+
+
+	$x++; 
+ 	$THEME_LIST[$x] = "Dark Green 2";
+
+	if ($THEME == $x) {
+?>
+	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
+	html 				{ font-size 	  : 100% }
+	body 				{ color			  : #0F0 }
+	body 				{ background-color: black }
+	label:hover 		{ color			  : yellow }
+	label:hover 		{ background-color: blue }
+	.active				{ color			  : yellow }
+	.active				{ background-color: blue }
+	input[type="text"]  { color 		  : #0F0 }
+	input[type="text"]  { border-color    : #0F0 }
+	input[type="text"]  { background-color: black }
+	select 				{ color			  : #0F0 }
+	select 				{ background-color: black }
+	select 				{ border-color 	  : #0F0 }
+	button				{ color 		  : #0F0 }
+	button 				{ background-color: black }
+	button 				{ border-color	  : #0F0 }
+	button:hover	 	{ color 		  : yellow }
+	button:hover 		{ background-color: blue }
+	button:hover 		{ border-color 	  : yellow }
+	button:focus	 	{ color 		  : yellow }
+	button:focus 		{ background-color: blue }
+	button:focus 		{ border-color 	  : yellow }
+	button:active	 	{ color 		  : yellow }
+	button:active 		{ background-color: blue }
+	button:active 		{ border-color 	  : #444 }
+	.options_group 		{ border-color 	  : rgb(63,131,245) }
+	.data				{ border-color 	  : rgb(10,80,200)  }
+	.data th, .data td  { border-color    : rgb(100,160,250)}
+	.data th, .data td  { font-size 	  : .90em }
+	.newday				{ border-top-color: rgb(10,80,200)}
+	.data td.newday_h 	{ border-color	  : rgb(100,160,250) }
+	.data td.newday_h 	{ border-left	  : 1px solid rgb(10,80,200) }
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : rgb(10,80,200) } 
+	.imgbar td:hover 	{ background-color: #444 }
+	.imgbar_current_pic { background-color: #333 }
+	#timestamp 			{ border-color    : rgb(10,80,200) }
+	.fine_print 		{ color			  : #0F0 }
+	.messages			{ border-color    : rgb(10,80,200) }
+	.messages_H			{ border-color    : rgb(10,80,200) }
+	.TESTING_MSG 		{ color 		  : red; }
+	/***********************************************************/
+<?php
+	}//end if
+
+
+	$x++; 
+ 	$THEME_LIST[$x] = "Dark Amber 1";
+
+	if ($THEME == $x) {
+?>
+	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
+	html 				{ font-size 	  : 100% }
+	body 				{ color			  : #FFbf00 }
+	body 				{ background-color: black }
+	label:hover 		{ color			  : black }
+	label:hover 		{ background-color: #FFbf00 }
+	.active				{ color			  : black }
+	.active				{ background-color: #FFbf00 }
+	input[type="text"]  { color 		  : #FFbf00 }
+	input[type="text"]  { border-color    : #FFbf00 }
+	input[type="text"]  { background-color: black }
+	select 				{ color			  : #FFbf00 }
+	select 				{ background-color: black }
+	select 				{ border-color 	  : #FFbf00 }
+	button				{ color 		  : #FFbf00 }
+	button 				{ background-color: black }
+	button 				{ border-color	  : #FFbf00 }
+	button:hover	 	{ color 		  : black }
+	button:hover 		{ background-color: #FFbf00 }
+	button:hover 		{ border-color 	  : yellow }
+	button:focus	 	{ color 		  : black }
+	button:focus 		{ background-color: #FFbf00 }
+	button:focus 		{ border-color 	  : yellow }
+	button:active	 	{ color 		  : black }
+	button:active 		{ background-color: #FFbf00 }
+	button:active 		{ border-color 	  : #444 }
+	.options_group 		{ border-color 	  : rgb(63,131,245) }
+	.data				{ border-color 	  : rgb(10,80,200)  }
+	.data th, .data td  { border-color    : rgb(110,80,0)}
+	.data th, .data td  { font-size 	  : .90em }
+	.newday				{ border-top-color: rgb(10,80,200) }
+	.data td.newday_h 	{ border-color	  : rgb(110,80,0) }
+	.data td.newday_h 	{ border-left	  : 1px solid rgb(10,80,200) }
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : rgb(10,80,200) } 
+	.imgbar td:hover 	{ background-color: #444 }
+	.imgbar_current_pic { background-color: #333 }
+	#timestamp 			{ border-color    : rgb(10,80,200) }
+	.fine_print 		{ color			  : #FFbf00 }
+	.messages			{ border-color    : rgb(10,80,200) }
+	.messages_H			{ border-color    : rgb(10,80,200) }
+	.TESTING_MSG 		{ color 		  : red; }
+	/***********************************************************/
+<?php
+	}//end if
+
 }//end Set_Theme() { //********************************************************/
 
 
@@ -290,7 +372,7 @@ function Set_Theme($theme=0) { //**********************************************/
 function Init() { //***********************************************************/
 	global $URL_BASE, $URL_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, 
 		   $DESIRED, $DISPLAY_ORDER, $DATA, $DEFAULT_ASPECTS, $SAMPLE_SET, 
-		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE, $RAIN_THRESHOLD, $THEME_LIST, $THEME_COUNT;
+		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE, $RAIN_THRESHOLD;
 
 
 	//Make sure time zone is correct.
@@ -459,9 +541,9 @@ function Init() { //***********************************************************/
 
 
 
-	//Radar image URL's:  http://radar.weather.gov/lite/N0R/XXX_?.png    ? = 0 thru 7
+	//Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
 	//Used in Radar_Loop_js_functions()
-	define('RADAR_SITE_DEF',  "IWA");  //Default radar site (IWA is central AZ)
+	define('RADAR_SITE_DEF',  "IWA"); //Default radar site (IWA is central AZ)
 	define('RADAR_RANGE_STD', "N0R/"); // N<ZERO>R is base range.     "Views out to 124 nmi" (~143 miles).
 	define('RADAR_RANGE_EXT', "N0Z/"); // N<ZERO>Z is extended range. "Views out to 248 nmi" (~286 miles).
 	define('RADAR_RANGE_DEF', RADAR_RANGE_STD);
@@ -507,11 +589,6 @@ function Init() { //***********************************************************/
 	//Default value to hightlight rain when chance of >= this amount.
 	$RAIN_THRESHOLD = 25;
 	
-
-	//These must coorespond to the number & order of "if/then"'s in Set_Themes().
- 	$THEME_LIST = ["Default", "Dark 1", "Dark 2", "Dark 3"];
-	$THEME_COUNT = count($THEME_LIST);
-
 }//end Init() { //*************************************************************/
 
 
@@ -608,12 +685,16 @@ function Get_GET() {//*********************************************************/
 	//Get & validate URL parameters
 	global  $SHOW_LOCATIONS, $LOCATION_NAMES, $SELECTED_ASPECTS, $DEFAULT_ASPECTS, $DISPLAY_ORDER,
 			$HOURS_TO_SHOW, $DISPLAY_H,  $RAIN_THRESHOLD,
-			$SAMPLE_SET, $RAW_HTML_SAMPLES, $THEME, $THEME_LIST, $THEME_COUNT, $TEST_MODE,
+			$SAMPLE_SET, $RAW_HTML_SAMPLES, $TEST_MODE,
 			$SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
 			$SHOW_RADAR_OPTIONS, $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS,
 			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS;
 
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
+
+
+	//"THEME" ********************************
+	//handled at beginning of Set_Theme();
 
 
 	//TEST_MODE aliases
@@ -705,11 +786,6 @@ function Get_GET() {//*********************************************************/
 		{$RADAR_VIEW = "N0R";} //N<ZERO>R  Normal range.   "Views out to 124 nmi" (~143 miles).
 
 
-	//"THEME" ********************************
-	if (isset($_GET["THEME"])) {$THEME = (int)$_GET['THEME'];}
-	if (($THEME < 0) || ($THEME > $THEME_COUNT)) {$THEME = 1;}
-
-
 	//Show Location Options/Aspects? *********
 	if (isset($_GET["SHOW_LOCATION_OPTIONS"]) && ($_GET["SHOW_LOCATION_OPTIONS"] == "true"))
 		 {$SHOW_LOCATION_OPTIONS = "true";}
@@ -728,7 +804,7 @@ function Get_GET() {//*********************************************************/
 	else {$SHOW_DISPLAY_OPTIONS = "false";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
 
 
-	//Radar options: $i=1 for the default radar, $i=2 for user selected/custom location.
+	//Radar options: $i=1 for default radar, $i=2 for user selected/custom location.
 	for ($i = 1; $i < 3; $i++) {
 		//Show Radar Options? ********************
  		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "true"))
@@ -861,9 +937,10 @@ function Get_Weather_Pages($location){//***************************************/
 		}
 		else if (($raw_html[$page] === false) || (strlen($raw_html[$page]) == 0)) { 
 			$MESSAGES[$location] .= 'Nothing returned for: <b>"'.hsc($LOCATION_NAMES[$location]).'":</b> '.hsc($data_url)."<br>";
-		} else {
+		}
+		else {
 			// For trouble shooting only
-			// $MESSAGES[$location] .= "<hr>Data recieved from (".hsc($LOCATION_NAMES[$location])."): ".hsc($data_url)."<br>";
+			//##### $MESSAGES[$location] .= "<hr>Data recieved from (".hsc($LOCATION_NAMES[$location])."): ".hsc($data_url)."<br>";
 		}
 	}
 
@@ -943,7 +1020,7 @@ function Extract_Weather_Data($raw_html) {//***********************************/
 
 function Display_Weather_V($location) {//**************************************/
 	//Display data in new Vertical table, each row one hour.
-	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $COLOR,  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 
 	$columns = count($SELECTED_ASPECTS) - 1;
 	
@@ -1009,7 +1086,7 @@ function Display_Weather_V($location) {//**************************************/
 
 function Display_Weather_H($location) {//**************************************/
 	//Display data in new Horizontal table, each column one hour.
-	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $COLOR, $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 		
 	echo "<table class=data>\n";
 		
@@ -1047,9 +1124,9 @@ function Display_Weather_H($location) {//**************************************/
 					 ($data_index				  > 0) )
 				{ $rain = "rain"; }
 				
-				//Highlight start of a new day... (bolds line between day columns)
+				//Highlight start of a new day... (bolds line between day columns) //#####
 				$newday = "";
-				if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) { $newday = "newday";}
+				if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) { $newday = "newday_h";}
 				
 				//If all are blank, don't bother adding class='' to output.
 				$classes = trim("$hdr $rain $newday"); //Trimming whitespace...
@@ -1069,7 +1146,7 @@ function Display_Weather_H($location) {//**************************************/
 
 
 function User_Options() {//****************************************************/
-	global	$DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
+	global	$COLOR, $DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
 			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
 			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS;
 
@@ -1083,7 +1160,7 @@ function User_Options() {//****************************************************/
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
 		
 		if ($key > 0) {
-			//Pre-defined choices
+			//Pre-defined choices...
 			echo "<label>";
 			echo "	<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
 			echo hsc($location_name)."";
@@ -1175,7 +1252,7 @@ function User_Options() {//****************************************************/
 		echo "<label><input id=dont_wrap_map type=checkbox name=DONT_WRAP_MAP value=true$checked>Don't wrap map</label>\n\n";
 		
 		
-		//Radar "zoom" level
+		//Radar "zoom" level:.
 		$N0R_checked = ""; //N<ZERO>R   default  "Views out to 124 nmi" (~143 miles).
 		$N0Z_checked = ""; //N<ZERO>Z            "Views out to 248 nmi" (~286 miles).
 		if ($RADAR_VIEW == "N0Z") {$N0Z_checked = " checked"; } else {$N0R_checked = " checked";}
@@ -1204,7 +1281,7 @@ function User_Options() {//****************************************************/
 
 function Show_Radar($i=1) { //***************************************************/
 	// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
-	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
+	global $COLOR, $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
 	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND, $RID;
 
 
@@ -1283,6 +1360,7 @@ function Show_Radar($i=1) { //**************************************************
 
 
 function Radar_Loop_js_functions() { //****************************************/
+	global $COLOR;
 ?>
 
 <script>
@@ -1494,15 +1572,15 @@ function Init_Radar(pic_list, instance) { //******************************
 
 
 function Init_Radar_URLs_etc_js() { //*****************************************/
-	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
+	global $COLOR, $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
 ?>
 <script>
 //************************************************************************/
-var PLAY_BTN  = '<svg class="play_btn" width="50px" height="21px" fill="#555">';
+var PLAY_BTN  = '<svg class="play_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">';
 	PLAY_BTN += '<polygon points="0,0  12.6,7.46  0,15.75" transform="translate(22,3)" /></svg>\n';
 
 
-var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="#555">\n';
+var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="<?= $COLOR['svg-btn'] ?>">\n';
 	PAUS_BTN += '	<g transform="translate(18,3.5)">\n';
     PAUS_BTN += '		<rect width="6" height="14" x="0"    y="0" rx="2" ry="2" />\n';
 	PAUS_BTN += '		<rect width="6" height="14" x="9.25" y="0" rx="2" ry="2" />\n';
@@ -1511,11 +1589,11 @@ var PAUS_BTN  = '<svg class="paus_btn" width="50px" height="21px" fill="#555">\n
 
 
 var STOP_BTN  = '<svg>\n';
-    STOP_BTN += '	<rect width="14" height="14" x="19" y="3.5" rx="2" ry="2" fill="#555>" />\n';
+    STOP_BTN += '	<rect width="14" height="14" x="19" y="3.5" rx="2" ry="2" fill="<?= $COLOR['svg-btn'] ?>" />\n';
 	STOP_BTN += '</svg>\n';
 
 
-var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="#555">\n';
+var CTRL_ICO  = '<svg class=options_icon width="22px" height="20px" fill="<?= $COLOR['svg-btn'] ?>">\n';
 	CTRL_ICO += '	<g transform="translate(1.5,2)">\n';
 	CTRL_ICO += '		<rect width="2.5" height="18" x="0.5"  y="0" rx="1" ry="1" />\n';
 	CTRL_ICO += '		<rect width="2.5" height="18" x="8.5"  y="0" rx="1" ry="1" />\n';
@@ -1676,6 +1754,7 @@ function Time_Stamp(write_return){ //************************************/
 
 
 function Header_crap() {//*****************************************************/
+
 	header('Content-type: text/html; charset=UTF-8');
 	echo "<!DOCTYPE html>\n";
 	echo '<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">'."\n";
@@ -1688,24 +1767,31 @@ function Header_crap() {//*****************************************************/
 
 
 function Styles() {//**********************************************************/
-	global $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP, $THEME, 
+	global $COLOR, $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP,
 		   $SHOW_RADAR_OPTIONS, $SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS; 
 ?>
 
 <style>
+	/** @viewport{ zoom: 1.0; width: extend-to-zoom; }**/
+
+
 	html * { font-family: arial; box-sizing: border-box; }
 	
-	div {padding: 0; margin: 0}
+	div { padding: 0; margin: 0 }
 	pre	{ font-family: courier; margin: 0; }
 	h2 	{ font-size: 1.5em; margin: 0; }
 	img	{ vertical-align: top; }
 
+
+
 	label {	display: inline-block; height: 24px; padding: 2px .5em 0 .5em; margin : 0 .2em 0 0; white-space: nowrap; }
 
+
+	/***** //##### button, label { -webkit-transition: background-color .2s} *****/
+
+
 	input[type="checkbox"] { display: inline-block; margin: 0 2px 0 0; }
-	input[type="text"]	   { height: 20px; position: relative; top: 2; 
-							 padding: 0 0 0 0; margin: 0 0 0 0; 
-							 border: 1px solid }
+	input[type="text"]	   { height: 20px; position: relative; top: 2; padding: 0 0 0 0; margin: 0 0 0 0; border: 1px solid }
 
 	select { border: 1px solid }
 
@@ -1720,13 +1806,10 @@ function Styles() {//**********************************************************/
 	button { border: 1px solid ; border-radius: 4px; height: 24px; margin: 0; }
 	button::-moz-focus-inner { border: 0; }
 
-	#top 	   { display: table; width: 100%; border: 0; }
+	#top 	   { display: table; width: 100%; border: 0; padding: 2px }
 	#top div   { display: table-cell; }
 	#top_left  {}
 	#top_right { text-align: right; }
-
-	#submit1 {}
-	#submit2 {}
 
 	/*class for a couple, but not all, show/hide buttons*/
 	.show_hide {  padding: 0 .2em 0 0; margin: 0; XXXXheight: 18px; }
@@ -1736,16 +1819,18 @@ function Styles() {//**********************************************************/
 	#DISPLAY_OPTIONS  { display: none; }
 	#MAP_OPTIONS	  { display: inline }
 
+	#theme_label  {margin-left: 1em;}
+
 	.w_container { display: inline-block; vertical-align: top; }
 
 	.options_group { border: 1px solid; padding: 0; margin: 0 0 .4em 0; }
 
-	.data		{ border: 1px solid; border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
-	.data th, .data td {  border: 1px inset; text-align: center; vertical-align: top; padding: 0 .2em; }
+	.data		{ border: 1px solid black; border-collapse: collapse; display: inline-table; margin: 0 .5em .5em 0; vertical-align:top; }
+	.data th, .data td { border: 1px inset gray; text-align: center; vertical-align: top; padding: 0 .2em; }
 	.data th	{}
 	.data td	{ min-width: 2.5em; max-width: 3.7em; white-space: normal; } /*Default for V display.*/
 
-	tr.newday		{border-top: 1px solid } /*rgb(63,131,245)*/
+	.newday	{ border-top: 1px solid } /*rgb(63,131,245)*/
 
 	.hdr		{ font-weight: bold; padding: 0 .3em;}
 	.time		{}
@@ -1759,20 +1844,22 @@ function Styles() {//**********************************************************/
 
 	.not_found	{ border: 2px solid; font-weight: bold; text-align: center; } /*rgb(63,131,245)*/
 
-	.messages	{ border: 2px solid; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
-	.messages_H	{ border: 2px solid; border-collapse: collapse; display: inline-block; margin: 0 .5em .5em 0; }
+	.messages	{ border: 2px solid; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
+	.messages_H	{ border: 2px solid; display: inline-block; margin: 0 .5em .5em 0; }
 	
 	.indent		{ margin: 0 .5em }
 	
 	#wrap_map	 	  { white-space: nowrap; }
 
-	.submit			{ width: 9em; margin: 0 0 0 0; }
-	#default_ops 	{ font-size: 70% }
-	#reset			{ font-size: 70% }
-	
-	
-	.submit_default { float: right; }
+	.submit_default { display: inline-block; float: right; border: solid 0px red;}
 
+	#reset			{ font-size: 70% }
+	#default_ops 	{ font-size: 70% }
+	.submit			{ width: 9em; margin: 0 0 0 0; }
+
+	#submit1 {}
+	#submit2 {margin-left: 5em}
+	
 	#radar_view		  { margin-left: 1em; }
 	#radar_view input { margin-left: .0em; margin-right: .0em; }
 	#radar_view label { }
@@ -1805,22 +1892,23 @@ function Styles() {//**********************************************************/
 	html 				{ font-size 	  : 100%  }
 	body 				{ color			  :}
 	body 				{ background-color: white }
-	label:hover 		{ background-color: #Fdd  }
-	.active				{ background-color: #Fbb }
+
+	label:hover 		{ background-color: rgb(177,214,230) } /*soft blue 1*/ /*faded red 1 #Fdd */
+	.active				{ background-color: rgb(110,179,208) } /*soft blue 3*/ /*faded red 3 #Fbb*/
 	input[type="text"]  { color 		  : black }
-	input[type="text"]  { border-color    : rgb(127,157,187); }
+	input[type="text"]  { border-color    : rgb(127,157,187) }
 	input[type="text"]  { background-color: white }
 	select 				{ color			  : black }
 	select 				{ background-color: white }
 	select 				{ border-color 	  : rgb(127,157,187) }
 	button				{ color 		  :}
-	button 				{ background-color:}
+	button 				{ background-color: rgb(225,241,247) }
 	button 				{ border-color	  :}
 	button:hover	 	{ color 		  :}
-	button:hover 		{ background-color: #Fdd }
+	button:hover 		{ background-color: rgb(177,214,230) } /*soft blue 1*/
 	button:hover 		{ border-color 	  :}
 	button:focus	 	{ color 		  :}
-	button:focus 		{ background-color: #Fcc }
+	button:focus 		{ background-color: rgb(140,195,220) } /*soft blue 2*/ /*faded red 2 #Fcc*/
 	button:focus 		{ border-color 	  :}
 	button:active	 	{ color 		  :}
 	button:active 		{ background-color: $Fbb }
@@ -1829,37 +1917,36 @@ function Styles() {//**********************************************************/
 	.data				{ border-color 	  : rgb(10,80,200)  }
 	.data th, .data td  { border-color    : rgb(100,160,250)}
 	.data th, .data td  { font-size 	  : .90em }
-	tr.newday			{ border-top-color: rgb(10,80,200)}
+	.newday				{ border-top-color: rgb(10,80,200) }
+	.data td.newday_h 	{border-color	  : rgb(100,160,250) }
+	.data td.newday_h 	{border-left	  : 1px solid rgb(10,80,200) }
 	.rain				{ color 		  : blue }
 	.not_found			{ border-color 	  : rgb(10,80,200) } 
-	.messages			{ border-color    : rgb(10,80,200) }
-	.messages_H			{ border-color    : rgb(10,80,200) }
-	.imgbar td:hover 	{ background-color: #Fcc }
+	.imgbar td:hover 	{ background-color: rgb(140,195,220) } /*soft blue 2*/ /*faded red 2 #Fcc*/
 	.imgbar_current_pic { background-color: #ddd }
 	#timestamp 			{ border-color    : rgb(10,80,200) }
 	.fine_print 		{ color			  : #555 }
+	.messages			{ border-color    : rgb(10,80,200) }
+	.messages_H			{ border-color    : rgb(10,80,200) }
 	.TESTING_MSG 		{ color 		  : red; }
 	/*******END DEFAULT THEME (mostly colors) **********/
 
 <?php
+	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "	#RADAR_OPTIONS_1 {visibility: visible}\n";}
+	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "	#RADAR_OPTIONS_2 {visibility: visible}\n\n";}
+	if ($SHOW_LOCATION_OPTIONS == "true") { echo "	#LOCATION_OPTIONS {display: block}\n\n";}
+	if ($SHOW_WEATHER_OPTIONS  == "true") { echo "	#WEATHER_OPTIONS  {display: block}\n\n";}
+	if ($SHOW_DISPLAY_OPTIONS  == "true") { echo "	#DISPLAY_OPTIONS  {display: block}\n\n";}
 
-	Set_Theme($THEME);
+	if ($DONT_WRAP_MAP) {echo "	.w_container {white-space: nowrap;}\n";}
 
-	if ($SHOW_RADAR_OPTIONS[1] == "true") { echo "#RADAR_OPTIONS_1 {visibility: visible}\n";}
-	if ($SHOW_RADAR_OPTIONS[2] == "true") { echo "#RADAR_OPTIONS_2 {visibility: visible}\n";}
-	if ($SHOW_LOCATION_OPTIONS == "true") { echo "#LOCATION_OPTIONS {display: block}\n";}
-	if ($SHOW_WEATHER_OPTIONS  == "true") { echo "#WEATHER_OPTIONS  {display: block}\n";}
-	if ($SHOW_DISPLAY_OPTIONS  == "true") { echo "#DISPLAY_OPTIONS  {display: block}\n";}
-
-	if ($DONT_WRAP_MAP) {echo ".w_container {white-space: nowrap;}\n";}
-
-	if ($DISPLAY_H) {
-		echo "	.data th 		{min-width: 5.5em;}\n";
-		echo "	.data td.newday	{border: 1px solid rgb(63,131,245); border-left: 2px solid rgb(10,80,200);} \n";
-	}
+	if ($DISPLAY_H)     {echo "	.data th 	 {min-width: 5.5em;}\n";}
 
 	//Adjust left margin for location name if hours < HOURS_MIN, so it's not out of box (if it's a long name).
 	if ($HOURS_TO_SHOW < HOURS_MIN) { echo ".location_name {margin-left: .2em;}\n";}
+
+
+	Set_Theme();
 
 echo "</style>\n\n";
 }//end Styles() ***************************************************************/
@@ -1883,18 +1970,23 @@ Time_Stamp_js();
 Prevent_Some_Keys_js();
 
 
-echo "\n<form name=USER_OPTIONS method=get id=options_form>\n";
+?>
+<meta name="viewport" content="initial-scale=1">
+
+<form id=options_form name=USER_OPTIONS method=get>
+<?php
+
 
 //Top row options ********************************************
 $theme_options = "";
 foreach ($THEME_LIST as $key => $theme_name) {
 	if ($THEME == $key) {$selected = " selected";} else {$selected = "";}
-	$theme_options .= "<option value={$key}{$selected}>{$theme_name}</option>\n";
+	$theme_options .= "<option value={$key}{$selected}>$key: {$theme_name}</option>\n";
 }
-
-?>	<div class=options_group>
+?>
+	<div class=options_group>
 		<div id=top>
-			<div id=top_left>				<!--up &#9650;  down &#9660; right  &#9658;   up/down &#8661;-->
+			<div id=top_left>
 				<button type=button id=SHOW_LOCATION_OPTS class=show_hide>&#9660;&#9650;Locations</button>
 				<button type=button id=SHOW_WEATHER_OPTS  class=show_hide>&#9660;&#9650;Weather Options</button>
 				<button type=button id=SHOW_DISPLAY_OPTS  class=show_hide>&#9660;&#9650;Display Options</button>
@@ -1903,7 +1995,7 @@ foreach ($THEME_LIST as $key => $theme_name) {
 				<input type=hidden  id=SHOW_WEATHER_OPTIONS  name=SHOW_WEATHER_OPTIONS  value=<?= $SHOW_WEATHER_OPTIONS ?>>
 				<input type=hidden  id=SHOW_DISPLAY_OPTIONS  name=SHOW_DISPLAY_OPTIONS  value=<?= $SHOW_DISPLAY_OPTIONS ?>>
 				
-				<label>Color Themes: <select id=THEME name=THEME><?= $theme_options ?></select></label>
+				<label id=theme_label>Color Themes: <select id=THEME name=THEME><?= $theme_options ?></select></label>
 			</div>
 			<div id=top_right>
 				<button type=submit id=submit1 class=submit>Submit</button>
@@ -1914,7 +2006,8 @@ foreach ($THEME_LIST as $key => $theme_name) {
 
 
 
-//Locations, Weather aspects, Hours to display, Radar, etc...**
+
+//Locations, Weather aspects, Hours to display, Radar, etc...
 User_Options();
 
 
@@ -1925,7 +2018,7 @@ User_Options();
 <div id=timestamp_row>
 	<span id=timestamp><script>Time_Stamp('write');</script></span>
 	<span class=submit_default>
-		<button type=button id=default_ops>Defaults Options</button>
+		<button type=button id=default_ops>Default Options</button>
 		<button type=reset  id=reset      >Reset Current Options</button>
 		<button type=submit id=submit2 class=submit>Submit</button>
 	</span>
@@ -1960,8 +2053,8 @@ echo "\n<div class=w_container id=weather_div>\n";
 			else			{ Display_Weather_V($location); }
 		}
 		else {
-			if ($DISPLAY_H) { echo '<div class="messages_H">'.$MESSAGES[$location].'</div>';; }
-			else			{ echo '<div class="messages">'.$MESSAGES[$location].'</div>';; }
+			if ($DISPLAY_H) { echo '<div class=messages_H>'.$MESSAGES[$location].'</div>';; }
+			else			{ echo '<div class=messages>'.$MESSAGES[$location].'</div>';; }
 		}
 		
 	}
@@ -1994,6 +2087,11 @@ echo "\n<div class=w_container id=weather_div>\n";
 	}	
 echo "</div>\n"; //end w_container
 echo "</form>\n\n";
+
+
+
+
+
 
 
 
@@ -2038,6 +2136,7 @@ function Show_Hide_Options(element, state, d_or_v, show, hide) {  //******
 
 
 
+
 function Focus(event) { //************************************************
 	//Simulate "hover" of various inputs when using keyboard/tabbing
 
@@ -2072,9 +2171,9 @@ document.onkeydown = function(event){Focus(event)}
 document.onkeyup   = function(event){Focus(event)}
 document.onclick   = function(event){Focus(event)}
 document.getElementById('location_search').onkeydown = function(event){Prevent_Some_Keys(event)}
-document.getElementById('submit2').focus();
 document.getElementById('default_ops').onclick = function(){parent.location = location.pathname};
-
+document.getElementById('submit2').focus();
+//##### document.getElementById('THEME').onchange = function(){document.getElementById('options_form').submit();}
 
 
 /********************/ 
