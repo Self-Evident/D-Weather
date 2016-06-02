@@ -142,36 +142,72 @@ Rows:
 
 
 
-function Set_Theme() { //******************************************************/
-	global $THEME_LIST, $THEME;
-
-	//Default is 0, and is defined at the end of the main style sheet.
-	$THEME_LIST[0] = "Default";
-
-	//Must equal number of themes (if ($THEME == $x)...) listed below.
-	$THEME_COUNT = 4;  
-
-	//Get user request "THEME" option ************************
-	if (isset($_GET["THEME"])) {$THEME = (int)$_GET['THEME'];}
-	if (($THEME < 0) || ($THEME > $THEME_COUNT)) {$THEME = 1;}
+function Load_Themes() { //****************************************************/
+	global $THEMES;
 
 
+	$x = 0; 
+	$THEMES['name'][$x] = "Default";
+	$THEMES['styles'][$x] = <<< END_of_THEME
 
-	$x = 1;
-	$THEME_LIST[$x] = "Plain";
-
-	if ($THEME == $x) {
-?>
-	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
-	* {border-color: black}
+	/********** {$THEMES['name'][$x]} Theme *******************/
 	html 				{ font-size 	  : 100%  }
+	body 				{ color			  :}
+	body 				{ background-color: white }
+	caption				{ border-color    : rgb(10,80,200)  }
+	label:hover 		{ background-color: rgb(177,214,230) } /*soft blue 1*/ /*faded red 1 #Fdd */
+	.active				{ background-color: rgb(110,179,208) } /*soft blue 3*/ /*faded red 3 #Fbb*/
+	input[type='text']  { color 		  : black }
+	input[type='text']  { border-color    : rgb(127,157,187) }
+	input[type='text']  { background-color: white }
+	select 				{ color			  : black }
+	select 				{ background-color: white }
+	select 				{ border-color 	  : rgb(127,157,187) }
+	button				{ color 		  :}
+	button 				{ background-color: rgb(225,241,247) }
+	button 				{ border-color	  :}
+	button:hover	 	{ color 		  :}
+	button:hover 		{ background-color: rgb(177,214,230) } /*soft blue 1*/
+	button:hover 		{ border-color 	  :}
+	button:focus	 	{ color 		  :}
+	button:focus 		{ background-color: rgb(140,195,220) } /*soft blue 2*/ /*faded red 2 #Fcc*/
+	button:focus 		{ border-color 	  :}
+	button:active	 	{ color 		  :}
+	button:active 		{ background-color: #Fbb }
+	button:active 		{ border-color 	  : #444 }
+	.options_group 		{ border-color 	  : rgb(63,131,245) }
+	.data				{ border-color 	  : rgb(10,80,200)  }
+	.data th, .data td  { border-color    : rgb(100,160,250)}
+	.data th, .data td  { font-size 	  : .90em }
+	.newday				{ border-top-color: rgb(10,80,200) }
+	.data td.newday_h 	{border-color	  : rgb(100,160,250) }
+	.data td.newday_h 	{border-left	  : 1px solid rgb(10,80,200) }
+	.rain				{ color 		  : blue }
+	.not_found			{ border-color 	  : rgb(10,80,200) } 
+	.imgbar td:hover 	{ background-color: rgb(140,195,220) } /*soft blue 2*/ /*faded red 2 #Fcc*/
+	.imgbar_current_pic { background-color: #ddd }
+	#timestamp 			{ border-color    : rgb(10,80,200) }
+	.fine_print 		{ color			  : #555 }
+	.messages			{ border-color    : rgb(10,80,200) }
+	.messages_H			{ border-color    : rgb(10,80,200) }
+	.TESTING_MSG 		{ color 		  : red; }
+	/***********************************************************/
+END_of_THEME;
+
+
+	$x++; 
+	$THEMES['name'][$x] = "Plain";
+	$THEMES['styles'][$x] = <<< END_of_THEME
+
+	/********** {$THEMES['name'][$x]} Theme *******************/
+	* {border-color: black}
 	body 				{ color			  : black }
 	body 				{ background-color: white }
 	label:hover 		{ background-color: #CCC  }
 	.active				{ background-color: #ccc  }
-	input[type="text"]  { color 		  : black }
-	input[type="text"]  { border-color    : black }
-	input[type="text"]  { background-color: white }
+	input[type='text']  { color 		  : black }
+	input[type='text']  { border-color    : black }
+	input[type='text']  { background-color: white }
 	select 				{ color			  : black }
 	select 				{ background-color: white }
 	select 				{ border-color 	  : black }
@@ -204,26 +240,23 @@ function Set_Theme() { //******************************************************/
 	.messages_H			{ border-color    : black }
 	.TESTING_MSG 		{ color 		  : red; }
 	/***********************************************************/
-<?php
-	}//end if
+END_of_THEME;
 
 
 	$x++; 
- 	$THEME_LIST[$x] = "Dark Green 1";
+	$THEMES['name'][$x] = "Dark Green 1";
+	$THEMES['styles'][$x] = <<< END_of_THEME
 
-	if ($THEME == $x) {
-?>
-	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
-	html 				{ font-size 	  : 100% }
+	/********** {$THEMES['name'][$x]} Theme *******************/
 	body 				{ color			  : #0F0 }
 	body 				{ background-color: black }
 	label:hover 		{ color			  : black }
 	label:hover 		{ background-color: #0F0 }
 	.active				{ color			  : black }
 	.active				{ background-color: #0F0 }
-	input[type="text"]  { color 		  : #0F0 }
-	input[type="text"]  { border-color    : #0F0 }
-	input[type="text"]  { background-color: black }
+	input[type='text']  { color 		  : #0F0 }
+	input[type='text']  { border-color    : #0F0 }
+	input[type='text']  { background-color: black }
 	select 				{ color			  : #0F0 }
 	select 				{ background-color: black }
 	select 				{ border-color 	  : #0F0 }
@@ -256,26 +289,23 @@ function Set_Theme() { //******************************************************/
 	.messages_H			{ border-color    : rgb( 10,  80, 200) }
 	.TESTING_MSG 		{ color 		  : red; }
 	/***********************************************************/
-<?php
-	}//end if
+END_of_THEME;
 
 
 	$x++; 
- 	$THEME_LIST[$x] = "Dark Green 2";
+	$THEMES['name'][$x] = "Dark Green 2";
+	$THEMES['styles'][$x] = <<< END_of_THEME
 
-	if ($THEME == $x) {
-?>
-	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
-	html 				{ font-size 	  : 100% }
+	/********** {$THEMES['name'][$x]} Theme *******************/
 	body 				{ color			  : #0F0 }
 	body 				{ background-color: black }
 	label:hover 		{ color			  : yellow }
 	label:hover 		{ background-color: blue }
 	.active				{ color			  : yellow }
 	.active				{ background-color: blue }
-	input[type="text"]  { color 		  : #0F0 }
-	input[type="text"]  { border-color    : #0F0 }
-	input[type="text"]  { background-color: black }
+	input[type='text']  { color 		  : #0F0 }
+	input[type='text']  { border-color    : #0F0 }
+	input[type='text']  { background-color: black }
 	select 				{ color			  : #0F0 }
 	select 				{ background-color: black }
 	select 				{ border-color 	  : #0F0 }
@@ -308,26 +338,23 @@ function Set_Theme() { //******************************************************/
 	.messages_H			{ border-color    : rgb(10,80,200) }
 	.TESTING_MSG 		{ color 		  : red; }
 	/***********************************************************/
-<?php
-	}//end if
+END_of_THEME;
 
 
 	$x++; 
- 	$THEME_LIST[$x] = "Dark Amber 1";
+	$THEMES['name'][$x] = "Dark Amber 1";
+	$THEMES['styles'][$x] = <<< END_of_THEME
 
-	if ($THEME == $x) {
-?>
-	/********** <?= $THEME_LIST[$x] ?> Theme *******************/
-	html 				{ font-size 	  : 100% }
+	/********** {$THEMES['name'][$x]} Theme *******************/
 	body 				{ color			  : #FFbf00 }
 	body 				{ background-color: black }
 	label:hover 		{ color			  : black }
 	label:hover 		{ background-color: #FFbf00 }
 	.active				{ color			  : black }
 	.active				{ background-color: #FFbf00 }
-	input[type="text"]  { color 		  : #FFbf00 }
-	input[type="text"]  { border-color    : #FFbf00 }
-	input[type="text"]  { background-color: black }
+	input[type='text']  { color 		  : #FFbf00 }
+	input[type='text']  { border-color    : #FFbf00 }
+	input[type='text']  { background-color: black }
 	select 				{ color			  : #FFbf00 }
 	select 				{ background-color: black }
 	select 				{ border-color 	  : #FFbf00 }
@@ -360,10 +387,9 @@ function Set_Theme() { //******************************************************/
 	.messages_H			{ border-color    : rgb(10,80,200) }
 	.TESTING_MSG 		{ color 		  : red; }
 	/***********************************************************/
-<?php
-	}//end if
+END_of_THEME;
 
-}//end Set_Theme() { //********************************************************/
+}//end Load_Themes() { //******************************************************/
 
 
 
@@ -372,7 +398,7 @@ function Set_Theme() { //******************************************************/
 function Init() { //***********************************************************/
 	global $URL_BASE, $URL_OPTIONS, $URL_MOST, $DATA_URLS, $LOCATION_NAMES, 
 		   $DESIRED, $DISPLAY_ORDER, $DATA, $DEFAULT_ASPECTS, $SAMPLE_SET, 
-		   $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE, $RAIN_THRESHOLD;
+		   $RAIN_THRESHOLD, $RAW_HTML_SAMPLES, $RADAR_URL_BASE_SAMPLE, $IMG_CNT;
 
 
 	//Make sure time zone is correct.
@@ -382,7 +408,7 @@ function Init() { //***********************************************************/
 	//Weather url's ******************************************************
 	$URL_BASE    = "http://forecast.weather.gov/";
 	$URL_BASE_1  = $URL_BASE."MapClick.php?";
-	$URL_OPTIONS = "&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=";
+	$URL_OPTIONS = "&w0=t&w1=td&w2=wc&w3=sfcwind&w3u=1&w4=sky&w5=pop&w6=rh&w7=rain&w8=thunder&w9=snow&w10=fzg&w11=sleet&w12=fog&w13u=0&w15u=1&w16u=1&FcstType=digital&site=all&unit=0&dd=&bw=&Submit=Submit";
 	$URL_MOST    = $URL_BASE_1.$URL_OPTIONS; //$URL_MOST only needs textField1 & textField2 (lat & lon) query options to complete the URL.
 
 
@@ -433,10 +459,10 @@ function Init() { //***********************************************************/
 	define('d1_SLEET',     16);
 	define('d1_FOG',       17);
 
-	define('ASPECTS_TOTAL', 17); //Total number of weather aspects available.
+	define('FIRST_ROW',      1); //Currenlty 1, as of 2016-02-26
+	define('ASPECTS_TOTAL', 17); //Total number of weather aspects/elements available.
 	define('d2_OFFSET',     18); //offset to first row of next set of rows of weather.
 								 //Currently there is one blank/divider row between the sets.
-	define('FIRST_ROW', d2_OFFSET - ASPECTS_TOTAL);  //Currenlty 1, as of 2016-02-26
 
 	define('d2_DATE',      19);
 	define('d2_HOUR',      20);
@@ -458,7 +484,7 @@ function Init() { //***********************************************************/
 
 
 
-	//Desired rows of data to extract from source html table. Currently all rows.
+	//Desired rows of data to extract from source html table. Currently all data rows.
 	$DESIRED = array(
 		d1_DATE, d1_HOUR, d1_TEMP, d1_DEWPOINT, d1_WIND_CHILL, d1_WIND, d1_WIND_DIR, d1_GUST, d1_CLOUDS, d1_RAIN, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW, 
 		d2_DATE, d2_HOUR, d2_TEMP, d2_DEWPOINT, d2_WIND_CHILL, d2_WIND, d2_WIND_DIR, d2_GUST, d2_CLOUDS, d2_RAIN, d2_HUMIDITY, d2_FOG, d2_RAIN_CHNC, d2_THUNDER, d2_FRZ_RAIN, d2_SLEET, d2_SNOW, 
@@ -478,9 +504,9 @@ function Init() { //***********************************************************/
 	//Default aspects to display
 	//Leave aspect out of $DEFAULT_ASPECTS if you don't want it displayed *by default*.
 	//The option box will be available, but unchecked.
-	//$DEFAULT_ASPECTS = $DISPLAY_ORDER; //All aspects
-	//$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
-	$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_HUMIDITY, d1_FOG);
+	//$DEFAULT_ASPECTS = $DISPLAY_ORDER; //All aspects.
+	//				   = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_CLOUDS, d1_HUMIDITY, d1_FOG, d1_RAIN_CHNC, d1_THUNDER, d1_FRZ_RAIN, d1_SLEET, d1_SNOW);
+	$DEFAULT_ASPECTS = array(d1_DATE, d1_HOUR, d1_TEMP, d1_WIND, d1_WIND_DIR, d1_GUST, d1_RAIN, d1_FOG);
 
 
 
@@ -529,27 +555,19 @@ function Init() { //***********************************************************/
 	$RAW_HTML_SAMPLES[4] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.4.html";
 	$RADAR_URL_BASE_SAMPLE =     "/Weather/weather.gov/samples/";
 
-	//##### ##################################################################################################
-	//##### For trouble-shooting...
-	//##### X (uppercase) can = a, b, c, d, or e.
-	//#####
-	if (isset($_GET['X']) && ($_GET['X'] >= 'a') && ($_GET['X'] < 'e')) {
-		$RAW_HTML_SAMPLES[1] = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.1".$_GET['X'].".html";
-	}
-	//##### ##################################################################################################
 
+	//The number of images to load.  Used to create imgbar in Show_Radar();
+	//Someday, this may be dynamically obtained, when I get to loading more than just the 0...7 images.
+	$IMG_CNT = 8;
 
-
-
-	//Radar image URL's:  http://radar.weather.gov/lite/N0R/IWA_?.png    ? = 0 thru 7
-	//Used in Radar_Loop_js_functions()
-	define('RADAR_SITE_DEF',  "IWA"); //Default radar site (IWA is central AZ)
+	//Radar image URL's:  http://radar.weather.gov/lite/N0R/XXX_?.png    ? = 0 thru 7
+	define('RADAR_SITE_DEF',  "IWA");  //Default radar site (IWA is central AZ)
 	define('RADAR_RANGE_STD', "N0R/"); // N<ZERO>R is base range.     "Views out to 124 nmi" (~143 miles).
 	define('RADAR_RANGE_EXT', "N0Z/"); // N<ZERO>Z is extended range. "Views out to 248 nmi" (~286 miles).
 	define('RADAR_RANGE_DEF', RADAR_RANGE_STD);
-	
+
 	define('RADAR_URL_BASE', "http://radar.weather.gov/lite/");
-	
+
 	define('RADAR_URL_BASE_DEF', RADAR_URL_BASE.RADAR_RANGE_DEF.RADAR_SITE_DEF."_");
 	define('RADAR_IMG_EXT', ".png");
 
@@ -585,10 +603,10 @@ function Init() { //***********************************************************/
 	define('ROTATE_LOOPS_MAX', 99);
 	define('ROTATE_LOOPS_DEF', 10);
 	define('ROTATE_LOOPS_INC',  1);
-	
+
 	//Default value to hightlight rain when chance of >= this amount.
 	$RAIN_THRESHOLD = 25;
-	
+
 }//end Init() { //*************************************************************/
 
 
@@ -683,9 +701,8 @@ function curl_get_contents($url, $headers = false, $nobody = false) {//********/
 
 function Get_GET() {//*********************************************************/
 	//Get & validate URL parameters
-	global  $SHOW_LOCATIONS, $LOCATION_NAMES, $SELECTED_ASPECTS, $DEFAULT_ASPECTS, $DISPLAY_ORDER,
-			$HOURS_TO_SHOW, $DISPLAY_H,  $RAIN_THRESHOLD,
-			$SAMPLE_SET, $RAW_HTML_SAMPLES, $TEST_MODE,
+	global  $THEME, $THEMES, $SHOW_LOCATIONS, $LOCATION_NAMES, $SELECTED_ASPECTS, $DEFAULT_ASPECTS, $DISPLAY_ORDER,
+			$HOURS_TO_SHOW, $DISPLAY_H,  $RAIN_THRESHOLD, $SAMPLE_SET, $RAW_HTML_SAMPLES, $TEST_MODE,
 			$SHOW_RADAR, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
 			$SHOW_RADAR_OPTIONS, $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS,
 			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS;
@@ -693,20 +710,25 @@ function Get_GET() {//*********************************************************/
 	$_GET = array_change_key_case($_GET, CASE_UPPER);
 
 
+	//Return selected style sheet ************
+	if (isset($_GET["CSS"])) {
+		header("Content-type: text/css; charset: UTF-8");	
+		if (isset($THEMES['styles'][$_GET["CSS"]])) {die($THEMES['styles'][$_GET["CSS"]]);}
+		else 										{die($THEMES['styles'][0]);}
+	}
+
+
 	//"THEME" ********************************
-	//handled at beginning of Set_Theme();
+	//Get user selected  "THEME" option
+	if (isset($_GET["THEME"])) {$THEME = (int)$_GET['THEME'];}
+	else 					   {$THEME = 0;}
+	if (!isset($THEMES['name'][$THEME])) {$THEME = 0;}
 
 
 	//TEST_MODE aliases
 	//LEAVE CHECK FOR TEST MODE HERE! It's result is used below.
 	if (isset($_GET["TEST"]) || isset($_GET["TEST_MODE"])) {$TEST_MODE = true; }
 	else 												   {$TEST_MODE = false;}
-
-
-	//Which sample set (1 or 2) of radar images to use
-	//if (isset($_GET["SS"]))			{ $SAMPLE_SET = $_GET["SS"]; }
-	//if (isset($_GET["SAMPLE_SET"])) { $SAMPLE_SET = $_GET["SAMPLE_SET"]; }
-	//$RAW_HTML_SAMPLES = "D:/www/Weather/weather.gov/samples/$SAMPLE_SET/weather.gov.sample_all.p1.html";
 
 
 	//"LOCATION_SEARCH" **********************
@@ -721,6 +743,7 @@ function Get_GET() {//*********************************************************/
 	//"SHOW_LOCATIONS" ***********************
 	if (!isset($_GET["SHOW_LOCATIONS"])) { $SHOW_LOCATIONS[DEFAULT_LOCATION] = DEFAULT_LOCATION; }
 	else 								 { $SHOW_LOCATIONS = $_GET["SHOW_LOCATIONS"]; }
+
 	//make sure in valid range
 	foreach($SHOW_LOCATIONS as $key => $location) {
 		if     (!is_numeric($key) || !is_numeric($location))	   { unset($SHOW_LOCATIONS[$key]); }
@@ -731,8 +754,8 @@ function Get_GET() {//*********************************************************/
 
 
 	//Weather "ASPEPCTS" *********************
-	if (!isset($_GET["ASPECTS"])) { $SELECTED_ASPECTS = $DEFAULT_ASPECTS; } 			 //[1] is not sent, but always used.
-	else 						  { $SELECTED_ASPECTS = $_GET["ASPECTS"]; $SELECTED_ASPECTS[1] = 1; } 
+	if (!isset($_GET["ASPECTS"])) { $SELECTED_ASPECTS = $DEFAULT_ASPECTS; }
+	else 						  { $SELECTED_ASPECTS = $_GET["ASPECTS"]; }
 
 	//make sure in valid range
 	foreach($SELECTED_ASPECTS as $key => $aspect) {
@@ -745,7 +768,7 @@ function Get_GET() {//*********************************************************/
 
 
 	//"HOURS_TO_SHOW" ************************
-	//Needed before Styles() or User_Options() are called
+	//Needed before Style_Sheet() or User_Options() are called
 	if (!isset($_GET["HOURS_TO_SHOW"])) {
 		//default if not selected
 		$HOURS_TO_SHOW = HOURS_DEF;
@@ -786,7 +809,7 @@ function Get_GET() {//*********************************************************/
 		{$RADAR_VIEW = "N0R";} //N<ZERO>R  Normal range.   "Views out to 124 nmi" (~143 miles).
 
 
-	//Show Location Options/Aspects? *********
+	//Show Location Options? *****************
 	if (isset($_GET["SHOW_LOCATION_OPTIONS"]) && ($_GET["SHOW_LOCATION_OPTIONS"] == "checked"))
 		 {$SHOW_LOCATION_OPTIONS = "checked";}
 	else {$SHOW_LOCATION_OPTIONS = "";}  //Default to value set in style sheet for #LOCATION_OPTIONS
@@ -804,7 +827,7 @@ function Get_GET() {//*********************************************************/
 	else {$SHOW_DISPLAY_OPTIONS = "";}  //Default to value set in style sheet for #DISPLAY_OPTIONS
 
 
-	//Radar options: $i=1 for default radar, $i=2 for user selected/custom location.
+	//Radar options: $i=1 for the default radar, $i=2 for user selected/custom location.
 	for ($i = 1; $i < 3; $i++) {
 		//Show Radar Options? ********************
  		if (isset($_GET["SHOW_RADAR_OPTIONS"][$i]) && ($_GET["SHOW_RADAR_OPTIONS"][$i] == "checked"))
@@ -900,7 +923,7 @@ function Get_Weather_Pages($location){//***************************************/
 	// On the "4th" page, with AheadHour=107, only the last 11 hours are new,
 	// relative to "3rd" page (AheadHour=96).
 	$AheadHour[1] = 0; $AheadHour[2] = 48; $AheadHour[3] = 96; $AheadHour[4] = 107;
-	
+
 	// $pages_to_get = 1 to 4, depending on...
 	if 		($HOURS_TO_SHOW > 144) {$pages_to_get = 4;}
 	else if	($HOURS_TO_SHOW >  96) {$pages_to_get = 3;}
@@ -908,7 +931,7 @@ function Get_Weather_Pages($location){//***************************************/
 	else    /*----------------->*/ {$pages_to_get = 1;}
 
 	$raw_html = array(1=>"");
-	
+
 	for ($page = 1; $page <= $pages_to_get; $page++) {
 		if ($TEST_MODE) {
 			$TESTING_MSG = "<span class=TESTING_MSG>SAMPLE DATA</span>\n";
@@ -954,7 +977,7 @@ function Get_Weather_Pages($location){//***************************************/
 function Extract_Weather_Data($raw_html) {//***********************************/
 	//Extract desired data from table(s) and save in $DATA array().
 	global $DESIRED, $DATA, $HOURS_TO_SHOW;
-	
+
 	$DOM = new DOMDocument;		//$DOM -> preserveWhiteSpace = false;
 
 	// 2016-02-17
@@ -965,7 +988,7 @@ function Extract_Weather_Data($raw_html) {//***********************************/
  	$pages = count($raw_html); 
 
 	$hour_offset = 0; //from the current hour
-	
+
 	//cycle thru the WEATHER_TABLE in each html page.
 	for ($page = 1; $page <= $pages; $page++) {
 		
@@ -1000,7 +1023,7 @@ function Extract_Weather_Data($raw_html) {//***********************************/
 				}
 			}// end for($row)
 			
-			$hour_offset += 24; //24 hours in each $rowset (except for page 4...).
+			$hour_offset += 24; //24 hours in each $rowset.
 		}//end for ($rowset)
 	}
 
@@ -1020,64 +1043,55 @@ function Extract_Weather_Data($raw_html) {//***********************************/
 
 function Display_Weather_V($location) {//**************************************/
 	//Display data in new Vertical table, each row one hour.
-	global $COLOR,  $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 
-	//##### $columns = ASPECTS_TOTAL - 1;
-	$columns = count($SELECTED_ASPECTS) - 1;
+	$show_date = in_array(d1_DATE, $SELECTED_ASPECTS);
+
+	$columns = ASPECTS_TOTAL - 1;
 
 	?>
 	<table id=DATA_TABLE_<?= $location ?> class=data>
 		<caption><?= hsc($LOCATION_NAMES[$location]) ?><br><?= $TESTING_MSG ?></caption>
 	<?php
-		
 		//$data_index is from 0 (current/first hour of data) to $HOURS_TO_SHOW
 		for ($data_index = 0; $data_index <= $HOURS_TO_SHOW; $data_index++) {
 			
 			//Highlight Header Row (labels)
 			if ($data_index == 0) {$hdr = "hdr";} else {$hdr = "";}
 			
-			//If a (new day) or (start of data), add row with day, date...
-			if (($DATA[$data_index][d1_HOUR] === "00") || ($data_index == 1)) {
+			//If (start of data) or a (new day), add row with day, date...
+			if (($data_index == 1) || ($DATA[$data_index][d1_HOUR] === "00")) {
 				$day_of_week = date('D', strtotime(date("Y")."/".$DATA[$data_index][d1_DATE]));
-				
-				echo "<tr class=newday><th colspan=".$columns.">$day_of_week, ";
-				echo  hsc($DATA[$data_index][$DISPLAY_ORDER[0]])."</th></tr>\n";
+				echo "<tr class=newday><th colspan=".$columns.">";
+				echo "<span class=a_1>$day_of_week, ".hsc($DATA[$data_index][$DISPLAY_ORDER[0]]);
+				echo "</span></th></tr>\n";
 			}
-			
-			//get total number of weather aspects 	//##### selected to display
-			$aspects = count($DISPLAY_ORDER);
 			
 			//Show selected data...
 			echo "<tr>";
-			for ($aspect=1; $aspect < $aspects; $aspect++) {
+			
+			foreach ($DISPLAY_ORDER as $aspect) {
 				
-				//Always show Hour ($aspect 1)
-				if (($aspect > 1) && !in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) ) { continue; }
+				if ($aspect == d1_DATE ) { continue; } //Skip date column, it's shown as a header row. (above)
 				
-				if ($aspect < 2) {$td = "th";} else {$td = "td";} //header or data?
+				if ($aspect < 3) {$td = "th";} else {$td = "td";} //header (Date/Hour) or data (Temp, etc)?
 				
-				$aspect_class = ""; //used to adjust css for specific columns and/or weather data
+				$classes = "a_$aspect"; //used for show/hide option
 				
 				//Highlight rain% value if >= specified value.
-				if (($DISPLAY_ORDER[$aspect] == d1_RAIN) && ($data_index > 0) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) {
-					$aspect_class = "rain";
+				if (($aspect == d1_RAIN) && ($data_index > 0) && ($DATA[$data_index][d1_RAIN] >= $RAIN_THRESHOLD)) {
+					$classes .= " rain";
 				}
+				else if (($aspect == d1_WIND_DIR) && ($data_index > 0)) { $classes .= " wind_dir"; }
+				else if (($aspect == d1_FOG)) 							{ $classes .= " fog"; }
 				
-				//Adjust css for a couple of columns
-				if (($DISPLAY_ORDER[$aspect] == d1_WIND_DIR) && ($data_index >  0)) { $aspect_class = "wind_dir";}
-				if (($DISPLAY_ORDER[$aspect] == d1_FOG)) {$aspect_class = " fog";}
-				
-				//If both are blank, don't bother adding class='' to output.
-				$classes = trim("$hdr $aspect_class"); //Trimming whitespace...
-				if (($hdr) || ($aspect_class)) {$classes = " class='$classes'";}
+				$classes = "class='$classes'";
 				
 				//At 12 noon, change "12" to "noon"
-				if (($DISPLAY_ORDER[$aspect] == d1_HOUR) && ($DATA[$data_index][$DISPLAY_ORDER[$aspect]] == "12")) {
-					$DATA[$data_index][$DISPLAY_ORDER[$aspect]] = "Noon";
-				}
+				if (($aspect == d1_HOUR) && ($DATA[$data_index][$aspect] == "12")) {$DATA[$data_index][$aspect] = "Noon";}
 				
-				echo "<$td$classes>".hsc($DATA[$data_index][$DISPLAY_ORDER[$aspect]])."</$td>";
-			}//end for($aspect)
+				echo "<$td $classes>".hsc($DATA[$data_index][$aspect])."</$td>";
+			}//end foreach ($aspect)
 			echo "</tr>\n";
 		}//end for($data_index)
 	echo "</table>\n";
@@ -1089,7 +1103,7 @@ function Display_Weather_V($location) {//**************************************/
 
 function Display_Weather_H($location) {//**************************************/
 	//Display data in new Horizontal table, each column one hour.
-	global $COLOR, $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
+	global $DATA, $LOCATION_NAMES, $TESTING_MSG, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $DISPLAY_ORDER, $SELECTED_ASPECTS, $MESSAGES;
 		
 	echo "<table class=data>\n";
 		
@@ -1103,8 +1117,10 @@ function Display_Weather_H($location) {//**************************************/
 			//Highlight date & time rows. (First two rows.)
 			if ($tr < 2) {$hdr = "hdr";} else {$hdr = "";}
 			
-			//Only show (Date, Time), & selected aspects
-			if (!(($tr < 2) || in_array($DISPLAY_ORDER[$tr], $SELECTED_ASPECTS))) {continue;}
+			//##### Only show (Date, Time), & selected aspects
+			//##### if (!(($tr < 2) || in_array($DISPLAY_ORDER[$tr], $SELECTED_ASPECTS))) {continue;}
+			//Only show selected aspects
+			if (!in_array($DISPLAY_ORDER[$tr], $SELECTED_ASPECTS)) {continue;}
 			
 			echo "<tr>\n";
 			for ($data_index = 0; $data_index <= $HOURS_TO_SHOW; $data_index++) {
@@ -1149,7 +1165,7 @@ function Display_Weather_H($location) {//**************************************/
 
 
 function User_Options() {//****************************************************/
-	global	$COLOR, $DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
+	global	$DATA, $LOCATION_NAMES, $RAIN_THRESHOLD, $HOURS_TO_SHOW, $SHOW_LOCATIONS, $TEST_MODE,
 			$DISPLAY_H, $SELECTED_ASPECTS, $SHOW_RADAR, $DISPLAY_ORDER, $WRAP_MAP, $DONT_WRAP_MAP, $RADAR_VIEW,
 			$SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS;
 
@@ -1163,7 +1179,8 @@ function User_Options() {//****************************************************/
 		if (isset($SHOW_LOCATIONS[$key])) { $checked = " checked"; }
 		
 		if ($key > 0) {
-			//Pre-defined choices...
+			//Pre-defined locations - listed at top of Init();
+			//checkbox names need the indexes to match the values. ie: SHOW_LOCATIONS[1]=1
 			echo "<label>";
 			echo "	<input type=checkbox name=SHOW_LOCATIONS[".hsc($key)."] value=".hsc($key)." $checked>";
 			echo hsc($location_name)."";
@@ -1190,11 +1207,11 @@ function User_Options() {//****************************************************/
 	echo "\n<div id=WEATHER_OPTIONS class=options_group>\n";
 
 	echo "<span class=indent>Show:</span>\n";
-	//Skip Date & Hour (columns 0 & 1), start at Temp (column 2).
-	for ($aspect=2; $aspect < WASPECTS; $aspect++) {
+
+	for ($aspect=0; $aspect < WASPECTS; $aspect++) {
 		$checked = "";
 		if (in_array($DISPLAY_ORDER[$aspect], $SELECTED_ASPECTS) )	{ $checked = " checked"; }
-		echo "<label><input type=checkbox name=ASPECTS[$DISPLAY_ORDER[$aspect]] ";
+		echo "<label><input type=checkbox class=aspect_options  name=ASPECTS[] ";  //##### use name=ASPECTS[$DISPLAY_ORDER[$aspect]] ?
 		echo "value=".hsc($DISPLAY_ORDER[$aspect])."$checked>";
 		echo "<span class=label>".hsc($DATA[0][$DISPLAY_ORDER[$aspect]])."</span>";
 		echo "</label>\n";
@@ -1207,7 +1224,7 @@ function User_Options() {//****************************************************/
 	echo "\n<div id=DISPLAY_OPTIONS class=options_group>\n";
 
 
-	//Hours to display (12, 24, 36, 48, etc...)
+	//Hours to display (12, 24, 36, 48, etc...). Displayed in days: .5, 1, 1.5 2, etc...
 	$hours_options = "";
 	for ($option = HOURS_MIN; $option <= HOURS_MAX; $option += HOURS_INC) {
 		if ($HOURS_TO_SHOW == $option){ $selected = " selected"; } else {$selected = "";}
@@ -1219,7 +1236,7 @@ function User_Options() {//****************************************************/
 		if ($HOURS_TO_SHOW == HOURS_MAX){ $selected = " selected"; } else {$selected = "";}
 		$hours_options .= "<option value=".HOURS_MAX."$selected>".round(HOURS_MAX/24,1)."</option>\n";
 	}
-	echo "<label>Display &nbsp;<select name=HOURS_TO_SHOW>\n";
+	echo "<label>Display &nbsp;<select id=HOURS_TO_SHOW name=HOURS_TO_SHOW>\n";
 		echo $hours_options;
 	echo"</select> days</label>\n";
 
@@ -1244,8 +1261,8 @@ function User_Options() {//****************************************************/
 
 	//Show Radar option
 	$checked = "";
-	if ($SHOW_RADAR) { $checked = " checked"; }
-	echo "<label id=show_radar_label><input id=SHOW_RADAR type=checkbox name=SHOW_RADAR value=true$checked>Radar Map</label>\n\n";
+	if ($SHOW_RADAR) { $checked = "checked"; }
+	echo "<label id=show_radar_label><input id=SHOW_RADAR type=checkbox name=SHOW_RADAR $checked>Radar Map</label>\n\n";
 
 
 	if ($SHOW_RADAR) {
@@ -1256,7 +1273,7 @@ function User_Options() {//****************************************************/
 		echo "<label><input id=dont_wrap_map type=checkbox name=DONT_WRAP_MAP value=true$checked>Don't wrap map</label>\n\n";
 		
 		
-		//Radar "zoom" level:.
+		//Radar "zoom" level
 		$N0R_checked = ""; //N<ZERO>R   default  "Views out to 124 nmi" (~143 miles).
 		$N0Z_checked = ""; //N<ZERO>Z            "Views out to 248 nmi" (~286 miles).
 		if ($RADAR_VIEW == "N0Z") {$N0Z_checked = " checked"; } else {$N0R_checked = " checked";}
@@ -1266,9 +1283,13 @@ function User_Options() {//****************************************************/
 		echo "</span>\n";
 		echo "</span>";
 	}
+	else {
+		//Used by Show_Hide_Maps()
+		echo "<span id=radar0 style='display: inline-block'></span>\n";
+	}
 
 
-	/*** TEST MODE option ****./
+	/*** TEST MODE option ****/
 	$checked = "";
 	if ($TEST_MODE) {$checked = " checked";}
 	echo "\n<label id=test_mode>";
@@ -1285,8 +1306,13 @@ function User_Options() {//****************************************************/
 
 function Show_Radar($i=1) { //***************************************************/
 	// $i is 1 or 2, the "instance" of which radar to show. 1 is the default radar, 2 is custom site.
-	global $COLOR, $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT,
+	global $SELECTED_ASPECTS, $SHOW_LOCATIONS, $DISPLAY_H, $HOURS_TO_SHOW, $RADAR_VIEW, $WRAP_MAP, $IMG_CNT, $INIT_RADARS,
 	       $FRAME_RATE, $ROTATE_PAUSE, $ROTATE_LOOPS, $CUSTOM_RADAR_SITE, $SHOW_RADAR_OPTIONS, $LOCATION_FOUND, $RID;
+
+
+	//used in window.onload to, well, init the radar objects.
+	if (!isset($INIT_RADARS)) {$INIT_RADARS = "";}
+	$INIT_RADARS .= "Radar[$i] = Init_Radar(PIC_LIST[$i], '$i');\n";
 
 
 	if ($i == 2) {$default_img = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_0".RADAR_IMG_EXT;}
@@ -1328,7 +1354,7 @@ function Show_Radar($i=1) { //**************************************************
 			
 			<table id=IMGBAR_<?= $i ?> class=imgbar><tr><?= $imgbar_slots ?></tr></table>
 			
-			<button type=button id=SHOW_RADAR_OPTS_<?= $i ?> class=radar_opts_btn>Opt</button>
+			<button type=button id=SHOW_RADAR_OPTS_<?= $i ?> class=radar_opts_btn>&#9660;&#9650;</button>
 			<input type=hidden id=SHOW_RADAR_OPTIONS_<?= $i ?> name=SHOW_RADAR_OPTIONS[<?= $i ?>] value="<?= $SHOW_RADAR_OPTIONS[$i] ?>">
 		</div>
 		
@@ -1354,8 +1380,6 @@ function Show_Radar($i=1) { //**************************************************
 			<span id=LOOP_<?= $i ?> class="fine_print loops">( )</span>
 		</div>
 	</div>
-
-	<script>Radar[<?=$i ?>] = new Init_Radar(PIC_LIST[<?=$i ?>], "<?=$i ?>");</script>
 <?php
 }//end Show_Radar() //*********************************************************/
 
@@ -1363,8 +1387,7 @@ function Show_Radar($i=1) { //**************************************************
 
 
 
-function Radar_Loop_js_functions() { //****************************************/
-	global $COLOR;
+function js_Radar_Loop_functions() { //****************************************/
 ?>
 
 <script>
@@ -1465,13 +1488,15 @@ function Rotate_Pics(Pics, once, direction){ //***************************
 	}
 
 	Change_Pic(Pics, prior_pic, once);
-	
+
 	//Update/Increment .current_loop...
-	if (Pics.current_loop == 0) {Pics.current_loop = 1;} //First img change after page load.
-	else if ((Pics.current_pic == (Pics.pic_list.length - 1)) && (prior_pic === 0)) {Pics.current_loop++;} //##### Pics.running &&
+		//First img change after page load.
+	if (Pics.current_loop == 0) {Pics.current_loop = 1;}
+		//Add "Pics.running &&" to change counter only while running.
+	else if ((Pics.current_pic == (Pics.pic_list.length - 1)) && (prior_pic === 0)) {Pics.current_loop++;}
 	Pics.loop_displayed.innerHTML = "(" + Pics.current_loop + ")";
 
-	if (once) {if (Pics.running) {Start_Stop(Pics)} return}
+	if (once) {if (Pics.running) {Start_Stop(Pics);} return;}
 
 	//delay for setTimeout (time to next pic)
 	if ((Pics.current_pic == 0) && (Pics.current_loop >= Pics.loops.value)) {
@@ -1506,7 +1531,7 @@ function Change_Pic(Pics, prior_pic, once){ //****************************
 
 
 function Init_Radar(pic_list, instance) { //******************************
-	//Various element id's are suffixed with _<instance>.
+	//Various id's are suffixed with _<instance>.
 
 	var Pix 			= {};
 	Pix.instance 		= instance;
@@ -1547,7 +1572,7 @@ function Init_Radar(pic_list, instance) { //******************************
 
 	//Add events for imgbar click control
 	for (x=0; x < Pix.pic_list.length; x++) {
-		//Must use a self-invoking anonymous function (SIAF): it is invoked with the "(x)" at the end of it's line. 
+		//Must use a self-invoking anonymous function (SIAF): it is invoked with the "(x)" at the end of it's {block}. 
 		//The "x" from our for-loop is passed via the "(x)" argument to the SIAF's "xvalue" argument, which is then
 		//used as an arg for Imgbar_Click(). If it is not done this way, only the final value of x from the for-loop 
 		//get's passed to the event handler functions, not the value of x as the loop runs.
@@ -1567,81 +1592,69 @@ function Init_Radar(pic_list, instance) { //******************************
 	return Pix;
 }//end Init_Radar() //****************************************************
 </script>
+
 <?php
-}//end Radar_Loop_js_functions() //********************************************/
+}//end js_Radar_Loop_functions() //********************************************/
 
 
 
 
 
-function Init_Radar_URLs_etc_js() { //*****************************************/
-	global $COLOR, $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
+function js_Init_Radar_URLs_etc() { //*****************************************/
+	global $TEST_MODE, $RADAR_URL_BASE_SAMPLE, $RADAR_VIEW, $CUSTOM_RADAR_SITE, $IMG_CNT;
+
+
+	//Build js array of radar url's. Inserted below...
+	if ($TEST_MODE) { $radar_url_base_1 = $RADAR_URL_BASE_SAMPLE."1/SAMPLE_";
+					$radar_url_base_2 = $RADAR_URL_BASE_SAMPLE."2/SAMPLE_";
+	}
+	else            { $radar_url_base_1 = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_DEF."_";
+					$radar_url_base_2 = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_";
+	}
+
+	$pic_list_1 = $pic_list_2 = "";
+
+	for ($x=0; $x < $IMG_CNT; $x++){
+		$pic_list_1 .= 	"PIC_LIST[1][$x] = '{$radar_url_base_1}{$x}".RADAR_IMG_EXT."';\n";
+		
+		if ($CUSTOM_RADAR_SITE != "" ) {
+			$pic_list_2 .= 	"PIC_LIST[2][$x] = '{$radar_url_base_2}{$x}".RADAR_IMG_EXT."';\n";
+		}
+	}
 ?>
+
+
+
 <script>
-//************************************************************************/
-PLAY_BTN = "Play &nbsp; &#x25Ba;";  //# >  &#x25B7; &#x25ba;
-PAUS_BTN = "Pause  <b>| |</b>";     //# <b>| |</b> &#9616;&#9616;  &#10073;&#10073; &#9612;&#9612;   &#9015;&#9015;
-STOP_BTN = "STOP";
-CTRL_ICO = "Opt";
-//************************************************************************/
-
-
-
-
-
 //************************************************************************/
 //URL's for the 8 most recent radar images available from weather.gov
 //Load URL's into PIC_LIST[site][x]
 //site = radar site (1=default, 2=user supplied),   x = image 0 thru 7
 //image 0 is most recent, 7 is the oldest.
 
-<?php
-//*****************/
-if ($TEST_MODE) { $radar_url_base_1 = $RADAR_URL_BASE_SAMPLE."/1/SAMPLE_";
-				  $radar_url_base_2 = $RADAR_URL_BASE_SAMPLE."/2/SAMPLE_";
-}
-else            { $radar_url_base_1 = RADAR_URL_BASE.$RADAR_VIEW."/".RADAR_SITE_DEF."_";
-				  $radar_url_base_2 = RADAR_URL_BASE.$RADAR_VIEW."/".$CUSTOM_RADAR_SITE."_";
-}
-
-$IMG_CNT = 8;  //##### this needs to be determined by the number of images loaded.
-//*****************/
-?>
-
 var PIC_LIST	= [];
 	PIC_LIST[1] = []; //Default radar site
-	PIC_LIST[2] = []; //Radar site for user requested location.
-var IMG_CNT		= <?= $IMG_CNT ?>;
+	PIC_LIST[2] = []; //Radar site for user requested location, if present.
 
-for (var x = 0; x < IMG_CNT; x++) { PIC_LIST[1][x] = '<?= $radar_url_base_1 ?>' + x + '<?= RADAR_IMG_EXT ?>'; }
+<?= $pic_list_1; ?>
 
-if ('<?= $CUSTOM_RADAR_SITE ?>' != "" ) {
-	for (var x = 0; x < IMG_CNT; x++) { PIC_LIST[2][x] = '<?= $radar_url_base_2 ?>' + x + '<?= RADAR_IMG_EXT ?>';	}
-}
+<?= $pic_list_2; ?>
 //************************************************************************/
-
-
-
-
-//Radar objects instantiated at end of Show_Radar().
-//Radar[1] will be default, [2] will be user entered/custom site (if present).
-var Radar = [];
-
 </script>
 
 <?php
-}//end Init_Radar_URLs_etc_js() //*********************************************/
+}//end js_Init_Radar_URLs_etc() //*********************************************/
 
 
 
 
 
-function Prevent_Some_Keys_js() { //*******************************************/
+function js_Prevent_Some_Keys() { //*******************************************/
 ?>
 
 <script>
 //Called via onkeydown(). onkeypress returns different keyCode's, particularlly 39 for right arrow & quotes keys.
-function Prevent_Some_Keys(event) {
+function Prevent_Some_Keys(event) { //***********************************/
 	var key_code  = event.keyCode;
 
 	/*********************./
@@ -1649,7 +1662,7 @@ function Prevent_Some_Keys(event) {
 	//Detect either:  `=192  ==61 +=61  [=219 {=219 ]=221 }=221 \=220 |=220 ;=59  :=59  '=222 "=222 ?=191 /=191
 	//       numpad: /=111 *=106 +=107 .=110
 	/**********************/
-	
+
 	if (event.shiftKey && (
 		(key_code === 49) || (key_code === 50) || (key_code ===  51) || (key_code ===  52) || 
 		(key_code === 53) || (key_code === 54) || (key_code ===  55) || (key_code ===  56) || 
@@ -1664,20 +1677,21 @@ function Prevent_Some_Keys(event) {
 		{
 		event.preventDefault ? event.preventDefault() : (event.returnValue = false);
 	}
-}//end Prevent_Some_Keys()
+}//end Prevent_Some_Keys() //********************************************/
 </script>
+
 <?php
-}//end Prevent_Some_Keys_js() //***********************************************/
+}//end js_Prevent_Some_Keys() //***********************************************/
 
 
 
 
 
-function Time_Stamp_js() {//***************************************************/
+function js_Time_Stamp() {//***************************************************/
 ?>
 
 <script>
-function Time_Stamp(write_return){ //************************************/
+function Time_Stamp(write_return, target_id){ //*************************/
 	//returns Day, yyyy-mm-dd, hh:mm:ss am/pm
 
 	//older, simple timestamp:  m/d/yyy h:m:ssAM/PM
@@ -1700,24 +1714,248 @@ function Time_Stamp(write_return){ //************************************/
 
 	if (HOURS < 12) {AMPM = "am";} else {AMPM = "pm";}
 	if (HOURS > 12) {HOURS = HOURS - 12;}
-	
+
 	HOURS = pad(HOURS);
 
 	var FULLDATE = YEAR + "-" + MONTH + "-" + DATE;
 	var FULLTIME = HOURS + ":" + MINS + ":" + SECS + " " + AMPM;
-	
+
 	var TIMESTAMP = DAY + ", " + FULLDATE + ", " + FULLTIME;
 
 	if (write_return === "write") {
 		document.write(TIMESTAMP);
-	}else{
+	}
+	else if( write_return === "insert") {
+		document.getElementById(target_id).innerHTML = TIMESTAMP;
+	}
+
+	else{
 		return TIMESTAMP;
 	}
 }//end Time_Stamp() //****************************************************/
 </script>
 
 <?php
-}//end Time_Stamp_js() //******************************************************/
+}//end js_Time_Stamp() //******************************************************/
+
+
+
+
+
+function js_Main() {//*********************************************************/
+	global $INIT_RADARS;
+?>
+
+<script>
+//************************************************************************/
+PLAY_BTN = "Play &nbsp; &#x25Ba;";  //# >  &#x25B7; &#x25ba;
+PAUS_BTN = "Pause  <b>| |</b>";     //# <b>| |</b> &#9616;&#9616;  &#10073;&#10073; &#9612;&#9612;   &#9015;&#9015;
+STOP_BTN = "STOP";
+CTRL_ICO = "&#9660;&#9650;"; //&#9660;&#9650;  Opt
+//************************************************************************/
+
+
+
+
+function Stop_Propagation(event) { //*************************************
+	event.cancelBubble = true;
+	if (event.stopPropagation) {event.stopPropagation()}
+}//end Stop_Propagation(event) { //***************************************
+
+
+
+
+
+function Show_Hide_Maps(class_to_hide, ckbox_id) { //*********************
+
+	//Radar only available if it was available on page load.  If so, then hide/show without a reload.
+	//Otherwise...
+	if (document.getElementById('radar0') ) {
+		if (document.getElementById('radar0').innerHTML == "")
+			 {document.getElementById('radar0').innerHTML =  "Enter or click [Submit] to display radar maps.";}
+		else {document.getElementById('radar0').innerHTML =  "";}
+		return;
+	}
+
+	var maps 	  = document.getElementsByClassName(class_to_hide); //<elements> to show/hide
+	var show_maps = document.getElementById(ckbox_id).checked;
+
+	for (var x = 0; x < maps.length; x++){
+		if (show_maps) { maps[x].style["display"] = "inline-block"; }
+		else 		   { maps[x].style["display"] = "none"; }
+	}
+}//end Show_Hide_Maps() //************************************************
+
+
+
+
+
+function Show_Hide(id_show_hide, id_state, d_or_v, show, hide) {  //******
+
+	var ele	  = document.getElementById(id_show_hide); 	//<element> to show/hide
+	var state = document.getElementById(id_state); 		//<input> value = "checked" or ""
+
+	//ele    : element to show/hide
+	//state  : <input hidden> element.  Preserves state via form/URL value 
+	//d_or_v : "display" or "visibility"
+	//show   : "block", or "inline-block, or "table-cell", or "visible" etc...
+	//hide   : "none"  or  "hidden"
+
+	if (state.value == "") {
+		ele.style[d_or_v] = show; 		//<div>
+		state.value 	  = "checked"; 	//<input>
+	}
+	else {
+		ele.style[d_or_v] = hide; 		//<div>
+		state.value 	  = ""; 		//<input>
+	}
+
+}//end Show_Hide() //*****************************************************
+
+
+
+
+
+function Show_Hide_Aspect(ckbox) { //*************************************
+
+	var weather_aspects = document.querySelectorAll(".a_" + ckbox.value);
+
+	for (var i = 0; i < weather_aspects.length; i++)
+	{
+		if  (ckbox.checked && (weather_aspects[i].tagName == "SPAN"))   //for .newday header in Display_V()
+				{weather_aspects[i].style["display"]  = "inline";}
+		else if (ckbox.checked)											//for other td & th data cells
+				{weather_aspects[i].style["display"]  = "table-cell";}
+		else 	
+				{weather_aspects[i].style["display"]  = "none";}
+	}
+}//end Show_Hide_Aspect() //**********************************************
+
+
+
+
+
+function Focus(event) { //************************************************
+	//Simulate "hover" of various inputs when using keyboard/tabbing
+
+	//Only process tab and mouse clicks. (For radio button  options, arrow keys also fire onclick events.)
+	if ((event.keyCode != 9) && (event.type != "click")) {return}
+
+	//Normalize a couple things...
+	if (!event) 			   {var event = window.event;      } //for IE
+	if (event.srcElement)      {var target = event.srcElement; } //for IE
+	else 				       {var target = event.target;     }
+	if (target.nodeType == 3)  {    target = target.parentNode;} //for Safari
+
+	//Clear label bg for the previous checkbox...
+	if ((ACTIVE.tagName == "INPUT") || (ACTIVE.tagName == "SELECT")) {
+		ACTIVE.parentElement.classList.remove("active");
+	}
+
+	//Set the label bg for the new checkbox...
+	if ((target.tagName == "INPUT") || (target.tagName == "SELECT")) {
+		target.parentElement.classList.add("active");
+	}	
+
+	//Save for next tab/click
+	ACTIVE = target;
+
+}//end Focus() //*********************************************************
+
+
+
+
+
+function assign_events_to_aspect_checkboxes() { //************************
+	var weather_aspect = document.querySelectorAll(".aspect_options");
+	//var weather_aspect = document.getElementsByClassName('aspect_options'); //No go in IE8
+
+	for (var x = 0; x < weather_aspect.length; x++){
+		
+		( function(xvalue) { weather_aspect[xvalue].onclick = function() {
+			Show_Hide_Aspect(weather_aspect[xvalue]);
+		} } )(x);
+	}
+}//end assign_events_to_aspect_checkboxes() //****************************
+
+
+
+
+
+//##### ################################################################################
+function Log(something) { document.getElementById('TRACE_OUT').innerHTML += something; }
+//##### ################################################################################
+
+
+
+
+
+window.onload = function(){ //********************************************
+
+	//Used in function Focus(). Do not declare with var.  I don't know why, that's why.
+	ACTIVE = document.activeElement;
+
+
+	//Radar[1] will be the default, [2] will be user entered/custom site (if present).
+	var Radar = [];
+	<?= $INIT_RADARS ?>
+
+
+	assign_events_to_aspect_checkboxes();
+
+
+	document.onkeydown = function(event){Focus(event)}
+	document.onkeyup   = function(event){Focus(event)}
+	document.onclick   = function(event){Focus(event)}
+
+
+	document.getElementById('location_search').onkeydown = function(event){Prevent_Some_Keys(event)}
+	document.getElementById('default_ops').onclick = function(){parent.location = location.pathname};
+	document.getElementById('reset_btn').onclick   = function(){parent.location = location.href};
+	document.getElementById('submit2').focus();
+
+
+	Theme_Select 		  = document.getElementById('THEME')
+	Theme_Select.onchange = function() {document.getElementById('stylesheet').setAttribute('href',  "?CSS=" + this.value);}
+
+
+	Show_Radar 		   = document.getElementById('SHOW_RADAR'); //<checkbox>
+	Show_Radar.onclick = function() {Show_Hide_Maps("radar_div", "SHOW_RADAR");}
+
+
+	Show_Location_Opts 	 	   = document.getElementById("SHOW_LOCATION_OPTS"); //<button>
+	Show_Location_Opts.onclick = function() {Show_Hide("LOCATION_OPTIONS", "SHOW_LOCATION_OPTIONS", "display", "block", "none")}
+
+
+	Show_Weather_Opts 	 	  = document.getElementById("SHOW_WEATHER_OPTS"); 	//<button>
+	Show_Weather_Opts.onclick = function() {Show_Hide("WEATHER_OPTIONS", "SHOW_WEATHER_OPTIONS", "display", "block", "none")}
+
+
+	Show_Display_Opts 	 	  = document.getElementById("SHOW_DISPLAY_OPTS");   //<button>
+	Show_Display_Opts.onclick = function() {Show_Hide("DISPLAY_OPTIONS", "SHOW_DISPLAY_OPTIONS", "display", "block", "none")}
+
+
+
+	//If page is reloaded, makes sure form options state match the page contents. Mostly...
+	document.getElementById('options_form').reset();
+
+
+	//Show only columns for selected weather elements/aspects
+	//checked weather option checkboxes
+	var aspect_options = document.querySelectorAll(".aspect_options");
+	for (var aspect=0; aspect < 17; aspect++) { //aspect_options.length
+		if (aspect_options[aspect].checked) {Show_Hide_Aspect(aspect_options[aspect]);}
+	}
+
+
+	Time_Stamp('insert', 'timestamp');
+
+}//end window.onload //***************************************************
+
+</script>
+
+<?php
+}//end js_Main() //************************************************************/
 
 
 
@@ -1736,16 +1974,17 @@ function Header_crap() {//*****************************************************/
 
 
 
-function Styles() {//**********************************************************/
-	global $COLOR, $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP,
+function Style_Sheet() {//**********************************************************/
+	global $HOURS_TO_SHOW, $DISPLAY_H, $DONT_WRAP_MAP,
 		   $SHOW_RADAR_OPTIONS, $SHOW_LOCATION_OPTIONS, $SHOW_WEATHER_OPTIONS, $SHOW_DISPLAY_OPTIONS; 
 ?>
 
 <style>
 	/** @viewport{ zoom: 1.0; width: extend-to-zoom; }**/
 
+	/* //##### html *  ???? //##### */
 	html * { font-family: arial; box-sizing: border-box; }
-	
+
 	div { padding: 0; margin: 0 }
 	pre	{ font-family: courier; margin: 0; }
 	h2 	{ font-size: 1.5em; margin: 0; }
@@ -1777,9 +2016,9 @@ function Styles() {//**********************************************************/
 	#top_right { text-align: right; }
 
 	/*class for a couple, but not all, show/hide buttons*/
-	.show_hide {  padding: 0 .2em 0 0; margin: 0; XXXXheight: 18px; }
+	.show_hide {  padding: 0 .2em 0 0; margin: 0; }
 
-	#LOCATION_OPTIONS { display: none; } /** //##### {display: none/block} **/
+	#LOCATION_OPTIONS { display: none; } /* {display: none/block} */
 	#WEATHER_OPTIONS  { display: none; }
 	#DISPLAY_OPTIONS  { display: none; }
 	#MAP_OPTIONS	  { display: inline }
@@ -1795,6 +2034,8 @@ function Styles() {//**********************************************************/
 	.data th	{}
 	.data td	{ min-width: 2.5em; max-width: 3.7em; white-space: normal; } /*Default for V display.*/
 
+	[class^="a_"] { display: none } /* selected values will be changed to table-cell or span on page load*/
+
 	.newday	{ border-top: 1px solid } /*rgb(63,131,245)*/
 
 	.hdr		{ font-weight: bold; padding: 0 .3em;}
@@ -1806,14 +2047,18 @@ function Styles() {//**********************************************************/
 	.clouds		{}
 	.humidity	{}
 	.fog		{ max-width: 8em; padding: 0 .5em;}
+	.thndr		{}
+	.frz_rain	{}
+	.sleet		{}
+	.snow		{}
 
 	.not_found	{ border: 2px solid; font-weight: bold; text-align: center; } /*rgb(63,131,245)*/
 
 	.messages	{ border: 2px solid; display: inline-block; margin: 0 .5em .5em 0; width: 20em; }
 	.messages_H	{ border: 2px solid; display: inline-block; margin: 0 .5em .5em 0; }
-	
+
 	.indent		{ margin: 0 .5em }
-	
+
 	#wrap_map	 	  { white-space: nowrap; }
 
 	.submit_default { display: inline-block; float: right; border: solid 0px red;}
@@ -1823,24 +2068,24 @@ function Styles() {//**********************************************************/
 	#submit1 {}
 	#submit2 {margin-right: 3em}
 
-	#reset_btn		{ font-size: 70% }
-	#default_ops 	{ font-size: 70% }
-	
+	#reset_btn		{ }
+	#default_ops 	{ }
+
 	#radar_view		  { margin-left: 1em; }
 	#radar_view input { margin-left: .0em; margin-right: .0em; }
 	#radar_view label { }
 
 	.radar_div 		 { position: relative; display: inline-block; border: solid 0px #444; text-align: right; margin-bottom: .5em; white-space: normal;}
-	
+
 	.radar_controls	 { padding: 3px 0 3px 0; border: 0px solid #444; margin: 0;}
 
 	.start_stop 	 { width: 70px; padding: 0; margin: 0; float: left;  }
-	.radar_opts_btn	 { width: 36px; display: inline-block; float: right; }
+	.radar_opts_btn	 { width: 36px; display: inline-block; float: right; font-size: .75em; }
 
 	.imgbar			 { display: inline-block; margin: 0 5px 0 0; font-size: 75%;
 					   width: 472px; height: 23px; border-collapse: collapse; }
 	.imgbar td		 { width: 59px;  height: 23px; border: 1px solid #444; color: #777; text-align: center;  padding: 0; cursor: default}
-	
+
 	.radar_opts_div  { display: inline-block; visibility: hidden; white-space: nowrap; font-size: 92%;}
 	.radar_opts_div  { width: 513px;  padding: 0; margin: 0; border: solid 1px #444; text-align: left; }
 
@@ -1896,7 +2141,6 @@ function Styles() {//**********************************************************/
 	.messages_H			{ border-color    : rgb(10,80,200) }
 	.TESTING_MSG 		{ color 		  : red; }
 	/*******END DEFAULT THEME (mostly colors) **********/
-
 <?php
 	if ($SHOW_RADAR_OPTIONS[1] == "checked") { echo "	#RADAR_OPTIONS_1 {visibility: visible}\n";}
 	if ($SHOW_RADAR_OPTIONS[2] == "checked") { echo "	#RADAR_OPTIONS_2 {visibility: visible}\n\n";}
@@ -1911,11 +2155,8 @@ function Styles() {//**********************************************************/
 	//Adjust left margin for location name if hours < HOURS_MIN, so it's not out of box (if it's a long name).
 	if ($HOURS_TO_SHOW < HOURS_MIN) { echo ".location_name {margin-left: .2em;}\n";}
 
-
-	Set_Theme();
-
 echo "</style>\n\n";
-}//end Styles() ***************************************************************/
+}//end Style_Sheet() //*************************************************************/
 
 
 
@@ -1925,29 +2166,29 @@ echo "</style>\n\n";
 
 Init();
 
-Get_GET(); //needed before Styles(), Set_Theme(), User_Options()
+Load_Themes(); //Needed before Get_GET().
+
+Get_GET(); //needed before Style_Sheet(), Set_Theme(), User_Options()
 
 Header_crap();
 
-Styles();
-
-Time_Stamp_js();
-
-Prevent_Some_Keys_js();
-
+Style_Sheet(); //Defaults - place before any other stylesheets.
 
 ?>
+<link id=stylesheet rel='stylesheet' property='stylesheet' href='?CSS=<?= $THEME ?>'>
 <meta name="viewport" content="initial-scale=1">
+
 
 <form id=options_form name=USER_OPTIONS method=get>
 <?php
 
 
+
 //Top row options ********************************************
 $theme_options = "";
-foreach ($THEME_LIST as $key => $theme_name) {
+foreach ($THEMES['name'] as $key => $theme_name) {
 	if ($THEME == $key) {$selected = " selected";} else {$selected = "";}
-	$theme_options .= "<option value={$key}{$selected}>$key: {$theme_name}</option>\n";
+	$theme_options .= "\n<option value={$key}{$selected}>$key: {$theme_name}</option>";
 }
 ?>
 	<div class=options_group>
@@ -1982,21 +2223,23 @@ User_Options();
 //Time Stamp, Data Source, Theme Options, Default, Reset, & Submit buttons
 ?>
 <div id=timestamp_row>
-	<span id=timestamp><script>Time_Stamp('write');</script></span>
-	
+	<span id=timestamp></span>
 	(To "save" the current options, press Submit, then bookmark the page.)
-	
+
 	<span class=submit_default>
 		<button type=submit id=submit2 class=submit>Submit</button>
-		<button type=reset  id=reset_btn>Reset Current Options</button>
-		<button type=button id=default_ops>Default Options</button>
+		<button type=button id=reset_btn>Reload Current Options</button>
+		<button type=button id=default_ops>Load Default Options</button>
 	</span>
 </div><!-- End timestamp_row -->
 <?php
 
 
 
-if ($TEST_MODE) {echo "<div id=TRACE_OUT style='border: solid 1px red'>&gt;</div>\n";} //#####
+//##### 
+echo "<style>#TRACE_OUT {display: none; border: solid 1px red; font: .8em courier;}</style>";
+echo "<div id=TRACE_OUT>&gt;</div>\n";
+if ($TEST_MODE) {echo "<style>#TRACE_OUT {display: block;}</style>";}
 
 
 
@@ -2035,13 +2278,12 @@ echo "\n<div class=w_container id=weather_div>\n";
 	echo "</div>\n"; //end inner w_container around locations
 
 
+
 	if ($SHOW_RADAR) {
 		
-		//javascript radar functions...
-		Radar_Loop_js_functions();
-		Init_Radar_URLs_etc_js();
-		
-		if ($LOCATION_FOUND) {Show_Radar(2);} //custom site...
+		if ($LOCATION_FOUND) {
+			Show_Radar(2); //custom site...
+		} 
 		
 		if ( !$LOCATION_FOUND ||
 			( ($CUSTOM_RADAR_SITE != RADAR_SITE_DEF) && (count($SHOW_LOCATIONS) > 1) ) )
@@ -2061,156 +2303,26 @@ echo "\n<div class=w_container id=weather_div>\n";
 		}
 		echo "</div>";
 	}
-	else {
-		?>
-		<div id=radar0 style="display: inline-block"></div>
-		<?php
-	}
-	
-	
+
 echo "</div>\n"; //end w_container
 echo "</form>\n\n";
 
 
-
-
-
-
-
-
 ?>
-
-
-<script>
-function Stop_Propagation(event) { //*************************************
-	event.cancelBubble = true;
-	if (event.stopPropagation) {event.stopPropagation()}
-}//end Stop_Propagation(event) { //***************************************
-
-
-
-
-
-function Show_Hide_Maps(class_to_hide, ckbox_id) { //*********************
-
-	//Radar only available if available on page load.  If so, then can show/hide without a reload.
-	if (!<?= ($SHOW_RADAR*1) ?>) { document.getElementById('radar0').innerHTML = "Press [Submit] to display radar map."; }
-
-	var Check_Box = document.getElementById(ckbox_id);
-	var current_state  = Check_Box.value;	//Current show/hide state
-
-	var maps  = document.getElementsByClassName('radar_div'); 	//<elements> to show/hide
-
-	for (var x = 0; x < maps.length; x++){
-		
-		Check_Box.value = current_state; //reset to current state before each map, but not after LAST map.
-		
-		Show_Hide(maps[x].id, ckbox_id, "display", "inline-block", "none");
-	}
-
-}//end Show_Hide_Maps() //************************************************
-
-
-
-
-
-function Show_Hide(id_show_hide, id_state, d_or_v, show, hide) {  //******
-
-	var ele	  = document.getElementById(id_show_hide); 	//<element> to show/hide
-	var state = document.getElementById(id_state); 		//<input> value = "checked" or ""
-
-	//ele    : element to show/hide
-	//state  : <input hidden> element.  Preserves state via form/URL value 
-	//d_or_v : "display" or "visibility"
-	//show   : "block", or "inline-block, or "table-cell", or "visible" etc...
-	//hide   : "none"  or  "hidden"
-
-	if (state.value == "") {
-		ele.style[d_or_v] = show; 		//<div>
-		state.value 	  = "checked"; 	//<input>
-	}
-	else {
-		ele.style[d_or_v] = hide; 		//<div>
-		state.value 	  = ""; 		//<input>
-	}
-
-}//end Show_Hide() //*****************************************************
-
-
-
-
-
-function Focus(event) { //************************************************
-	//Simulate "hover" of various inputs when using keyboard/tabbing
-
-	//Only process tab and mouse clicks. (For radio button  options, arrow keys also fire onclick events.)
-	if ((event.keyCode != 9) && (event.type != "click")) {return}
-
-	//Normalize a couple things...
-	if (!event) 			   {var event = window.event;      } //for IE
-	if (event.srcElement)      {var target = event.srcElement; } //for IE
-	else 				       {var target = event.target;     }
-	if (target.nodeType == 3)  {    target = target.parentNode;} //for Safari
-
-	//Clear label bg for the previous checkbox...
-	if ((ACTIVE.tagName == "INPUT") || (ACTIVE.tagName == "SELECT")) {
-		ACTIVE.parentElement.classList.remove("active");
-	}
-
-	//Set the label bg for the new checkbox...
-	if ((target.tagName == "INPUT") || (target.tagName == "SELECT")) {
-		target.parentElement.classList.add("active");
-	}	
-
-	//Save for next tab/click
-	ACTIVE = target;
-
-}//end Focus() //*********************************************************
-
-
-
-
-
-//*** ASSIGN EVENTS (radar controls assigned in Init_Radar())*************
-document.onkeydown = function(event){Focus(event)}
-document.onkeyup   = function(event){Focus(event)}
-document.onclick   = function(event){Focus(event)}
-document.getElementById('location_search').onkeydown = function(event){Prevent_Some_Keys(event)}
-document.getElementById('default_ops').onclick = function(){parent.location = location.pathname};
-document.getElementById('submit2').focus();
-//##### document.getElementById('THEME').onchange = function(){document.getElementById('options_form').submit();}
-
-document.getElementById('SHOW_RADAR').onclick = function() {Show_Hide_Maps("radar_div", "SHOW_RADAR");}
-
-
-/***************/
-Show_Location_Opts 	 	   = document.getElementById("SHOW_LOCATION_OPTS"); //<button>
-Show_Location_Opts.onclick = function() {Show_Hide("LOCATION_OPTIONS", "SHOW_LOCATION_OPTIONS", "display", "block", "none")}
-
-
-/***************/
-Show_Weather_Opts 	 	  = document.getElementById("SHOW_WEATHER_OPTS"); 	//<button>
-Show_Weather_Opts.onclick = function() {Show_Hide("WEATHER_OPTIONS", "SHOW_WEATHER_OPTIONS", "display", "block", "none")}
-
-
-/***************/
-Show_Display_Opts 	 	  = document.getElementById("SHOW_DISPLAY_OPTS");   //<button>
-Show_Display_Opts.onclick = function() {Show_Hide("DISPLAY_OPTIONS", "SHOW_DISPLAY_OPTIONS", "display", "block", "none")}
-
-//************************************************************************
-
-
-
-
-
-//Element of, but Only if it's an <input> or <select>...
-var ACTIVE = document.activeElement;
-
-
-//If page is reloaded, make sure form options state match the page contents.
-window.onload = function(){Options_Form = document.getElementById('options_form');}
-</script>
+<div id=preloads></div> <!-- //##### -->
+<div style='clear: both; border: 2px outset gray; height: .5em; '>&nbsp;</div>
 <?php
+
+
+
+//Load & start the javascript...
+if ($SHOW_RADAR) { js_Init_Radar_URLs_etc(); js_Radar_Loop_functions(); }
+
+js_Prevent_Some_Keys();
+
+js_Time_Stamp();
+
+js_Main();
 //
 // end "Main" *****************************************************************/
 
@@ -2223,14 +2335,15 @@ window.onload = function(){Options_Form = document.getElementById('options_form'
 ################################################################################
 if ($TEST_MODE) {
 	//dump_array($var, $name="", $ECHO = 1, $PRE=1, $BRDR=1, $DSPLY=1, $VD=0, $LVL=0)
-	
+
 	dump_array($_GET			 ,'$_GET'			  ,1,1,1,2);
 	dump_array($SHOW_LOCATIONS   ,'$SHOW_LOCATIONS'   ,1,1,1,2);
 	dump_array($DEFAULT_ASPECTS  ,'$DEFAULT_$ASPECTS' ,1,1,1,2);
 	dump_array($SELECTED_ASPECTS ,'$SELECTED_$ASPECTS',1,1,1,2);
+	dump_array($DISPLAY_ORDER    ,'$DISPLAY_ORDER',1,1,1,2);
 	dump_array($LOCATION_NAMES   ,'$LOCATION_NAMES'   ,1,1,1,2);
 	dump_array($DATA			 ,'$DATA'			  ,1,1,1,2);
-	
+
 	?>
 	<div style="clear: both;"></div>
 	<style>
@@ -2246,15 +2359,6 @@ if ($TEST_MODE) {
 	//echo '<hr><pre>$RAW_HTML[4]: <br>'.hsc($RAW_HTML[4])."</pre>";  //##### 
 }
 ################################################################################
-
-
-?>
-<div id=preloads></div> <!--  //##### -->
-<div style='clear: both; border: 2px outset gray; height: .5em; '>&nbsp;</div>
-<?php
-
-
-
 ################################################################################
 /*******************************************************************************
 NOTES:
